@@ -2,7 +2,7 @@ import React from 'react'
 
 function SuperAdminOrgChart() {
   return (
-    <div>SuperAdminOrgChart</div>
+    <div>SuperAdminOrgChart new</div>
   )
 }
 
