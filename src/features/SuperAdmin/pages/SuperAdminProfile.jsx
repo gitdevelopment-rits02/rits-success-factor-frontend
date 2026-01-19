@@ -2,7 +2,7 @@ import React from 'react'
 
 function SuperAdminProfile() {
   return (
-    <div>SuperAdminProfile</div>
+    <div>SuperAdminProfile new</div>
   )
 }
 
