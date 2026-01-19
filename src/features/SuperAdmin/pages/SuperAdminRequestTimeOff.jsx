@@ -2,7 +2,7 @@ import React from 'react'
 
 function SuperAdminRequestTimeOff() {
   return (
-    <div>SuperAdminRequestTimeOff new</div>
+    <div>SuperAdminRequestTimeOff new 2</div>
   )
 }
 
