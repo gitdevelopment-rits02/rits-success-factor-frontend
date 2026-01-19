@@ -1,11 +1,9 @@
 import React from 'react'
 
-const OtpValidation = () => {
+function OtpValidation() {
   return (
-    <div>
-      
-    </div>
+    <div>OtpValidation new</div>
   )
 }
 
-export default OtpValidation
+export default OtpValidation;
