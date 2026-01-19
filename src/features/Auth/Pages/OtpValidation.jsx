@@ -2,7 +2,7 @@ import React from 'react'
 
 function OtpValidation() {
   return (
-    <div>OtpValidation</div>
+    <div>OtpValidation new</div>
   )
 }
 
