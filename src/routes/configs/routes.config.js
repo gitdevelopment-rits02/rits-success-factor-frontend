@@ -22,11 +22,16 @@ export const ROUTES = {
     GROWTHPORTFOLIO: '/superadmin/growthportfolio',//corrct
     MANAGELEAVE: '/superadmin/manageleave',//correct
     PERSONALTIMESHEET: '/superadmin/personaltimesheet',//correct
+    DASHBOARD:'/superadmin/dashboard',
+    ADMINCREATION:'/superadmin/admincreation',
+    ADMINMANAGEMENT:'/superadmin/adminmanagement',
+    ORG:'/superadmin/org',
+    POLICIES:'/superadmin/policies',
+    PAYROLL:'/superadmin/payroll'
   },
 
   
  MANAGER: {
-    TIMESHEETAPPROVAL: "/manager/timesheetapproval",
     CLOCKMYTIME: "/manager/clockmytime",
     REQUESTTIMEOFF: "/manager/requesttimeoff",
     PROFILE: "/manager/profile",
