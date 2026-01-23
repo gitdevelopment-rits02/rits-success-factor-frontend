@@ -51,10 +51,7 @@ export default function Dashboard() {
     <div className="min-h-screen bg-blue-50/50 p-4 md:p-8 text-slate-700 font-sans">
       {/* Header */}
       <header className="mb-8 flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div>
-          <h1 className="text-3xl font-bold text-blue-900">CorpPulse</h1>
-          <p className="text-blue-500 font-medium">Organization Insights • April 24, 2026</p>
-        </div>
+       
         
         <div className="relative group">
           <FiSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-blue-400" />
