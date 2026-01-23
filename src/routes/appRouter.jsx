@@ -72,16 +72,7 @@ export default function AppRouter() {
         ))}
       </Route>
 
-      {/* Employee */}
-      {/* <Route path="/employee" element={<EmployeeLayout />}>
-        {employeeRoutes.map((r) => (
-          <Route
-            key={r.path}
-            path={r.path.replace("/employee/", "")}
-            element={r.element}
-          />
-        ))}
-      </Route> */}
+      
       <Route path="/employee" element={<EmployeeLayout />}>
   {employeeRoutes.map((r) => (
     <Route key={r.path} path={r.path} element={r.element} />

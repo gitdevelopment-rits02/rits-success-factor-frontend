@@ -2,7 +2,7 @@ import React from 'react'
 
 function SuperAdminGrowthPortfolio() {
   return (
-    <div>SuperAdminGrowthPortfolio</div>
+    <div>SuperAdminGrowthPortfolio Company performance</div>
   )
 }
 
