@@ -51,6 +51,15 @@ const AdminLayout = () => {
     path: "/superadmin/profile",
     icon: HiOutlineUserCircle,
   },
+
+{
+    name: "Approval Flow",
+    path: "/superadmin/approvalflow",
+    icon: HiOutlineUsers,
+  },
+
+
+
   {
     name: "Manage My Team",
     path: "/superadmin/managemyteam",

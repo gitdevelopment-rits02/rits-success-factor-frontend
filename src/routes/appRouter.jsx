@@ -52,11 +52,15 @@ import { employeeRoutes } from "./modules/employee.routes";
 
 import AdminLayout from "../layouts/adminLayout";
 import EmployeeLayout from "../layouts/employeeLayout";
-
+import { landingRoutes } from "./modules/landing.routes";
 export default function AppRouter() {
   return (
     <Routes>
       {/* Auth routes */}
+      {/* LANDING PAGE */}
+        {landingRoutes.map((r, i) => (
+          <Route key={i} path={r.path} element={r.element} />
+        ))}
       {authRoutes.map((r) => (
         <Route key={r.path} path={r.path} element={r.element} />
       ))}

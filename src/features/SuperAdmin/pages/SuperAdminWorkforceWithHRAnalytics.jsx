@@ -1,235 +1,248 @@
 import React from "react";
 import {
   Chart as ChartJS,
-  ArcElement,
-  Tooltip,
-  Legend,
   CategoryScale,
   LinearScale,
   BarElement,
+  Tooltip,
 } from "chart.js";
 import { Bar } from "react-chartjs-2";
 import {
   HiUsers,
   HiUserPlus,
   HiCalendarDays,
-  HiMagnifyingGlass,
-  HiBell,
-  HiChevronDown,
 } from "react-icons/hi2";
 
-ChartJS.register(
-  ArcElement,
-  Tooltip,
-  Legend,
-  CategoryScale,
-  LinearScale,
-  BarElement
-);
+ChartJS.register(CategoryScale, LinearScale, BarElement, Tooltip);
 
-export default function PerfectHRDashboard() {
-  /* ---------------- CHART DATA ---------------- */
-  const departmentData = {
-    labels: ["Sales", "Marketing", "Engineering", "Support"],
-    datasets: [
-      {
-        data: [80, 45, 70, 60],
-        backgroundColor: "#3b82f6",
-        borderRadius: 8,
-        barThickness: 28,
-      },
-    ],
-  };
-
+export default function HRDashboardRedesign() {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-blue-100 p-8 font-sans text-slate-800">
+    <div className="min-h-screen bg-slate-100 px-10 py-8 text-slate-800 font-sans">
+      {/* PAGE TITLE */}
+      <header className="mb-8">
+        <h1 className="text-2xl font-bold tracking-tight">HR Dashboard</h1>
+        <p className="text-sm text-slate-500">
+          Workforce overview & approvals
+        </p>
+      </header>
 
-      {/* ================= TOP NAV ================= */}
-      {/* <div className="flex justify-between items-center mb-8">
-        <h1 className="text-2xl font-bold text-slate-900">HR Dashboard</h1>
-        <div className="flex items-center gap-6">
-          <HiMagnifyingGlass className="text-slate-400 text-xl cursor-pointer" />
-          <div className="relative">
-            <HiBell className="text-slate-400 text-xl cursor-pointer" />
-            <span className="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] w-4 h-4 flex items-center justify-center rounded-full">
-              3
-            </span>
-          </div>
-          <div className="flex items-center gap-2 cursor-pointer">
-            <img
-              src="https://i.pravatar.cc/150?u=hr-admin"
-              className="w-10 h-10 rounded-full border-2 border-white shadow-sm"
-              alt="profile"
-            />
-            <HiChevronDown className="text-slate-400" />
-          </div>
-        </div>
-      </div> */}
+      <div className="grid grid-cols-12 gap-8">
+        {/* LEFT SIDEBAR */}
+        <aside className="col-span-3 space-y-6">
+          <Stat
+            icon={HiUserPlus}
+            label="New today"
+            value="5"
+            delta="+1"
+          />
+          <Stat
+            icon={HiUsers}
+            label="This week"
+            value="32"
+            delta="+2"
+          />
+          <Stat
+            icon={HiUsers}
+            label="Total employees"
+            value="1,204"
+          />
 
-      {/* ================= MAIN GRID ================= */}
-      <div className="grid grid-cols-12 gap-6">
-
-        {/* LEFT COLUMN */}
-        <div className="col-span-3 space-y-6">
-          <StatCard icon={HiUserPlus} title="New Joining Today" value="05" sub="+1" />
-          <StatCard icon={HiUsers} title="New Joining This Week" value="32" sub="+2" />
-          <StatCard icon={HiUsers} title="Total Employees" value="1,204" />
-
-          <Card title="Upcoming Leave">
-            <div className="space-y-4">
-              <LeaveRow name="John Doe" sub="Half Day · April 3" active />
-              <LeaveRow name="Jane Smith" sub="Vacation · April 8–12" />
-              <ActionLink label="Show all" />
-            </div>
+          <Card title="Upcoming leave">
+            <Leave name="John Doe" sub="Half day · Apr 3" active />
+            <Leave name="Jane Smith" sub="Vacation · Apr 8–12" />
+            <button className="mt-4 text-sm text-blue-600 font-medium hover:underline">
+              View all →
+            </button>
           </Card>
-        </div>
+        </aside>
 
-        {/* CENTER COLUMN */}
-        <div className="col-span-6 space-y-6">
-
-          {/* CALENDAR */}
-          <Card
-            title="April 2024"
-            headerAction={
-              <div className="flex gap-2">
-                <button className="px-2 py-1 border rounded">+</button>
-                <button className="px-2 py-1 border rounded">{"<"}</button>
-                <button className="px-2 py-1 border rounded">{">"}</button>
-              </div>
-            }
-          >
+        {/* MAIN */}
+        <main className="col-span-6 space-y-8">
+          <Card>
             <Calendar />
           </Card>
 
-          {/* ✅ DEPARTMENT SPLIT — MOVED HERE */}
-          <Card title="Departmental Split">
-            <div className="h-48">
+          <Card title="Department distribution">
+            <div className="h-52">
               <Bar
-                data={departmentData}
+                data={{
+                  labels: ["Sales", "Marketing", "Engineering", "Support"],
+                  datasets: [
+                    {
+                      data: [80, 45, 70, 60],
+                      backgroundColor: "#2563eb",
+                      borderRadius: 6,
+                      barThickness: 28,
+                    },
+                  ],
+                }}
                 options={{
                   maintainAspectRatio: false,
-                  plugins: { legend: { display: false } },
+                  plugins: {
+                    tooltip: {
+                      callbacks: {
+                        label: (ctx) => `${ctx.raw} employees`,
+                      },
+                    },
+                  },
                   scales: {
-                    x: { grid: { display: false }, border: { display: false } },
+                    x: { grid: { display: false } },
                     y: { display: false },
                   },
                 }}
               />
             </div>
           </Card>
+        </main>
 
-        </div>
+        {/* RIGHT */}
+        <aside className="col-span-3">
+          <div className="bg-blue-600 rounded-xl p-6 text-white shadow-lg">
+            <h3 className="font-semibold mb-6">Pending actions</h3>
 
-        {/* RIGHT COLUMN */}
-        <div className="col-span-3 space-y-6">
-
-          <div className="bg-blue-500 text-white rounded-[2rem] p-8 shadow-xl">
-            <h3 className="font-semibold text-lg mb-6">Pending Actions</h3>
-            <div className="space-y-4">
-              <div>
-                <span className="text-4xl font-bold">2</span>
-                <span className="ml-2 text-blue-200">Timesheets</span>
-              </div>
-              <div>
-                <span className="text-4xl font-bold">9</span>
-                <span className="ml-2 text-blue-200">Leave Approvals</span>
-              </div>
+            <div className="space-y-5">
+              <Metric value="2" label="Timesheets" />
+              <Metric value="9" label="Leave approvals" />
             </div>
-            <button className="mt-8 bg-white/10 hover:bg-white/20 px-6 py-2 rounded-xl text-sm w-full">
-              View all
+
+            <button className="mt-8 w-full bg-white text-blue-600 font-semibold py-2 rounded-lg hover:bg-blue-50">
+              Review now
             </button>
           </div>
-
-          {/* <Card title="Offline Employee Log">
-            <div className="space-y-5">
-              <LogRow name="John Doe" time="8:30 H:M" />
-              <LogRow name="Jane Smith" time="4:15 H:M" />
-              <LogRow name="Mike Johnson" time="1:50 H:M" />
-            </div>
-          </Card> */}
-
-        </div>
+        </aside>
       </div>
     </div>
   );
 }
 
-/* ================= COMPONENTS ================= */
+/* ---------------- UI BLOCKS ---------------- */
 
-const Card = ({ title, children, headerAction }) => (
-  <div className="bg-white/80 backdrop-blur rounded-[2rem] p-6 shadow-sm border border-blue-50">
-    <div className="flex justify-between items-center mb-4">
-      <h3 className="font-bold text-slate-800 text-lg">{title}</h3>
-      {headerAction}
-    </div>
+const Card = ({ title, children }) => (
+  <div className="bg-white rounded-xl p-6 border border-slate-200">
+    {title && (
+      <h3 className="font-semibold text-slate-900 mb-4">{title}</h3>
+    )}
     {children}
   </div>
 );
 
-const StatCard = ({ icon: Icon, title, value, sub }) => (
-  <div className="bg-white rounded-[1.5rem] p-5 flex items-center gap-4 shadow-sm border border-blue-50">
-    <div className="w-14 h-14 rounded-2xl bg-blue-50 flex items-center justify-center">
-      <Icon className="text-blue-600" size={26} />
+const Stat = ({ icon: Icon, label, value, delta }) => (
+  <div className="bg-white rounded-xl p-5 border border-slate-200 flex gap-4">
+    <div className="w-10 h-10 rounded-lg bg-slate-100 flex items-center justify-center">
+      <Icon className="text-slate-600" size={20} />
     </div>
     <div>
-      <p className="text-xs font-semibold text-slate-500 uppercase">{title}</p>
-      <div className="flex items-baseline gap-2">
-        <p className="text-2xl font-bold">{value}</p>
-        {sub && <span className="text-sm font-bold text-green-500">{sub}</span>}
+      <p className="text-xs uppercase font-medium text-slate-500">
+        {label}
+      </p>
+      <div className="flex items-end gap-2">
+        <span className="text-2xl font-bold">{value}</span>
+        {delta && (
+          <span className="text-xs font-semibold text-green-600">
+            {delta}
+          </span>
+        )}
       </div>
     </div>
   </div>
 );
 
-const LeaveRow = ({ name, sub, active }) => (
-  <div className="flex items-center gap-4">
+const Leave = ({ name, sub, active }) => (
+  <div className="flex items-center gap-3 mb-4">
     <div
-      className={`w-10 h-10 rounded-full flex items-center justify-center ${
-        active ? "bg-blue-600 text-white" : "bg-blue-100 text-blue-600"
+      className={`w-9 h-9 rounded-full flex items-center justify-center ${
+        active
+          ? "bg-blue-600 text-white"
+          : "bg-slate-100 text-slate-600"
       }`}
     >
-      <HiCalendarDays size={20} />
+      <HiCalendarDays size={18} />
     </div>
     <div>
-      <p className="font-bold text-sm">{name}</p>
+      <p className="text-sm font-semibold">{name}</p>
       <p className="text-xs text-slate-500">{sub}</p>
     </div>
   </div>
 );
 
-const LogRow = ({ name, time }) => (
-  <div className="flex justify-between text-sm">
-    <span className="font-semibold">{name}</span>
-    <span className="text-slate-400 font-mono">{time}</span>
-  </div>
-);
-
-const ActionLink = ({ label }) => (
-  <button className="text-sm text-blue-600 font-bold hover:underline">
-    {label} →
-  </button>
-);
-
-const Calendar = () => (
+const Metric = ({ value, label }) => (
   <div>
-    <div className="grid grid-cols-7 text-[10px] font-bold text-slate-400 uppercase mb-4 text-center">
-      {["Sun","Mon","Tue","Wed","Thu","Fri","Sat"].map(d => (
-        <div key={d}>{d}</div>
-      ))}
-    </div>
-    <div className="grid grid-cols-7 gap-y-2 text-center text-sm">
-      {[...Array(30)].map((_, i) => (
-        <div
-          key={i}
-          className={`h-10 flex items-center justify-center rounded-lg ${
-            i === 20
-              ? "bg-blue-100 text-blue-600 ring-1 ring-blue-200"
-              : "text-slate-400"
-          }`}
-        >
-          {i + 1}
-        </div>
-      ))}
-    </div>
+    <span className="text-3xl font-bold">{value}</span>
+    <span className="ml-2 text-blue-200">{label}</span>
   </div>
 );
+
+/* ---------------- CALENDAR ---------------- */
+
+const Calendar = () => {
+  const [date, setDate] = React.useState(new Date());
+  const year = date.getFullYear();
+  const month = date.getMonth();
+
+  const firstDay = new Date(year, month, 1).getDay();
+  const daysInMonth = new Date(year, month + 1, 0).getDate();
+  const today = new Date();
+
+  const days = [];
+  for (let i = 0; i < firstDay; i++) days.push(null);
+  for (let d = 1; d <= daysInMonth; d++)
+    days.push(new Date(year, month, d));
+
+  const isToday = (d) =>
+    d &&
+    d.getDate() === today.getDate() &&
+    d.getMonth() === today.getMonth() &&
+    d.getFullYear() === today.getFullYear();
+
+  return (
+    <div>
+      <div className="flex justify-between items-center mb-5">
+        <h3 className="font-semibold">
+          {date.toLocaleString("default", {
+            month: "long",
+            year: "numeric",
+          })}
+        </h3>
+        <div className="flex gap-2">
+          <button
+            onClick={() => setDate(new Date(year, month - 1, 1))}
+            className="px-2 py-1 border rounded hover:bg-slate-100"
+          >
+            ‹
+          </button>
+          <button
+            onClick={() => setDate(new Date(year, month + 1, 1))}
+            className="px-2 py-1 border rounded hover:bg-slate-100"
+          >
+            ›
+          </button>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-7 text-xs text-slate-400 mb-2 text-center">
+        {["Sun","Mon","Tue","Wed","Thu","Fri","Sat"].map(d => (
+          <div key={d}>{d}</div>
+        ))}
+      </div>
+
+      <div className="grid grid-cols-7 gap-2 text-center">
+        {days.map((d, i) => (
+          <div
+            key={i}
+            className={`h-10 flex items-center justify-center rounded-lg cursor-pointer
+              ${
+                d
+                  ? isToday(d)
+                    ? "bg-blue-600 text-white font-semibold shadow"
+                    : "hover:bg-slate-100 text-slate-700"
+                  : ""
+              }`}
+          >
+            {d ? d.getDate() : ""}
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+};
+
