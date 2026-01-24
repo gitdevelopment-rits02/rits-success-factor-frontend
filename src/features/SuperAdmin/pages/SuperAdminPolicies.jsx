@@ -1,237 +1,280 @@
-import { useState } from "react";
-import {
-  FiCalendar,
-  FiCheckCircle,
-  FiRepeat,
-  FiClock,
-  FiBriefcase,
-  FiMoreVertical,
-} from "react-icons/fi";
 
-export default function LeavePolicies() {
-  const [selectedPolicy, setSelectedPolicy] = useState(null);
-  const [showTextarea, setShowTextarea] = useState(false);
-  const [openMenu, setOpenMenu] = useState(null);
+import React, { useState } from 'react';
+import { MdAdd, MdEdit, MdDelete, MdClose } from 'react-icons/md';
 
-  const policies = [
-    {
-      id: 1,
-      title: "Leave Types & Categories",
-      icon: FiCalendar,
-      overview:
-        "Defines different types of leave such as casual, sick, earned, and unpaid leave available to employees.",
-      rules: [
-        "Each leave type has an annual quota",
-        "Unused casual leave expires at year end",
-        "Sick leave beyond two days requires medical proof",
+/* ------------------ INITIAL DATA ------------------ */
+
+const initialPolicies = [
+  {
+    id: 'security-policy',
+    title: 'New Security Policy on Data Sharing',
+    type: 'Security',
+    status: 'Active',
+    effectiveFrom: '2024-01-01',
+    sections: [
+      {
+        number: '1',
+        title: 'Purpose',
+        content:
+          'This policy aims to establish guidelines for secure and responsible data sharing within the organization.',
+      },
+      {
+        number: '2',
+        title: 'Scope',
+        content:
+          'This policy covers all employees, contractors, interns, and third parties handling organizational data.',
+      },
+      {
+        number: '3',
+        title: 'Definitions',
+        content:
+          'Data: Any information in digital form.\nSensitive Data: Confidential, Secret, or Top Secret information.',
+      },
+      {
+        number: '4',
+        title: 'Policy Guidelines',
+        content:
+          '• All data must be classified.\n• Confidential data must be encrypted.\n• Access is granted on a need-to-know basis.',
+      },
+    ],
+  },
+];
+
+/* ------------------ COMPONENT ------------------ */
+
+const SuperAdminPolicies = () => {
+  const [policies, setPolicies] = useState(initialPolicies);
+  const [selectedPolicy, setSelectedPolicy] = useState(initialPolicies[0]);
+
+  const [modalOpen, setModalOpen] = useState(false);
+  const [mode, setMode] = useState('add');
+  const [form, setForm] = useState(emptyForm());
+
+  function emptyForm() {
+    return {
+      id: '',
+      title: '',
+      type: '',
+      status: 'Draft',
+      effectiveFrom: '',
+      sections: [],
+    };
+  }
+
+  /* ------------------ ACTIONS ------------------ */
+
+  const openAdd = () => {
+    setMode('add');
+    setForm(emptyForm());
+    setModalOpen(true);
+  };
+
+  const openEdit = () => {
+    setMode('edit');
+    setForm(JSON.parse(JSON.stringify(selectedPolicy)));
+    setModalOpen(true);
+  };
+
+  const savePolicy = () => {
+    if (!form.title || !form.type || form.sections.length === 0) {
+      alert('Title, type, and at least one section are required');
+      return;
+    }
+
+    if (mode === 'add') {
+      const newPolicy = {
+        ...form,
+        id: crypto.randomUUID(),
+      };
+      setPolicies((p) => [...p, newPolicy]);
+      setSelectedPolicy(newPolicy);
+    } else {
+      setPolicies((p) =>
+        p.map((pol) => (pol.id === form.id ? form : pol))
+      );
+      setSelectedPolicy(form);
+    }
+
+    setModalOpen(false);
+  };
+
+  const deletePolicy = () => {
+    if (!window.confirm('Delete this policy permanently?')) return;
+
+    const remaining = policies.filter((p) => p.id !== selectedPolicy.id);
+    setPolicies(remaining);
+    setSelectedPolicy(remaining[0] || null);
+  };
+
+  const addSection = () => {
+    setForm({
+      ...form,
+      sections: [
+        ...form.sections,
+        {
+          number: String(form.sections.length + 1),
+          title: '',
+          content: '',
+        },
       ],
-      applicability: "Applicable to all full-time employees.",
-      notes:
-        "HR can customize leave visibility and naming per department.",
-    },
-    {
-      id: 2,
-      title: "Leave Accrual Rules",
-      icon: FiCheckCircle,
-      overview:
-        "Specifies how leave balances accumulate over time based on policy configuration.",
-      rules: [
-        "Leave accrues monthly",
-        "Accrual is prorated for mid-month joiners",
-        "Maximum accrual cap is enforced",
-      ],
-      applicability: "Applies to permanent and contractual employees.",
-      notes:
-        "Accrual runs automatically via scheduled system jobs.",
-    },
-    {
-      id: 3,
-      title: "Carry Forward Rules",
-      icon: FiRepeat,
-      overview:
-        "Controls how unused leave balances are carried forward to the next year.",
-      rules: [
-        "Only earned leave is eligible",
-        "Carry forward limit applies",
-        "Excess leave is lapsed automatically",
-      ],
-      applicability: "Confirmed employees only.",
-      notes:
-        "Carry forward is executed during year-end rollover.",
-    },
-    {
-      id: 4,
-      title: "Attendance Rules",
-      icon: FiBriefcase,
-      overview:
-        "Defines how employee attendance is tracked, validated, and processed.",
-      rules: [
-        "Minimum daily working hours required",
-        "Late arrivals affect attendance score",
-        "Missing punches are flagged",
-      ],
-      applicability: "All employees using attendance tracking.",
-      notes:
-        "Integrates with biometric and manual attendance systems.",
-    },
-    {
-      id: 5,
-      title: "Shifts & Grace Periods",
-      icon: FiClock,
-      overview:
-        "Defines work shifts, grace periods, and late/early entry rules.",
-      rules: [
-        "Multiple shifts can be configured",
-        "Grace period applies once per day",
-        "Shift changes require admin approval",
-      ],
-      applicability: "Shift-based employees.",
-      notes:
-        "Shift assignments can be automated or manual.",
-    },
-  ];
+    });
+  };
+
+  const updateSection = (i, key, value) => {
+    const updated = [...form.sections];
+    updated[i][key] = value;
+    setForm({ ...form, sections: updated });
+  };
+
+  /* ------------------ UI ------------------ */
 
   return (
-    <div className="min-h-screen bg-[#F6FAFE] p-8">
-      {/* HEADER */}
-      <h1 className="text-2xl font-semibold text-slate-900">
-        Leave & Carry Forward Policies
-      </h1>
-      <p className="text-slate-500 mt-1">
-        Define and manage policies related to leave and attendance.
-      </p>
+    <div className="flex h-screen bg-slate-50">
 
-      <div className="mt-6 grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* LEFT COLUMN */}
-        <div className="lg:col-span-2 space-y-6">
-          {/* POLICY LIST */}
-          <div className="rounded-xl bg-white shadow-sm divide-y">
-            {policies.map((p) => (
-              <div key={p.id} className="relative">
-                <button
-                  onClick={() => {
-                    setSelectedPolicy(p);
-                    setOpenMenu(null);
-                  }}
-                  className={`w-full text-left flex justify-between items-start px-4 py-4 
-                    hover:bg-[#F6FAFE] focus:outline-none
-                    ${
-                      selectedPolicy?.id === p.id
-                        ? "bg-[#F6FAFE]"
-                        : ""
-                    }
-                  `}
-                >
-                  <div className="flex gap-3">
-                    <p.icon className="mt-1 text-blue-500" size={22} />
-                    <div>
-                      <h3 className="font-medium text-slate-900">
-                        {p.title}
-                      </h3>
-                      <p className="text-sm text-slate-500">
-                        Click to view full policy details
-                      </p>
-                    </div>
-                  </div>
-                </button>
+      {/* LEFT */}
+      <div className="w-96 bg-white border-r">
+        <div className="p-4 border-b flex justify-between">
+          <b>Policies</b>
+          <button
+            onClick={openAdd}
+            className="bg-blue-600 text-white px-3 py-1 rounded text-sm flex items-center gap-1"
+          >
+            <MdAdd /> New
+          </button>
+        </div>
 
-                {/* 3 DOT MENU */}
-                <FiMoreVertical
-                  className="absolute right-4 top-6 cursor-pointer text-slate-400"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setOpenMenu(openMenu === p.id ? null : p.id);
-                  }}
-                />
-
-                {openMenu === p.id && (
-                  <div className="absolute right-4 top-12 w-40 rounded-md border bg-white shadow-md text-sm z-10">
-                    <div
-                      className="px-3 py-2 hover:bg-slate-100 cursor-pointer"
-                      onClick={() => {
-                        setSelectedPolicy(p);
-                        setOpenMenu(null);
-                      }}
-                    >
-                      View details
-                    </div>
-                    <div className="px-3 py-2 hover:bg-slate-100 cursor-pointer">
-                      Edit policy
-                    </div>
-                    <div className="px-3 py-2 hover:bg-slate-100 cursor-pointer">
-                      Duplicate
-                    </div>
-                    <div className="px-3 py-2 hover:bg-slate-100 text-red-600 cursor-pointer">
-                      Archive
-                    </div>
-                  </div>
-                )}
-              </div>
-            ))}
-          </div>
-
-          {/* POLICY DETAILS */}
-          {selectedPolicy && (
-            <div className="rounded-xl bg-white shadow-sm p-6">
-              <h2 className="text-xl font-semibold text-slate-900">
-                {selectedPolicy.title}
-              </h2>
-
-              <div className="mt-4 space-y-4 text-sm text-slate-700">
-                <section>
-                  <h3 className="font-medium text-slate-900">
-                    Overview
-                  </h3>
-                  <p>{selectedPolicy.overview}</p>
-                </section>
-
-                <section>
-                  <h3 className="font-medium text-slate-900">Rules</h3>
-                  <ul className="list-disc pl-5">
-                    {selectedPolicy.rules.map((r, i) => (
-                      <li key={i}>{r}</li>
-                    ))}
-                  </ul>
-                </section>
-
-                <section>
-                  <h3 className="font-medium text-slate-900">
-                    Applicability
-                  </h3>
-                  <p>{selectedPolicy.applicability}</p>
-                </section>
-
-                <section>
-                  <h3 className="font-medium text-slate-900">Notes</h3>
-                  <p>{selectedPolicy.notes}</p>
-                </section>
+        <div className="p-4 space-y-2">
+          {policies.map((p) => (
+            <div
+              key={p.id}
+              onClick={() => setSelectedPolicy(p)}
+              className={`p-3 border rounded cursor-pointer ${
+                selectedPolicy?.id === p.id
+                  ? 'bg-blue-50 border-blue-400'
+                  : ''
+              }`}
+            >
+              <b>{p.title}</b>
+              <div className="text-xs text-slate-500">
+                {p.type} • {p.status}
               </div>
             </div>
-          )}
-        </div>
-
-        {/* RIGHT COLUMN */}
-        <div className="rounded-xl bg-white shadow-sm p-5 h-fit">
-          <h2 className="text-lg font-semibold text-slate-900">
-            Create New Policy
-          </h2>
-
-          {!showTextarea ? (
-            <button
-              onClick={() => setShowTextarea(true)}
-              className="mt-4 w-full rounded-md bg-blue-600 py-2 text-white hover:bg-blue-700"
-            >
-              Start from scratch
-            </button>
-          ) : (
-            <textarea
-              rows={8}
-              placeholder="Write the full policy description here..."
-              className="mt-4 w-full rounded-md border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
-          )}
+          ))}
         </div>
       </div>
+
+      {/* RIGHT */}
+      {selectedPolicy && (
+        <div className="flex-1 p-10 bg-white overflow-y-auto">
+          <div className="max-w-4xl mx-auto">
+
+            <div className="flex justify-between mb-6">
+              <h1 className="text-2xl font-bold text-center w-full">
+                {selectedPolicy.title}
+              </h1>
+              <div className="flex gap-2">
+                <button onClick={openEdit} className="text-blue-600">
+                  <MdEdit />
+                </button>
+                <button onClick={deletePolicy} className="text-red-600">
+                  <MdDelete />
+                </button>
+              </div>
+            </div>
+
+            {selectedPolicy.sections.map((s, i) => (
+              <div key={i} className="mb-6">
+                <h2 className="font-bold">
+                  {s.number}. {s.title}
+                </h2>
+                <p className="text-sm text-slate-700 whitespace-pre-line mt-2">
+                  {s.content}
+                </p>
+              </div>
+            ))}
+
+          </div>
+        </div>
+      )}
+
+      {/* MODAL */}
+      {modalOpen && (
+        <div className="fixed inset-0 bg-black/40 flex items-center justify-center">
+          <div className="bg-white w-full max-w-2xl p-6 rounded-xl space-y-4">
+
+            <div className="flex justify-between">
+              <b>{mode === 'add' ? 'Add Policy' : 'Edit Policy'}</b>
+              <button onClick={() => setModalOpen(false)}>
+                <MdClose />
+              </button>
+            </div>
+
+            <input
+              placeholder="Title"
+              value={form.title}
+              onChange={(e) =>
+                setForm({ ...form, title: e.target.value })
+              }
+              className="w-full border p-2 rounded"
+            />
+
+            <input
+              placeholder="Type"
+              value={form.type}
+              onChange={(e) =>
+                setForm({ ...form, type: e.target.value })
+              }
+              className="w-full border p-2 rounded"
+            />
+
+            {form.sections.map((s, i) => (
+              <div key={i} className="border p-3 rounded space-y-2">
+                <input
+                  placeholder="Section Title"
+                  value={s.title}
+                  onChange={(e) =>
+                    updateSection(i, 'title', e.target.value)
+                  }
+                  className="w-full border p-2 rounded"
+                />
+                <textarea
+                  placeholder="Section Content"
+                  value={s.content}
+                  onChange={(e) =>
+                    updateSection(i, 'content', e.target.value)
+                  }
+                  className="w-full border p-2 rounded h-28"
+                />
+              </div>
+            ))}
+
+            <button
+              onClick={addSection}
+              className="border px-3 py-1 rounded text-sm"
+            >
+              + Add Section
+            </button>
+
+            <div className="flex gap-3 pt-2">
+              <button
+                onClick={savePolicy}
+                className="flex-1 bg-blue-600 text-white py-2 rounded"
+              >
+                Save
+              </button>
+              <button
+                onClick={() => setModalOpen(false)}
+                className="flex-1 border py-2 rounded"
+              >
+                Cancel
+              </button>
+            </div>
+
+          </div>
+        </div>
+      )}
     </div>
   );
-}
+};
+
+export default SuperAdminPolicies;

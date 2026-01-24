@@ -65,6 +65,26 @@ const EmployeeLayout = () => {
       path: "/employee/timesheet",
       icon: HiOutlineClipboardDocumentList,
     },
+    {
+      name: "Dashboard",
+      path: "/employee/dashboard",
+      icon: HiOutlineClipboardDocumentList,
+    },
+    {
+        name: "Notification",
+      path: "/employee/notification",
+      icon: HiOutlineClipboardDocumentList,
+    },
+     {
+        name: "Policy Documents",
+      path: "/employee/policydocuments",
+      icon: HiOutlineClipboardDocumentList,
+    },
+
+
+
+
+    
   ];
 
   return (

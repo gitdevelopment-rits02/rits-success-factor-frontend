@@ -15,7 +15,7 @@ import SuperAdminPolicies from "../../features/SuperAdmin/pages/SuperAdminPolici
 
 import SuperAdminPayroll from "../../features/SuperAdmin/pages/SuperAdminPayroll";
 
-
+import SuperAdminApprovalFlow from "../../features/SuperAdmin/pages/SuperAdminApprovalFlow";
 
 
 export const superAdminRoutes = [
@@ -34,6 +34,7 @@ export const superAdminRoutes = [
      {path:ROUTES.SUPERADMIN.ORG,element: <SuperAdminOrg />},
       {path:ROUTES.SUPERADMIN.POLICIES,element: <SuperAdminPolicies />},
       {path:ROUTES.SUPERADMIN.PAYROLL,element: <SuperAdminPayroll />},
+      {path:ROUTES.SUPERADMIN.APPROVALFLOW,element: <SuperAdminApprovalFlow />}
      
 
 

@@ -27,7 +27,8 @@ export const ROUTES = {
     ADMINMANAGEMENT:'/superadmin/adminmanagement',
     ORG:'/superadmin/org',
     POLICIES:'/superadmin/policies',
-    PAYROLL:'/superadmin/payroll'
+    PAYROLL:'/superadmin/payroll',
+    APPROVALFLOW:'/superadmin/approvalflow'
   },
 
   
@@ -68,15 +69,21 @@ HR: {
 EMPLOYEE: {
     CLOCKMYTIME: "/employee/clockmytime",
     REQUESTTIMEOFF: "/employee/requesttimeoff",
-    PROFILE: "/employee/profile",
+    VIEWMYPROFILE: "/employee/profile",
     ORGCHART: "/employee/orgchart",
     GROWTHPORTFOLIO:"/employee/growthportfolio",
     FEEDBACK: "/employee/feedback",
     LEARNING: "/employee/learning",
     PAYSLIPS: "/employee/payslips",
-    TIMESHEET:"/employee/timesheet"
+    TIMESHEET:"/employee/timesheet",
+    DASHBOARD:"/employee/dashboard",
+    NOTIFICATION:"/employee/notification",
+    POLICYDOCUMENTS:"/employee/policydocuments"
+
+
 },
 
 
  
 };
+
