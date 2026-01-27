@@ -18,8 +18,24 @@ import AdminSideNav from "../features/SuperAdmin/components/SuperAdminSideNav";
 const AdminLayout = () => {
   const [collapsed, setCollapsed] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
-  const dispatch = useDispatch(); 0
+  const dispatch = useDispatch(); 
   const navItems = [
+    {
+    name: "Dashboard",
+    path: "/superadmin/dashboard",
+    icon: HiOutlineClipboardDocumentList,
+  },
+   {
+    name: "Admin Creation",
+    path: "/superadmin/admincreation",
+    icon: HiOutlineClock,
+  },
+
+   {
+    name: "Admin Management",
+    path: "/superadmin/adminmanagement",
+    icon: HiOutlineClock,
+  },
   {
     name: "Timesheet Approval",
     path: "/superadmin/timesheetapproval",
@@ -35,6 +51,15 @@ const AdminLayout = () => {
     path: "/superadmin/profile",
     icon: HiOutlineUserCircle,
   },
+
+{
+    name: "Approval Flow",
+    path: "/superadmin/approvalflow",
+    icon: HiOutlineUsers,
+  },
+
+
+
   {
     name: "Manage My Team",
     path: "/superadmin/managemyteam",
@@ -60,6 +85,22 @@ const AdminLayout = () => {
     path: "/superadmin/personaltimesheet",
     icon: HiOutlineClock,
   },
+  {
+    name: "Organization",
+    path: "/superadmin/org",
+    icon: HiOutlineClock,
+  },
+ {
+    name: "Policies",
+    path: "/superadmin/policies",
+    icon: HiOutlineClock,
+  },
+  {
+    name: "Payroll",
+    path: "/superadmin/payroll",
+    icon: HiOutlineClock,
+  },
+ 
 ];
 
 

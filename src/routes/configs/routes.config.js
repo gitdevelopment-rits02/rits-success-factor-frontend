@@ -22,11 +22,17 @@ export const ROUTES = {
     GROWTHPORTFOLIO: '/superadmin/growthportfolio',//corrct
     MANAGELEAVE: '/superadmin/manageleave',//correct
     PERSONALTIMESHEET: '/superadmin/personaltimesheet',//correct
+    DASHBOARD:'/superadmin/dashboard',
+    ADMINCREATION:'/superadmin/admincreation',
+    ADMINMANAGEMENT:'/superadmin/adminmanagement',
+    ORG:'/superadmin/org',
+    POLICIES:'/superadmin/policies',
+    PAYROLL:'/superadmin/payroll',
+    APPROVALFLOW:'/superadmin/approvalflow'
   },
 
   
  MANAGER: {
-    TIMESHEETAPPROVAL: "/manager/timesheetapproval",
     CLOCKMYTIME: "/manager/clockmytime",
     REQUESTTIMEOFF: "/manager/requesttimeoff",
     PROFILE: "/manager/profile",
@@ -63,15 +69,21 @@ HR: {
 EMPLOYEE: {
     CLOCKMYTIME: "/employee/clockmytime",
     REQUESTTIMEOFF: "/employee/requesttimeoff",
-    PROFILE: "/employee/profile",
+    VIEWMYPROFILE: "/employee/profile",
     ORGCHART: "/employee/orgchart",
     GROWTHPORTFOLIO:"/employee/growthportfolio",
     FEEDBACK: "/employee/feedback",
     LEARNING: "/employee/learning",
     PAYSLIPS: "/employee/payslips",
-    TIMESHEET:"/employee/timesheet"
+    TIMESHEET:"/employee/timesheet",
+    DASHBOARD:"/employee/dashboard",
+    NOTIFICATION:"/employee/notification",
+    POLICYDOCUMENTS:"/employee/policydocuments"
+
+
 },
 
 
  
 };
+

@@ -60,6 +60,11 @@ import EmployeeFeedBack from "../../features/Employee/pages/EmployeeFeedBack";
 import EmployeeLearning from "../../features/Employee/pages/EmployeeLearning";
 import EmployeePaySlips from "../../features/Employee/pages/EmployeePaySlips";
 import EmployeeTimeSheet from "../../features/Employee/pages/EmployeeTimeSheet";
+import EmployeeDashboard from "../../features/Employee/pages/EmployeeDashboard";
+import EmployeeNotification from "../../features/Employee/pages/EmployeeNotification";
+import EmployeePolicyDocuments from "../../features/Employee/pages/EmployeePolicyDocuments";
+
+
 
 export const employeeRoutes = [
   { path: "clockmytime", element: <EmployeeClockMyTime /> },
@@ -71,4 +76,13 @@ export const employeeRoutes = [
   { path: "learning", element: <EmployeeLearning /> },
   { path: "payslips", element: <EmployeePaySlips /> },
   { path: "timesheet", element: <EmployeeTimeSheet /> },
+   { path: "dashboard", element: <EmployeeDashboard /> },
+  { path: "notification", element: <EmployeeNotification /> },
+  { path: "policydocuments", element: <EmployeePolicyDocuments /> },
+
+
+
+
+
 ];
+
