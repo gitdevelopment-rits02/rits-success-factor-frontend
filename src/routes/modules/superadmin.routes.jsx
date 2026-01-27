@@ -16,7 +16,7 @@ import SuperAdminPolicies from "../../features/SuperAdmin/pages/SuperAdminPolici
 import SuperAdminPayroll from "../../features/SuperAdmin/pages/SuperAdminPayroll";
 
 import SuperAdminApprovalFlow from "../../features/SuperAdmin/pages/SuperAdminApprovalFlow";
-
+import SuperAdminFeedback from "../../features/SuperAdmin/pages/SuperAdminFeedback";
 
 export const superAdminRoutes = [
      { path: ROUTES.SUPERADMIN.TIMESHEETAPPROVAL, element: <SuperAdminTimeSheetApproval /> },
@@ -34,7 +34,8 @@ export const superAdminRoutes = [
      {path:ROUTES.SUPERADMIN.ORG,element: <SuperAdminOrg />},
       {path:ROUTES.SUPERADMIN.POLICIES,element: <SuperAdminPolicies />},
       {path:ROUTES.SUPERADMIN.PAYROLL,element: <SuperAdminPayroll />},
-      {path:ROUTES.SUPERADMIN.APPROVALFLOW,element: <SuperAdminApprovalFlow />}
+      {path:ROUTES.SUPERADMIN.APPROVALFLOW,element: <SuperAdminApprovalFlow />},
+      {path:ROUTES.SUPERADMIN.FEEDBACK,element: <SuperAdminFeedback />}
      
 
 

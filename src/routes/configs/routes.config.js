@@ -28,24 +28,33 @@ export const ROUTES = {
     ORG:'/superadmin/org',
     POLICIES:'/superadmin/policies',
     PAYROLL:'/superadmin/payroll',
-    APPROVALFLOW:'/superadmin/approvalflow'
+    APPROVALFLOW:'/superadmin/approvalflow',
+    FEEDBACK:'/superadmin/feedback',
+
   },
 
   
  MANAGER: {
-    CLOCKMYTIME: "/manager/clockmytime",
+    CLOCKMYTIME: "/manager/clockmytime",//(not w)
     REQUESTTIMEOFF: "/manager/requesttimeoff",
     PROFILE: "/manager/profile",
     // MANAGEMYTEAM: "/manager/managemyteam",
     ORGCHART: "/manager/orgchart",
-    GROWTHPORTFOLIO:"/manager/growthportfolio",
+  
     FEEDBACK: "/manager/feedback",
     LEARNING: "/manager/learning",
     PAYSLIPS: "/manager/payslips",
-    TEAMABSENCE: "/manager/teamabsence",
-    MANAGEMYTEAM: "/manager/managemyteam",
     MANAGELEAVE: "/manager/manageleave",
-    TIMESHEET:"/manager/timesheet"
+    TIMESHEET:"/manager/timesheet",
+    DASHBOARD:"/manager/dashboard",
+    NOTIFICATION:"/manager/notification",
+    TIMESHEETREVIEW:"/manager/timesheetreview",
+    TASKANDPROJECT:"/manager/taskandproject",
+    PERFORMANCEMANAGEMENT:"/manager/performancereview",
+    POLICIES:"/manager/policies",
+    INSURANCE:"/manager/insurance",
+    LEAVEAPPROVAL:"/manager/leaveapproval",
+
 },
 
 
@@ -72,7 +81,7 @@ EMPLOYEE: {
     VIEWMYPROFILE: "/employee/profile",
     ORGCHART: "/employee/orgchart",
     GROWTHPORTFOLIO:"/employee/growthportfolio",
-    FEEDBACK: "/employee/feedback",
+    INSURANCE: "/employee/insurance",
     LEARNING: "/employee/learning",
     PAYSLIPS: "/employee/payslips",
     TIMESHEET:"/employee/timesheet",

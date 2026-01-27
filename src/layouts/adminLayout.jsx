@@ -100,6 +100,11 @@ const AdminLayout = () => {
     path: "/superadmin/payroll",
     icon: HiOutlineClock,
   },
+  {
+    name: "Feedback",
+    path: "/superadmin/feedback",
+    icon: HiOutlineClock,
+  },
  
 ];
 
