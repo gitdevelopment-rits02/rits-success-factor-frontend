@@ -25,7 +25,7 @@ function ForgotPassword() {
           </div>
 
           
-<div className="w-full flex justify-center mb-3 sm:mb-5">
+          <div className="w-full flex justify-center mb-3 sm:mb-5">
               <div className="w-full max-w-xs sm:max-w-sm md:max-w-md lg:max-w-lg xl:max-w-xl mx-auto scale-[0.85] sm:scale-100 md:scale-[1.05] lg:scale-[1.15] xl:scale-[1.2] transition-transform">
                 <img
                   src={theme}
