@@ -31,6 +31,12 @@ const ManagerLayout = () => {
     path: "/manager/requesttimeoff",
     icon: HiOutlineClock,
   },
+  {
+    name:"Task Assignment",
+    path:"/manager/taskassignment",
+    icon: HiOutlineClock,
+
+  },
 
    {
     name: "Profile",
@@ -95,12 +101,17 @@ const ManagerLayout = () => {
  
  {
     name: "Policies",
-    path: "",
+    path: "/manager/policies",
     icon: HiOutlineClock,
   },
   {
     name: "FeedBackOfEmployee",
     path: "/manager/feedback",
+    icon: HiOutlineClock,
+  },
+  {
+    name: "TimeSheetReview",
+    path: "/manager/timesheetreview",
     icon: HiOutlineClock,
   },
   

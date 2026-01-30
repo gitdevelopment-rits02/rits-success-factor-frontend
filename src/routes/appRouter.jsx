@@ -106,11 +106,11 @@ import { superAdminRoutes } from "./modules/superadmin.routes";
 import { employeeRoutes } from "./modules/employee.routes";
 import { managerRoutes } from "./modules/manager.routes"; // Added this import
 import { landingRoutes } from "./modules/landing.routes";
-
+import  hrRoutes  from "./modules/hr.routes";
 import AdminLayout from "../layouts/adminLayout";
 import ManagerLayout from "../layouts/managerLayout";
 import EmployeeLayout from "../layouts/employeeLayout";
-
+import HrLayout from  "../layouts/hrLayout";
 export default function AppRouter() {
   return (
     <Routes>
@@ -139,6 +139,16 @@ export default function AppRouter() {
           <Route
             key={r.path}
             path={r.path.replace("/manager/", "")}
+            element={r.element}
+          />
+        ))}
+      </Route>
+
+      <Route path="/hr" element={<HrLayout />}>
+        {hrRoutes.map((r) => (
+          <Route
+            key={r.path}
+            path={r.path.replace("/hr/", "")}
             element={r.element}
           />
         ))}

@@ -1,9 +1,39 @@
 import React from "react";
 import background from "../../../assets/background.png";
 import theme from "../../../assets/theme1.png";
+import { Link } from "react-router-dom";
 
 function Login() {
   return (
+  <>
+
+    {/* ===== HEADER (PUT THIS FIRST) ===== */}
+    <header className="w-full bg-white shadow-sm fixed top-0 left-0 z-50">
+      <div className="max-w-7xl mx-auto flex items-center justify-between px-6 py-4">
+        <div className="flex items-center gap-2">
+          <div className="h-8 w-8 rounded-full bg-orange-500 flex items-center justify-center text-white font-bold">
+            R
+          </div>
+          <div>
+            <h1 className="font-bold text-lg text-gray-900">
+              RitsSucessFactor
+            </h1>
+            <p className="text-xs text-gray-500">Enterprise Solution</p>
+          </div>
+        </div>
+
+        <Link
+          to="/register"
+          className="text-sm font-semibold text-orange-600 hover:underline"
+        >
+          Create account
+        </Link>
+      </div>
+    </header>
+
+    {/* ===== PAGE CONTENT (YOUR EXISTING CODE) ===== */}
+    
+      {/* <div className="min-h-screen w-full flex flex-col lg:flex-row items-center justify-center lg:pl-20 xl:pl-28"></div> */}
     <div
       className="min-h-screen w-full bg-cover bg-center"
       style={{ backgroundImage: `url(${background})` }}
@@ -24,16 +54,16 @@ function Login() {
             ))}
           </div>
 
-          
-<div className="w-full flex justify-center mb-3 sm:mb-5">
-              <div className="w-full max-w-xs sm:max-w-sm md:max-w-md lg:max-w-lg xl:max-w-xl mx-auto scale-[0.85] sm:scale-100 md:scale-[1.05] lg:scale-[1.15] xl:scale-[1.2] transition-transform">
-                <img
-                  src={theme}
-                  alt="Restaurant Illustration"
-                  className="w-full h-auto object-contain drop-shadow-md"
-                />
-              </div>
+
+          <div className="w-full flex justify-center mb-3 sm:mb-5">
+            <div className="w-full max-w-xs sm:max-w-sm md:max-w-md lg:max-w-lg xl:max-w-xl mx-auto scale-[0.85] sm:scale-100 md:scale-[1.05] lg:scale-[1.15] xl:scale-[1.2] transition-transform">
+              <img
+                src={theme}
+                alt="Restaurant Illustration"
+                className="w-full h-auto object-contain drop-shadow-md"
+              />
             </div>
+          </div>
 
 
           {/* Text */}
@@ -90,12 +120,13 @@ function Login() {
                 <label className="text-[11px] sm:text-sm font-semibold text-gray-700">
                   Password
                 </label>
-                <a
-                  href="#"
+                <Link
+                  to="/forgotpassword"
                   className="text-[11px] sm:text-xs text-orange-600 hover:underline"
                 >
                   Forgot Password?
-                </a>
+                </Link>
+
               </div>
               <input
                 type="password"
@@ -118,6 +149,7 @@ function Login() {
 
       </div>
     </div>
+    </>
   );
 }
 
