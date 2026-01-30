@@ -288,11 +288,11 @@ const SuperAdminOrgChart = ({ employees = MOCK_EMPLOYEES }) => {
                                 <div key={child.id} className="flex flex-col items-center relative">
                                     {!isSingle && (
                                         <>
-                                            <div className={`absolute top-0 right-1/2 h-px bg-blue-100 ${isFirst ? 'hidden' : 'w-[calc(50%+1rem)]'}`}></div>
-                                            <div className={`absolute top-0 left-1/2 h-px bg-blue-100 ${isLast ? 'hidden' : 'w-[calc(50%+1rem)]'}`}></div>
+                                            <div className={`absolute top-0 right-1/2 h-px bg-blue-200 ${isFirst ? 'hidden' : 'w-[calc(50%+1rem)]'}`}></div>
+                                            <div className={`absolute top-0 left-1/2 h-px bg-blue-200 ${isLast ? 'hidden' : 'w-[calc(50%+1rem)]'}`}></div>
                                         </>
                                     )}
-                                    <div className="w-px h-6 bg-blue-100"></div>
+                                    <div className="w-px h-6 bg-blue-200"></div>
                                     {renderNode(child)}
                                 </div>
                             );
@@ -395,7 +395,7 @@ const SuperAdminOrgChart = ({ employees = MOCK_EMPLOYEES }) => {
             </div>
 
             <div className="flex-1 relative overflow-hidden flex bg-transparent">
-                <div className={`flex-1 relative overflow-auto custom-scrollbar ${viewMode === 'chart' ? 'bg-[radial-gradient(#cbd5e1_1px,transparent_1px)] [background-size:20px_20px]' : ''}`}>
+                <div className={`flex-1 relative overflow-auto custom-scrollbar ${viewMode === 'chart' ? 'bg-[radial-gradient(#14202e_1px,transparent_1px)] [background-size:20px_20px]' : ''}`}>
                     {viewMode === 'chart' ? (
                         <div className="absolute inset-0 p-20 min-w-max min-h-max flex justify-center items-start">
                             <div className="transition-all duration-300 origin-top h-fit" style={{ zoom: zoom }}>
@@ -413,7 +413,7 @@ const SuperAdminOrgChart = ({ employees = MOCK_EMPLOYEES }) => {
                 {viewMode === 'chart' && (
                     <div className="absolute bottom-8 left-8 flex flex-col items-center bg-white/70 backdrop-blur-xl rounded-2xl shadow-[0_10px_30px_rgba(0,0,0,0.08)] border border-blue-100 p-1.5 z-[70]">
                         <button onClick={() => setZoom(z => Math.min(z + 0.1, 1.5))} className="p-2.5 bg-white text-blue-600 rounded-xl hover:bg-blue-50 hover:shadow-inner transition-all border border-blue-50"><FiPlus size={14} strokeWidth={3} /></button>
-                        <div className="py-2.5 text-[10px] font-black text-gray-500 w-full text-center tracking-tighter">{Math.round(zoom * 100)}%</div>
+                        {/* <div className="py-2.5 text-[10px] font-black text-gray-500 w-full text-center tracking-tighter">{Math.round(zoom * 100)}%</div> */}
                         <button onClick={() => setZoom(z => Math.max(z - 0.1, 0.5))} className="p-2.5 bg-white text-blue-600 rounded-xl hover:bg-blue-50 hover:shadow-inner transition-all border border-blue-50"><FiMinus size={14} strokeWidth={3} /></button>
                     </div>
                 )}
