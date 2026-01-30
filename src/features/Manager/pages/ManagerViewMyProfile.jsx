@@ -20,29 +20,29 @@ import {
   FiMonitor,
 } from "react-icons/fi";
 import theme from "../../../assets/background.png"
-
+ 
 const CURRENT_ROLE = "employee"; // employee | admin | hr
-
+ 
 export default function EmployeeProfilePage() {
   const canEdit = CURRENT_ROLE === "admin" || CURRENT_ROLE === "hr";
-
+ 
   const [avatar, setAvatar] = useState(
     localStorage.getItem("employee_avatar")
   );
-
+ 
   const [documents, setDocuments] = useState({
     certificate: localStorage.getItem("employee_certificate"),
     idProof: localStorage.getItem("employee_idProof"),
   });
-
+ 
   const [viewDoc, setViewDoc] = useState({
   certificate: !!localStorage.getItem("employee_certificate"),
   idProof: !!localStorage.getItem("employee_idProof"),
 });
-
+ 
 const [fullscreenDoc, setFullscreenDoc] = useState(null);
-
-
+ 
+ 
   const profile = {
     name: "Daniel Smith",
     role: "HR Lead",
@@ -57,12 +57,12 @@ const [fullscreenDoc, setFullscreenDoc] = useState(null);
     workLocation: "Corporate HQ",
     annualCTC: "₹18.00 LPA",
   };
-
+ 
   const handleImageUpload = (e) => {
     if (!canEdit) return;
     const file = e.target.files[0];
     if (!file) return;
-
+ 
     const reader = new FileReader();
     reader.onload = () => {
       setAvatar(reader.result);
@@ -70,12 +70,12 @@ const [fullscreenDoc, setFullscreenDoc] = useState(null);
     };
     reader.readAsDataURL(file);
   };
-
+ 
   const handleDocUpload = (type, e) => {
     if (!canEdit) return;
     const file = e.target.files[0];
     if (!file) return;
-
+ 
     const reader = new FileReader();
     reader.onload = () => {
       setDocuments((prev) => ({
@@ -86,22 +86,22 @@ const [fullscreenDoc, setFullscreenDoc] = useState(null);
     };
     reader.readAsDataURL(file);
   };
-
+ 
   const toggleView = (type) => {
     setViewDoc((prev) => ({
       ...prev,
       [type]: !prev[type],
     }));
   };
-
+ 
   return (
     <div
       className="min-h-screen bg-cover bg-center"
       style={{ backgroundImage: `url(${theme})` }}
     >
       <div className="min-h-screen p-6">
-
-        {/* ================= PROFILE HEADER ================= */}
+ 
+        {/* PROFILE HEADER */}
         <div className="bg-white rounded-3xl shadow-sm p-6 flex gap-8 items-center">
           <div className="relative w-fit">
             <img
@@ -116,10 +116,10 @@ const [fullscreenDoc, setFullscreenDoc] = useState(null);
               </label>
             )}
           </div>
-
+ 
           <div className="flex-1">
             <h1 className="text-3xl font-extrabold">{profile.name}</h1>
-
+ 
             <div className="flex items-center gap-3 mt-2">
               <span className="text-indigo-600 font-semibold flex items-center gap-1">
                 <FiBriefcase /> {profile.role}
@@ -131,7 +131,7 @@ const [fullscreenDoc, setFullscreenDoc] = useState(null);
                 {profile.status}
               </span>
             </div>
-
+ 
             <div className="flex flex-wrap gap-6 mt-4 text-sm text-slate-600">
               <span className="flex items-center gap-2">
                 <FiMail /> {profile.email}
@@ -145,10 +145,10 @@ const [fullscreenDoc, setFullscreenDoc] = useState(null);
             </div>
           </div>
         </div>
-
-        {/* ================= CONTENT GRID ================= */}
+ 
+        {/* CONTENT GRID  */}
         <div className="grid grid-cols-12 gap-6 mt-6">
-
+ 
           {/* LEFT SECTION */}
           <div className="col-span-12 lg:col-span-8 space-y-6">
             <Card title="Professional Matrix" icon={<FiUser />}>
@@ -159,7 +159,7 @@ const [fullscreenDoc, setFullscreenDoc] = useState(null);
                 <Matrix label="Work Location" value={profile.workLocation} icon={<FiHome />} />
               </div>
             </Card>
-
+ 
             <Card
               title="Compensation Structure"
               icon={<FiDollarSign />}
@@ -182,8 +182,8 @@ const [fullscreenDoc, setFullscreenDoc] = useState(null);
                 </div>
               </div>
             </Card>
-
-            {/* ================= QUALIFICATIONS (ADDED HERE) ================= */}
+ 
+            {/*  QUALIFICATIONS (ADDED HERE)  */}
             <div className="bg-white rounded-2xl shadow-sm p-6">
               <div className="flex items-center gap-2 mb-6">
                 <FiBookOpen className="text-indigo-600" />
@@ -191,10 +191,10 @@ const [fullscreenDoc, setFullscreenDoc] = useState(null);
                   Qualifications
                 </h3>
               </div>
-
+ 
               <div className="relative pl-6">
                 <div className="absolute left-[9px] top-0 bottom-0 w-px bg-gray-200" />
-
+ 
                 {[
                   {
                     degree: "MBA in Human Resources",
@@ -224,7 +224,7 @@ const [fullscreenDoc, setFullscreenDoc] = useState(null);
                         <h4 className="font-semibold text-base">
                           {item.degree}
                         </h4>
-
+ 
                         <span className="text-xs bg-gray-100 px-3 py-1 rounded-full">
                           {item.duration}
                         </span>
@@ -244,7 +244,7 @@ const [fullscreenDoc, setFullscreenDoc] = useState(null);
                               {item.subjects}
                             </p>
                           </div>
-
+ 
                           {/* Academic Score */}
                           <div className="text-right">
                             <p className="text-[11px] font-semibold text-slate-400 uppercase mb-1">
@@ -266,7 +266,7 @@ const [fullscreenDoc, setFullscreenDoc] = useState(null);
                 ))}
               </div>
             </div>
-
+ 
             <div>
              <div className="bg-white rounded-2xl shadow-sm p-6">
   <div className="flex items-center gap-2 mb-6">
@@ -275,11 +275,11 @@ const [fullscreenDoc, setFullscreenDoc] = useState(null);
       Experience
     </h3>
   </div>
-
+ 
   <div className="relative pl-6">
     {/* Vertical line */}
     <div className="absolute left-[9px] top-0 bottom-0 w-px bg-gray-200" />
-
+ 
     {[
       {
         company: "ABC Technologies Pvt. Ltd.",
@@ -305,22 +305,22 @@ const [fullscreenDoc, setFullscreenDoc] = useState(null);
             item.active ? "border-indigo-600" : "border-gray-300"
           }`}
         />
-
+ 
         <div className="flex-1">
           <div className="flex items-center justify-between">
             <h4 className="font-semibold text-base">
               {item.designation}
             </h4>
-
+ 
             <span className="text-xs bg-gray-100 px-3 py-1 rounded-full">
               {item.duration}
             </span>
           </div>
-
+ 
           <p className="text-sm text-indigo-600 mt-1">
             {item.company}
           </p>
-
+ 
           <div className="mt-4 bg-slate-50 border border-slate-100 rounded-xl px-5 py-4">
             <p className="text-[11px] font-semibold text-slate-400 uppercase mb-1">
               Description
@@ -333,10 +333,10 @@ const [fullscreenDoc, setFullscreenDoc] = useState(null);
       </div>
     ))}
   </div>
-
+ 
             </div></div>
           </div>
-
+ 
           {/* RIGHT SECTION */}
           <div className="col-span-12 lg:col-span-4 space-y-6">
             <Card title="Identity Info" icon={<FiKey />}>
@@ -348,7 +348,7 @@ const [fullscreenDoc, setFullscreenDoc] = useState(null);
                 value="Regional Office Unit no-2201A, 22nd floor, WTC Bangalore, Brigade Gateway, Bangalore-560055"
               />
             </Card>
-
+ 
             <Card title="Skills & Qualifications" icon={<FiAward />}>
               <div className="flex flex-wrap gap-2">
                 {["Recruitment", "Employee Relations", "Policy Design", "SHRM-CP"].map(
@@ -363,8 +363,8 @@ const [fullscreenDoc, setFullscreenDoc] = useState(null);
                 )}
               </div>
             </Card>
-
-
+ 
+ 
             <Card title="Compliance Docs" icon={<FiFileText />}>
               {[
                 { key: "certificate", label: "Certificate" },
@@ -376,7 +376,7 @@ const [fullscreenDoc, setFullscreenDoc] = useState(null);
                       <FiCheckCircle className="text-green-500" />
                       {doc.label}
                     </span>
-
+ 
                     <div className="flex items-center gap-3">
                       <button
                         onClick={() => toggleView(doc.key)}
@@ -385,7 +385,7 @@ const [fullscreenDoc, setFullscreenDoc] = useState(null);
                         {viewDoc[doc.key] ? <FiEyeOff /> : <FiEye />}
                         {viewDoc[doc.key] ? "Hide" : "View"}
                       </button>
-
+ 
                       <button
   onClick={() =>
     setFullscreenDoc({
@@ -411,7 +411,7 @@ const [fullscreenDoc, setFullscreenDoc] = useState(null);
                       )}
                     </div>
                   </div>
-
+ 
                   {viewDoc[doc.key] && documents[doc.key] && (
                     <div className="mt-3 border rounded-xl p-2 bg-slate-50">
                       <img
@@ -423,7 +423,7 @@ const [fullscreenDoc, setFullscreenDoc] = useState(null);
                   )}
                 </div>
               ))}
-
+ 
               {/* VERIFICATION */}
               <div className="mt-4 p-3 border rounded-xl bg-slate-100 text-sm text-indigo-700 flex gap-2">
                 <FiInfo className="mt-0.5" />
@@ -437,7 +437,7 @@ const [fullscreenDoc, setFullscreenDoc] = useState(null);
                 </div>
               </div>
             </Card>
-
+ 
             <Card title="Assigned Assets" icon={<FiMonitor />}>
               <div className="space-y-4 text-sm">
                 {[
@@ -455,7 +455,7 @@ const [fullscreenDoc, setFullscreenDoc] = useState(null);
                 <p className="font-semibold">{asset.name}</p>
                 <p className="text-xs text-slate-400">{asset.id}</p>
               </div>
-
+ 
                    <span className="text-xs px-3 py-1 rounded-full bg-green-100 text-green-600">
                      {asset.status}
                    </span>
@@ -468,9 +468,9 @@ const [fullscreenDoc, setFullscreenDoc] = useState(null);
       </div>
     </div>
   );
-
+ 
 /*  REUSABLE COMPONENTS  */
-
+ 
 function Card({ title, icon, right, children }) {
   return (
     <div className="bg-white rounded-2xl shadow-sm p-6">
@@ -489,7 +489,7 @@ function Card({ title, icon, right, children }) {
     </div>
   );
 }
-
+ 
 function Matrix({ icon, label, value }) {
   return (
     <div className="flex items-center gap-4 bg-slate-50 p-4 rounded-xl">
@@ -503,7 +503,7 @@ function Matrix({ icon, label, value }) {
     </div>
   );
 }
-
+ 
 function Info({ label, value }) {
   return (
     <div className="mb-4 text-sm">
@@ -512,7 +512,7 @@ function Info({ label, value }) {
     </div>
   );
 }
-
+ 
 function Row({ label, value, red }) {
   return (
     <div className="flex justify-between py-1">
@@ -529,7 +529,7 @@ function Row({ label, value, red }) {
     >
       <FiEyeOff size={20} />
     </button>
-
+ 
     {/* Fullscreen Image */}
     <img
       src={fullscreenDoc.src}
@@ -538,23 +538,9 @@ function Row({ label, value, red }) {
     />
   </div>
 )}
-
+ 
     </div>
   );
 }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+ 

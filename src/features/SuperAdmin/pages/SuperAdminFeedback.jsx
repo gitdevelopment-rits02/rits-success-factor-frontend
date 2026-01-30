@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import emptyFeedbackImg from "/src/assets/empty-feedback.png";
+// import emptyFeedbackImg from "/src/assets/empty-feedback.png";
 import { HiOutlineFolder } from "react-icons/hi";
 import { HiOutlineCalendar } from "react-icons/hi";
 import { HiOutlineStar } from "react-icons/hi";
@@ -283,7 +283,7 @@ const getHRManagerFeedbackCount = (hr) => {
       const empFeedback = feedbackData[emp] || [];
       return total + empFeedback.length;
     }, 0)
-  : 1248}
+  : 0}
 
         </span>
         <div className="w-12 h-12 rounded-xl bg-blue-100 flex items-center justify-center">
@@ -596,7 +596,7 @@ const getHRManagerFeedbackCount = (hr) => {
   <div className="bg-white rounded-2xl border-none p-12 text-center shadow-md hover:shadow-xl transition-shadow duration-300 mb-8">
 
     <img
-      src={emptyFeedbackImg}
+      // src={emptyFeedbackImg}
       alt="No feedback selected"
       className="mx-auto mb-6 w-[520px] max-w-full opacity-90"
     />

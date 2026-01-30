@@ -26,7 +26,7 @@ import {
     LuIdCard as IdCard
 } from "react-icons/lu";
 
-const EmployeeLearning = () => {
+const EmployeeDashboard = () => {
     // State Management
     const [checkedIn, setCheckedIn] = useState(true);
     const [currentView, setCurrentView] = useState('dashboard');
@@ -155,6 +155,118 @@ const EmployeeLearning = () => {
             thought: "Warmest birthday wishes to our QA champion! Enjoy your special day.",
             date: "Feb 10",
             read: true
+        }
+    ];
+
+    // Team Members Status
+    const teamMembers = [
+        {
+            id: 1,
+            name: "Akshay Thalkari",
+            department: "Software Development",
+            position: "Senior Developer",
+            avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=akshay",
+            status: "online",
+            lastSeen: "Active now"
+        },
+        {
+            id: 2,
+            name: "Priya Sharma",
+            department: "Marketing",
+            position: "Marketing Manager",
+            avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=priya",
+            status: "online",
+            lastSeen: "Active now"
+        },
+        {
+            id: 3,
+            name: "Rahul Verma",
+            department: "Sales",
+            position: "Sales Executive",
+            avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=rahul",
+            status: "online",
+            lastSeen: "Active now"
+        },
+        {
+            id: 4,
+            name: "Rajesh Kumar",
+            department: "Finance",
+            position: "Financial Analyst",
+            avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=rajesh",
+            status: "offline",
+            lastSeen: "2 hours ago"
+        },
+        {
+            id: 5,
+            name: "Meera Nair",
+            department: "Design",
+            position: "UI/UX Designer",
+            avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=meera",
+            status: "online",
+            lastSeen: "Active now"
+        },
+        {
+            id: 6,
+            name: "Anjali Gupta",
+            department: "HR Operations",
+            position: "HR Manager",
+            avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=anjali",
+            status: "offline",
+            lastSeen: "1 day ago"
+        },
+        {
+            id: 7,
+            name: "Suresh Raina",
+            department: "Engineering",
+            position: "Tech Lead",
+            avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=suresh",
+            status: "online",
+            lastSeen: "Active now"
+        },
+        {
+            id: 8,
+            name: "Vikram Seth",
+            department: "Product",
+            position: "Product Manager",
+            avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=vikram",
+            status: "offline",
+            lastSeen: "30 mins ago"
+        },
+        {
+            id: 9,
+            name: "Sneha Reddy",
+            department: "QA",
+            position: "QA Engineer",
+            avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=sneha",
+            status: "online",
+            lastSeen: "Active now"
+        },
+        {
+            id: 10,
+            name: "Ramesh Kumar",
+            department: "Management",
+            position: "Team Manager",
+            avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=ramesh",
+            status: "offline",
+            lastSeen: "5 hours ago"
+        },
+        {
+            id: 10,
+            name: "Ramesh Kumar",
+            department: "Management",
+            position: "Team Manager",
+            avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=ramesh",
+            status: "offline",
+            lastSeen: "5 hours ago"
+        },
+        {
+            id: 10,
+            name: "Ramesh Kumar",
+            department: "Management",
+            position: "Team Manager",
+            avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=ramesh",
+            status: "offline",
+            lastSeen: "5 hours ago"
         }
     ];
 
@@ -617,7 +729,7 @@ const EmployeeLearning = () => {
                     </div>
                 </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
                     {/* Check-in Time */}
                     <div className="bg-gradient-to-br from-white to-blue-50/30 rounded-xl p-3 border border-gray-100 hover:border-blue-200 hover:scale-[1.02] transition-all duration-300 shadow-sm group">
                         <div className="flex items-center justify-between mb-2">
@@ -661,29 +773,6 @@ const EmployeeLearning = () => {
                         <p className="text-xl font-extrabold text-gray-800">HQ Office</p>
                         <p className="text-[10px] font-medium text-gray-500 mt-1">Bangalore Tech Park</p>
                     </div>
-
-                    {/* Action Button */}
-                    {/* <div className="bg-gray-50/50 rounded-xl p-3 border border-dashed border-gray-200 flex flex-col justify-center items-center text-center">
-                        <p className="text-[11px] font-medium text-gray-500 mb-3">Finish your current session?</p>
-                        {checkedIn ? (
-                            <button
-                                onClick={handleCheckOut}
-                                className="w-full flex items-center justify-center gap-2 py-2.5 bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold rounded-xl transition-all duration-300 shadow-lg shadow-rose-200 active:scale-95 group"
-                            >
-                                <LogOut className="w-3.5 h-3.5 group-hover:-translate-x-0.5 transition-transform" />
-                                CHECK OUT
-                            </button>
-                        ) : (
-                            <button
-                                onClick={handleCheckIn}
-                                className="w-full flex items-center justify-center gap-2 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-xl transition-all duration-300 shadow-lg shadow-emerald-200 active:scale-95 group"
-                            >
-                                <CheckCircle className="w-3.5 h-3.5 group-hover:scale-110 transition-transform" />
-                                CHECK IN
-                            </button>
-                        )}
-                        <p className="text-[9px] text-gray-400 mt-2 font-bold uppercase tracking-tighter">Auto log-off in 4h</p>
-                    </div> */}
                 </div>
             </div>
 
@@ -717,96 +806,164 @@ const EmployeeLearning = () => {
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-4 items-start">
-                {/* Attendance Calendar */}
-                <div className="bg-white rounded-2xl border border-gray-100 p-4 relative shadow-sm hover:shadow-md transition-shadow duration-300 self-start">
-                    <div className="flex justify-between items-center mb-5">
-                        <div>
-                            <h2 className="text-base font-bold text-gray-900 flex items-center gap-2">
-                                <div className="w-1 h-4 bg-emerald-600 rounded-full"></div>
-                                Attendance Calendar
-                            </h2>
-                            <p className="text-xs text-gray-500 mt-1 font-medium italic">{getMonthYearString(currentMonth)}</p>
-                        </div>
-                        <button
-                            onClick={handleCalendarIconClick}
-                            className="p-2 bg-emerald-50 text-emerald-600 rounded-xl hover:bg-emerald-600 hover:text-white transition-all duration-300 border border-emerald-100 shadow-sm"
-                        >
-                            <Calendar className="w-4 h-4" />
-                        </button>
-                    </div>
-
-                    {showYearMonthPicker && <YearMonthPicker />}
-
-                    <div className="flex items-center justify-between mb-4 bg-gray-50/50 p-2 rounded-xl border border-gray-100">
-                        <button
-                            onClick={() => navigateMonth(-1)}
-                            className="p-1.5 bg-white hover:bg-emerald-50 text-gray-400 hover:text-emerald-600 rounded-lg transition-all duration-300 border border-gray-100 shadow-sm"
-                        >
-                            <ChevronLeft className="w-4 h-4" />
-                        </button>
-
-                        <span className="font-extrabold text-gray-700 text-xs tracking-widest uppercase">
-                            {currentMonth.toLocaleDateString('en-US', { month: 'short', year: 'numeric' })}
-                        </span>
-
-                        <button
-                            onClick={() => navigateMonth(1)}
-                            className="p-1.5 bg-white hover:bg-emerald-50 text-gray-400 hover:text-emerald-600 rounded-lg transition-all duration-300 border border-gray-100 shadow-sm"
-                        >
-                            <ChevronRight className="w-4 h-4" />
-                        </button>
-                    </div>
-
-                    <div className="grid grid-cols-7 gap-1.5 mb-4">
-                        {calendarDays.map(day => (
-                            <div key={day} className="text-center font-bold text-gray-400 text-[10px] py-2 uppercase tracking-tighter">
-                                {day}
+                {/* Left Column - Calendar & Team Status */}
+                <div className="space-y-4">
+                    {/* Attendance Calendar */}
+                    <div className="bg-white rounded-2xl border border-gray-100 p-4 relative shadow-sm hover:shadow-md transition-shadow duration-300">
+                        <div className="flex justify-between items-center mb-5">
+                            <div>
+                                <h2 className="text-base font-bold text-gray-900 flex items-center gap-2">
+                                    <div className="w-1 h-4 bg-emerald-600 rounded-full"></div>
+                                    Attendance Calendar
+                                </h2>
+                                <p className="text-xs text-gray-500 mt-1 font-medium italic">{getMonthYearString(currentMonth)}</p>
                             </div>
-                        ))}
-
-                        {calendarData.map((day, index) => (
                             <button
-                                key={index}
-                                onClick={() => handleDateClick(day)}
-                                className={`
-                                    p-1.5 rounded-xl text-xs transition-all duration-300
-                                    ${day.currentMonth ? day.color : 'bg-gray-50/50 text-gray-300 border-transparent'}
-                                    ${day.currentMonth ? 'hover:scale-105 hover:shadow-sm cursor-pointer border' : 'cursor-default opacity-40'}
-                                    flex flex-col items-center justify-center min-h-[3rem] relative overflow-hidden group
-                                `}
+                                onClick={handleCalendarIconClick}
+                                className="p-2 bg-emerald-50 text-emerald-600 rounded-xl hover:bg-emerald-600 hover:text-white transition-all duration-300 border border-emerald-100 shadow-sm"
                             >
-                                <span className={`text-[11px] font-bold ${day.textColor} ${day.type === 'today' ? 'scale-110' : ''}`}>
-                                    {day.date}
-                                </span>
-                                {day.currentMonth && (
-                                    <div className="mt-1 transition-transform group-hover:scale-125">
-                                        {getStatusIcon(day.type)}
-                                    </div>
-                                )}
-                                {day.type === 'today' && (
-                                    <div className="absolute top-1 right-1 w-1 h-1 bg-blue-600 rounded-full"></div>
-                                )}
+                                <Calendar className="w-4 h-4" />
                             </button>
-                        ))}
+                        </div>
+
+                        {showYearMonthPicker && <YearMonthPicker />}
+
+                        <div className="flex items-center justify-between mb-4 bg-gray-50/50 p-2 rounded-xl border border-gray-100">
+                            <button
+                                onClick={() => navigateMonth(-1)}
+                                className="p-1.5 bg-white hover:bg-emerald-50 text-gray-400 hover:text-emerald-600 rounded-lg transition-all duration-300 border border-gray-100 shadow-sm"
+                            >
+                                <ChevronLeft className="w-4 h-4" />
+                            </button>
+
+                            <span className="font-extrabold text-gray-700 text-xs tracking-widest uppercase">
+                                {currentMonth.toLocaleDateString('en-US', { month: 'short', year: 'numeric' })}
+                            </span>
+
+                            <button
+                                onClick={() => navigateMonth(1)}
+                                className="p-1.5 bg-white hover:bg-emerald-50 text-gray-400 hover:text-emerald-600 rounded-lg transition-all duration-300 border border-gray-100 shadow-sm"
+                            >
+                                <ChevronRight className="w-4 h-4" />
+                            </button>
+                        </div>
+
+                        <div className="grid grid-cols-7 gap-1.5 mb-4">
+                            {calendarDays.map(day => (
+                                <div key={day} className="text-center font-bold text-gray-400 text-[10px] py-2 uppercase tracking-tighter">
+                                    {day}
+                                </div>
+                            ))}
+
+                            {calendarData.map((day, index) => (
+                                <button
+                                    key={index}
+                                    onClick={() => handleDateClick(day)}
+                                    className={`
+                                        p-1.5 rounded-xl text-xs transition-all duration-300
+                                        ${day.currentMonth ? day.color : 'bg-gray-50/50 text-gray-300 border-transparent'}
+                                        ${day.currentMonth ? 'hover:scale-105 hover:shadow-sm cursor-pointer border' : 'cursor-default opacity-40'}
+                                        flex flex-col items-center justify-center min-h-[3rem] relative overflow-hidden group
+                                    `}
+                                >
+                                    <span className={`text-[11px] font-bold ${day.textColor} ${day.type === 'today' ? 'scale-110' : ''}`}>
+                                        {day.date}
+                                    </span>
+                                    {day.currentMonth && (
+                                        <div className="mt-1 transition-transform group-hover:scale-125">
+                                            {getStatusIcon(day.type)}
+                                        </div>
+                                    )}
+                                    {day.type === 'today' && (
+                                        <div className="absolute top-1 right-1 w-1 h-1 bg-blue-600 rounded-full"></div>
+                                    )}
+                                </button>
+                            ))}
+                        </div>
+
+                        {/* Calendar Legend */}
+                        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-4 border-t border-gray-50">
+                            <div className="flex items-center gap-2 bg-green-50/50 px-2 py-1.5 rounded-lg border border-green-100">
+                                <div className="w-1.5 h-1.5 rounded-full bg-green-500 shadow-[0_0_5px_rgba(34,197,94,0.5)]"></div>
+                                <span className="text-[10px] font-bold text-green-700 uppercase tracking-tighter">Present</span>
+                            </div>
+                            <div className="flex items-center gap-2 bg-gray-50 px-2 py-1.5 rounded-lg border border-gray-200">
+                                <div className="w-1.5 h-1.5 rounded-full bg-gray-400"></div>
+                                <span className="text-[10px] font-bold text-gray-600 uppercase tracking-tighter">Absent</span>
+                            </div>
+                            <div className="flex items-center gap-2 bg-yellow-50/50 px-2 py-1.5 rounded-lg border border-yellow-100">
+                                <div className="w-1.5 h-1.5 rounded-full bg-yellow-500 shadow-[0_0_5px_rgba(234,179,8,0.5)]"></div>
+                                <span className="text-[10px] font-bold text-yellow-700 uppercase tracking-tighter">Late</span>
+                            </div>
+                            <div className="flex items-center gap-2 bg-red-50/50 px-2 py-1.5 rounded-lg border border-red-100">
+                                <div className="w-1.5 h-1.5 rounded-full bg-red-500 shadow-[0_0_5px_rgba(239,68,68,0.5)]"></div>
+                                <span className="text-[10px] font-bold text-red-700 uppercase tracking-tighter">Holiday</span>
+                            </div>
+                        </div>
                     </div>
 
-                    {/* Calendar Legend */}
-                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-4 border-t border-gray-50">
-                        <div className="flex items-center gap-2 bg-green-50/50 px-2 py-1.5 rounded-lg border border-green-100">
-                            <div className="w-1.5 h-1.5 rounded-full bg-green-500 shadow-[0_0_5px_rgba(34,197,94,0.5)]"></div>
-                            <span className="text-[10px] font-bold text-green-700 uppercase tracking-tighter">Present</span>
+                    {/* Team Status - Online/Offline Members */}
+                    <div className="bg-white rounded-2xl border border-gray-100 p-4 shadow-sm hover:shadow-md transition-shadow duration-300">
+                        <div className="flex items-center justify-between mb-4">
+                            <div>
+                                <h2 className="text-base font-bold text-gray-900 flex items-center gap-2">
+                                    <div className="w-1 h-4 bg-indigo-600 rounded-full"></div>
+                                    Team Status
+                                </h2>
+                                <p className="text-xs text-gray-500 mt-1 font-medium italic">Real-time availability</p>
+                            </div>
+
+                            {/* Online/Offline Count Badges */}
+                            <div className="flex items-center gap-2">
+                                <div className="flex items-center gap-1.5 px-2.5 py-1.5 bg-emerald-50 rounded-lg border border-emerald-100">
+                                    <div className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></div>
+                                    <span className="text-[10px] font-bold text-emerald-700 uppercase">Online</span>
+                                    <span className="ml-1 px-1.5 py-0.5 bg-emerald-600 text-white text-[10px] font-bold rounded-full">
+                                        {teamMembers.filter(m => m.status === 'online').length}
+                                    </span>
+                                </div>
+                                <div className="flex items-center gap-1.5 px-2.5 py-1.5 bg-gray-50 rounded-lg border border-gray-200">
+                                    <div className="w-2 h-2 bg-gray-400 rounded-full"></div>
+                                    <span className="text-[10px] font-bold text-gray-600 uppercase">Offline</span>
+                                    <span className="ml-1 px-1.5 py-0.5 bg-gray-600 text-white text-[10px] font-bold rounded-full">
+                                        {teamMembers.filter(m => m.status === 'offline').length}
+                                    </span>
+                                </div>
+                            </div>
                         </div>
-                        <div className="flex items-center gap-2 bg-gray-50 px-2 py-1.5 rounded-lg border border-gray-200">
-                            <div className="w-1.5 h-1.5 rounded-full bg-gray-400"></div>
-                            <span className="text-[10px] font-bold text-gray-600 uppercase tracking-tighter">Absent</span>
-                        </div>
-                        <div className="flex items-center gap-2 bg-yellow-50/50 px-2 py-1.5 rounded-lg border border-yellow-100">
-                            <div className="w-1.5 h-1.5 rounded-full bg-yellow-500 shadow-[0_0_5px_rgba(234,179,8,0.5)]"></div>
-                            <span className="text-[10px] font-bold text-yellow-700 uppercase tracking-tighter">Late</span>
-                        </div>
-                        <div className="flex items-center gap-2 bg-red-50/50 px-2 py-1.5 rounded-lg border border-red-100">
-                            <div className="w-1.5 h-1.5 rounded-full bg-red-500 shadow-[0_0_5px_rgba(239,68,68,0.5)]"></div>
-                            <span className="text-[10px] font-bold text-red-700 uppercase tracking-tighter">Holiday</span>
+
+                        <div className="grid grid-cols-2 gap-2 max-h-[280px] overflow-y-auto pr-1 custom-scrollbar">
+                            {teamMembers.map((member, index) => (
+                                <div
+                                    key={index}
+                                    className={`group relative flex items-center p-2 bg-white border rounded-lg transition-all duration-300 ${member.status === 'online'
+                                        ? 'border-emerald-100 hover:border-emerald-200 hover:bg-emerald-50/30'
+                                        : 'border-gray-100 hover:border-gray-200 hover:bg-gray-50/30'
+                                        }`}
+                                >
+                                    <div className="relative flex-shrink-0">
+                                        <div className="w-8 h-8 rounded-full overflow-hidden border-2 border-white shadow-sm ring-1 ring-gray-100">
+                                            <img
+                                                src={member.avatar}
+                                                alt={member.name}
+                                                className="w-full h-full object-cover"
+                                            />
+                                        </div>
+                                        <div className={`absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 rounded-full border-2 border-white shadow-sm ${member.status === 'online' ? 'bg-emerald-500' : 'bg-gray-400'
+                                            }`}>
+                                            {member.status === 'online' && (
+                                                <div className="w-full h-full rounded-full bg-emerald-500 animate-ping opacity-75"></div>
+                                            )}
+                                        </div>
+                                    </div>
+                                    <div className="ml-2 flex-1 min-w-0">
+                                        <h3 className="text-xs font-bold text-gray-900 truncate tracking-tight leading-tight">{member.name}</h3>
+                                        <p className="text-[9px] text-gray-400 font-bold uppercase tracking-wider">
+                                            {member.lastSeen}
+                                        </p>
+                                    </div>
+                                </div>
+                            ))}
                         </div>
                     </div>
                 </div>
@@ -1144,4 +1301,4 @@ const EmployeeLearning = () => {
     );
 };
 
-export default EmployeeLearning;
+export default EmployeeDashboard;
