@@ -1,6 +1,6 @@
 import React from 'react'
 import background from "../../../assets/background.png";
-console.log(background);
+import mockup from "../../../assets/Mockup.png";
  
 export default function App() {
   return (
@@ -41,7 +41,7 @@ export default function App() {
         {/* <div className="absolute inset-0 bg-white/70"></div> */}
  
         {/* content */}
-        <div className="relative max-w-7xl mx-auto px-6 grid md:grid-cols-2 gap-12 items-center">
+        <div className="relative max-w-7xl mx-auto px-6 grid md:grid-cols-[40%_60%] gap-12 items-center">
           <div>
             <h1 className="text-4xl md:text-5xl font-bold text-slate-900 leading-tight">
               One System for Every HR Task.
@@ -59,11 +59,20 @@ export default function App() {
             </div>
           </div>
  
-          <div className="bg-white rounded-xl shadow-xl p-6">
-            <div className="h-64 bg-blue-100 rounded-lg flex items-center justify-center text-blue-600 font-semibold">
-              Dashboard Preview
+          <div className="relative">
+              <img
+                src={mockup}
+                alt="HRMS Dashboard Preview"
+                className="
+                  
+                  w-full
+                 max-w-4xl
+                 drop-shadow-2xl
+                 rounded-xl
+                "
+              />
             </div>
-          </div>
+                  
         </div>
       </section>
  
@@ -117,7 +126,7 @@ export default function App() {
  
       {/* HOW IT WORKS */}
       <section className="py-20 bg-blue-50">
-        <div className="max-w-7xl mx-auto px-6 grid md:grid-cols-2 gap-12 items-center">
+        <div className="max-w-7xl mx-auto px-6 grid md:grid-cols-[45%_55%] gap-12 items-center">
           <div className="bg-white rounded-xl p-6 shadow">
             <div className="h-64 bg-slate-100 rounded-lg flex items-center justify-center">
               App Preview

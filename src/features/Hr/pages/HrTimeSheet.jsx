@@ -7,7 +7,7 @@ import {
   FaClock,
 } from "react-icons/fa";
 
-// import timesheetBg from "./timesheet-bg.png";
+import timesheetBg from "../../../assets/background.png";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 const holidays = [
@@ -31,7 +31,7 @@ const records = [
     status: "Present",
     approval: "Pending",
   },
-
+  
 ];
 const getWorkingDaysInMonth = (year, month) => {
   let count = 0;
@@ -76,7 +76,7 @@ export default function TimesheetManagement() {
     );
   });
 }, [selectedMonth, selectedYear]);
-// ✅ 2️⃣ summary AFTER activeRecords
+ // ✅ 2️⃣ summary AFTER activeRecords
 const summary = useMemo(() => {
   const totalWorkingDays = getWorkingDaysInMonth(
     selectedDate.getFullYear(),
@@ -135,12 +135,12 @@ const monthPickerStyles = {
 };
 
 
-return (
+ return (
     <div
       className="min-h-screen bg-cover bg-center sm:bg-fixed"
 
-
-      // style={{ backgroundImage: `url(${timesheetBg})` }}
+      
+      style={{ backgroundImage: `url(${timesheetBg})` }}
     >
       <div className="min-h-screen bg-white/40 p-3 sm:p-6 space-y-4">
 
@@ -207,7 +207,7 @@ return (
   inline={false}
   calendarClassName="!p-4"
   monthClassName={() => "block text-left px-4 py-2 rounded hover:bg-blue-100"}
-className="outline-none cursor-pointer text-sm w-[140px] sm:w-[110px]"
+ className="outline-none cursor-pointer text-sm w-[140px] sm:w-[110px]"
 
 />
 
@@ -216,7 +216,7 @@ className="outline-none cursor-pointer text-sm w-[140px] sm:w-[110px]"
   </div>
 </div>
 
-{/* TABLE */}
+ {/* TABLE */}
         <div className="bg-white rounded-xl border overflow-x-auto p-3">
           <table className="w-full text-xs sm:text-sm border-separate border-spacing-y-1">
 
@@ -348,4 +348,4 @@ const Badge = ({ children, type }) => {
       {children}
     </span>
 );
-};
+}; 

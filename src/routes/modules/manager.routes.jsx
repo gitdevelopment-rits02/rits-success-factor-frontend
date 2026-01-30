@@ -16,28 +16,10 @@ import ManagerTaskAndProjectTracking from "../../features/Manager/pages/ManagerT
 import ManagerTimeSheetReview from "../../features/Manager/pages/ManagerTimeSheetReview";
 import ManagerPerformanceReview from "../../features/Manager/pages/ManagerPerformanceReview";
 import ManagerViewMyProfile from "../../features/Manager/pages/ManagerViewMyProfile";
+import ManagerTaskAssignment from "../../features/Manager/pages/ManagerTaskAssignment";
 
 
 
-// export const managerRoutes = [
-
-//   { path: "clockmytime", element: <ManagerClockMyTime /> },
-//   { path: "requesttimeoff", element: <ManagerRequestTimeOff /> },
-//   { path: "profile", element: <ManagerViewMyProfile /> },
-//   { path: "orgchart", element: <ManagerOrgChart /> },
-//   { path: "insurance", element: <ManagerInsurance /> },
-//   { path: "leaveapproval", element: <ManagerLeaveApproval /> },
-//   { path: "payslips", element: <ManagerPayslips /> },
-//   { path: "timesheet", element: <ManagerTimesheet /> },
-//   { path: "dashboard", element: <ManagerDashboard /> },
-//   { path: "notification", element: <ManagerNotification /> },
-//   { path: "policydocuments", element: <ManagerPolicyDocuments /> },
-//   { path: "feedback", element: <ManagerFeedBackOfEmployee /> },
-//   { path: "performancereview", element: <ManagerPerformanceReview /> },
-//   { path:"managertaskandprojecttracking",element: <ManagerTaskAndProjectTracking />},
-  
-    
-// ];
 export const managerRoutes = [
   { path: "clockmytime", element: <ManagerClockMyTime /> },
   { path: "dashboard", element: <ManagerDashboard /> },
@@ -54,4 +36,5 @@ export const managerRoutes = [
   { path: "feedback", element: <ManagerFeedBackOfEmployee /> },
   { path: "taskandproject", element: <ManagerTaskAndProjectTracking /> },
   { path: "performancereview", element: <ManagerPerformanceReview /> },
+  {path:"taskassignment",element: <ManagerTaskAssignment />},
 ];

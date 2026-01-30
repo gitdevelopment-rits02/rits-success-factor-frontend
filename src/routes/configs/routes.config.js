@@ -54,25 +54,29 @@ export const ROUTES = {
     POLICIES:"/manager/policies",
     INSURANCE:"/manager/insurance",
     LEAVEAPPROVAL:"/manager/leaveapproval",
+    TASKASSIGNMENT:"/manager/taskassignment"
 
 },
 
 
 
 HR: {
-    TIMESHEETAPPROVAL: "/hr/timesheetapproval",
-    CLOCKMYTIME: "/hr/clockmytime",
-    REQUESTTIMEOFF: "/hr/requesttimeoff",
-    PROFILE: "/hr/profile",
-    ORGCHART: "/hr/orgchart",
-    GROWTHPORTFOLIO:"/hr/growthportfolio",
-    FEEDBACK: "/hr/feedback",
-    LEARNING: "/hr/learning",
-    PAYSLIPS: "/hr/payslips",
-    TEAMABSENCE: "/hr/teamabsence",
-    MANAGEMYTEAM: "/hr/managemyteam",
-    MANAGELEAVE: "/hr/manageleave",
-    TIMESHEET:"/hr/timesheet"
+   
+    DASHBOARD:"/hr/dashboard",
+    CLOCKMYTIME:"/hr/clockmytime",
+    INSURANCE:"/hr/insurance",
+    NOTIFICATION:"/hr/notification",
+    ONBOARDING:"/hr/onboarding",
+    PAYSLIPS:"/hr/payslips",
+    POLICYANDINSURANCECREATION:"/hr/policyandinsurancecreation",
+    POLICYDOCUMENTS:"/hr/policydocuments",
+    REQUESTTIMEOFF:"/hr/requesttimeoff",
+    SALARYCREATION:"/hr/salarycreation",
+    TIMESHEET:"/hr/timesheet",
+    ORGCHART:"/hr/orgchart",
+    OFFBOARDING:"/hr/offboarding",
+
+
 },
 
 EMPLOYEE: {

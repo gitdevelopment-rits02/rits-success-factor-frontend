@@ -387,18 +387,18 @@ const [fullscreenDoc, setFullscreenDoc] = useState(null);
                       </button>
  
                       <button
-  onClick={() =>
-    setFullscreenDoc({
-      src: documents[doc.key],
-      label: doc.label,
-    })
-  }
-  disabled={!documents[doc.key]}
-  className="text-slate-600 hover:text-indigo-600"
-  title="Maximize"
->
-  ⛶
-</button>
+                      onClick={() =>
+                        setFullscreenDoc({
+                          src: documents[doc.key],
+                          label: doc.label,
+                        })
+                      }
+                      disabled={!documents[doc.key]}
+                      className="text-slate-600 hover:text-indigo-600"
+                      title="Maximize"
+                    >
+                      ⛶
+                    </button>
                       {canEdit && (
                         <label className="cursor-pointer text-emerald-600">
                           <FiUpload />
@@ -543,4 +543,3 @@ function Row({ label, value, red }) {
   );
 }
 }
- 

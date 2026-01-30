@@ -1,4 +1,13 @@
 import React, { useMemo, useState } from "react";
+import {
+  FaClipboardList,
+  FaCalendarTimes,
+  FaCheckCircle,
+  FaCheck,
+  FaTimes,
+  FaTimesCircle,
+  FaEllipsisV
+} from "react-icons/fa";
 
 /* ------------------ DATA (Unchanged) ------------------ */
 const employees = [
@@ -10,11 +19,11 @@ const employees = [
 ];
 
 const initialLeaves = [
-  { id: 1, empId: "EMP001", type: "Sick", start: "2026-01-21", end: "2026-01-22", reason: "Fever", status: "Pending" },
-  { id: 2, empId: "EMP002", type: "Casual", start: "2026-01-21", end: "2026-01-21", reason: "Personal work", status: "Pending" },
-  { id: 3, empId: "EMP003", type: "Paid", start: "2026-01-21", end: "2026-01-25", reason: "Vacation", status: "Approved" },
-  { id: 4, empId: "EMP004", type: "Sick", start: "2026-01-21", end: "2026-01-21", reason: "Cold", status: "Rejected" },
-  { id: 5, empId: "EMP005", type: "Paid", start: "2026-01-21", end: "2026-01-21", reason: "Family event", status: "Pending" },
+  { id: 1, empId: "EMP001", type: "Sick", start: "2026-01-21", end: "2026-01-22", reason: "Fever", status: "Pending", rejectReason: "" },
+  { id: 2, empId: "EMP002", type: "Casual", start: "2026-01-21", end: "2026-01-21", reason: "Personal work", status: "Pending", rejectReason: "" },
+  { id: 3, empId: "EMP003", type: "Paid", start: "2026-01-21", end: "2026-01-25", reason: "Vacation", status: "Approved", rejectReason: "" },
+  { id: 4, empId: "EMP004", type: "Sick", start: "2026-01-21", end: "2026-01-21", reason: "Cold", status: "Rejected", rejectReason: "" },
+  { id: 5, empId: "EMP005", type: "Paid", start: "2026-01-21", end: "2026-01-21", reason: "Family event", status: "Pending", rejectReason: "" },
 ];
 
 const TODAY = "2026-01-21";
@@ -36,7 +45,7 @@ const typeStyles = {
 export default function SuperAdminLeaveRequests() {
   const [leaves, setLeaves] = useState(initialLeaves);
   const [tab, setTab] = useState("All");
-
+  const [openMenuId, setOpenMenuId] = useState(null);
   const filteredLeaves = useMemo(() => {
     if (tab === "Today") {
       return leaves.filter(l => l.start <= TODAY && l.end >= TODAY);
@@ -51,16 +60,34 @@ export default function SuperAdminLeaveRequests() {
 
   const pendingCount = leaves.filter(l => l.status === "Pending").length;
   const approvedThisMonth = leaves.filter(l => l.status === "Approved").length;
-
+  const rejectedThisMonth = leaves.filter(l => l.status === "Rejected").length;
   const approve = id => {
     setLeaves(prev =>
       prev.map(l => (l.id === id ? { ...l, status: "Approved" } : l))
     );
   };
 
-  const changeStatus = id => {
+  const undoToPending = id => {
     setLeaves(prev =>
-      prev.map(l => l.id === id ? { ...l, status: "Pending" } : l)
+      prev.map(l =>
+        l.id === id
+          ? { ...l, status: "Pending", rejectReason: "" }
+          : l
+      )
+    );
+  };
+
+  const reject = id => {
+    const reason = prompt("Enter rejection reason");
+
+    if (!reason) return;
+
+    setLeaves(prev =>
+      prev.map(l =>
+        l.id === id
+          ? { ...l, status: "Rejected", rejectReason: reason }
+          : l
+      )
     );
   };
 
@@ -83,10 +110,9 @@ export default function SuperAdminLeaveRequests() {
             key={t}
             onClick={() => setTab(t)}
             className={`px-5 py-2 rounded-lg text-sm font-medium transition
-              ${
-                tab === t
-                  ? "bg-blue-600 text-white"
-                  : "bg-white text-slate-600 border"
+              ${tab === t
+                ? "bg-blue-600 text-white"
+                : "bg-white text-slate-600 border"
               }`}
           >
             {t}
@@ -95,14 +121,98 @@ export default function SuperAdminLeaveRequests() {
       </div>
 
       {/* Summary Cards - Adjusted grid breakpoints */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 mb-8">
-        <SummaryCard title="Pending Requests" value={pendingCount} />
-        <SummaryCard title="People on Leave Today" value={todaysLeaves.length} />
-        <SummaryCard title="Approved This Month" value={approvedThisMonth} />
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+
+        <SummaryCard
+          title="Pending Requests"
+          value={pendingCount}
+          icon={<FaClipboardList />}
+          iconBg="bg-yellow-100"
+          iconColor="text-yellow-600"
+        />
+
+        <SummaryCard
+          title="People on Leave Today"
+          value={todaysLeaves.length}
+          icon={<FaCalendarTimes />}
+          iconBg="bg-blue-100"
+          iconColor="text-blue-600"
+        />
+
+        <SummaryCard
+          title="Approved This Month"
+          value={approvedThisMonth}
+          icon={<FaCheckCircle />}
+          iconBg="bg-green-100"
+          iconColor="text-green-600"
+        />
+        <SummaryCard
+          title="Rejected This Month"
+          value={rejectedThisMonth}
+          icon={<FaTimesCircle />}
+          iconBg="bg-red-100"
+          iconColor="text-red-600"
+        />
+      </div>
+      {/* Mobile View (Cards) */}
+      <div className="block md:hidden space-y-4">
+        {filteredLeaves.map(l => {
+          const emp = employees.find(e => e.id === l.empId);
+          return (
+            <div key={l.id} className="bg-white rounded-xl p-4 shadow border space-y-2">
+              <div className="flex items-center gap-3">
+                <img src={emp.avatar} className="w-10 h-10 rounded-full" />
+                <div>
+                  <p className="font-semibold">{emp.name}</p>
+                  <p className="text-xs text-slate-500">
+                    {l.start} → {l.end}
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex justify-between items-center">
+                <span className={`px-3 py-1 text-xs rounded-full ${typeStyles[l.type]}`}>
+                  {l.type}
+                </span>
+
+                <div className="flex flex-col items-end gap-1">
+                  <span className={`px-3 py-1 rounded-full text-xs ${statusStyles[l.status]}`}>
+                    {l.status}
+                  </span>
+
+                  {l.status === "Rejected" && l.rejectReason && (
+                    <span className="text-xs text-red-600 max-w-[180px] text-right">
+                      Reason: {l.rejectReason}
+                    </span>
+                  )}
+                </div>
+
+              </div>
+
+              <p className="text-sm text-slate-600 truncate">{l.reason}</p>
+
+              {l.status === "Pending" ? (
+                <button
+                  onClick={() => approve(l.id)}
+                  className="w-full mt-2 bg-blue-600 text-white py-2 rounded-lg text-sm"
+                >
+                  Approve
+                </button>
+              ) : (
+                <button
+                  onClick={() => changeStatus(l.id)}
+                  className="w-full mt-2 border py-2 rounded-lg text-sm"
+                >
+                  Change
+                </button>
+              )}
+            </div>
+          );
+        })}
       </div>
 
       {/* Table Wrapper - Added overflow-x-auto for mobile scrolling */}
-      <div className="bg-white rounded-xl shadow-sm overflow-hidden">
+      <div className="bg-white rounded-xl shadow-sm overflow-hidden block">
         <div className="overflow-x-auto">
           <table className="w-full text-left min-w-[700px]">
             <thead className="bg-slate-100 text-slate-600 text-sm">
@@ -112,53 +222,101 @@ export default function SuperAdminLeaveRequests() {
                 <th className="px-6 py-4">Type</th>
                 <th className="px-6 py-4">Reason</th>
                 <th className="px-6 py-4">Status</th>
-                <th className="px-6 py-4 text-right">Action</th>
+                <th className="px-14 py-4 text-right">Action</th>
               </tr>
             </thead>
             <tbody>
               {filteredLeaves.map(l => {
                 const emp = employees.find(e => e.id === l.empId);
                 return (
-                  <tr key={l.id} className="border-t hover:bg-slate-50">
-                    <td className="px-6 py-4 flex items-center gap-3">
-                      <img src={emp.avatar} alt="" className="w-9 h-9 rounded-full" />
-                      <span className="font-medium">{emp.name}</span>
-                    </td>
-                    <td className="px-6 py-4 text-sm text-slate-600 whitespace-nowrap">
-                      {l.start} → {l.end}
-                    </td>
-                    <td className="px-6 py-4">
-                      <span className={`px-3 py-1 rounded-full text-xs font-medium ${typeStyles[l.type]}`}>
-                        {l.type}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4 max-w-[150px] truncate">
-                      {l.reason}
-                    </td>
-                    <td className="px-6 py-4">
-                      <span className={`px-3 py-1 rounded-full text-xs font-medium ${statusStyles[l.status]}`}>
-                        {l.status}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4 text-right">
-                      {l.status === "Pending" ? (
-                        <button
-                          onClick={() => approve(l.id)}
-                          className="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm hover:bg-blue-700 transition"
-                        >
-                          Approve
-                        </button>
-                      ) : (
-                        <button
-                          onClick={() => changeStatus(l.id)}
-                          className="px-4 py-2 border rounded-lg text-sm hover:bg-slate-50 transition"
-                        >
-                          Change
-                        </button>
-                      )}
-                    </td>
-                  </tr>
+                  <React.Fragment key={l.id}>
+                    <tr className="border-t hover:bg-slate-50">
+
+                      <td className="px-3 py-4 flex items-center gap-3">
+                        <img src={emp.avatar} alt="" className="w-9 h-9 rounded-full" />
+                        <span className="font-medium">{emp.name}</span>
+                      </td>
+                      <td className="px-6 py-4 text-sm text-slate-600 whitespace-nowrap">
+                        {l.start} → {l.end}
+                      </td>
+                      <td className="px-4 py-4">
+                        <span className={`px-3 py-1 rounded-full text-xs font-medium ${typeStyles[l.type]}`}>
+                          {l.type}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4 max-w-[150px] truncate">
+                        {l.reason}
+                      </td>
+                      <td className="px-4 py-4">
+                        <span className={`px-3 py-1 rounded-full text-xs font-medium ${statusStyles[l.status]}`}>
+                          {l.status}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4 text-right relative">
+                        <div className="flex justify-end gap-3">
+                          {/* Approved button */}
+                          {/* Approve */}
+                          <button
+                            onClick={() => approve(l.id)}
+                            title="Approve"
+                            className="text-green-600 hover:text-green-800"
+                          >
+                            <FaCheckCircle size={18} />
+                          </button>
+
+                          {/* Reject */}
+                          <button
+                            onClick={() => reject(l.id)}
+                            title="Reject"
+                            className="text-red-600 hover:text-red-800"
+                          >
+                            <FaTimesCircle size={18} />
+                          </button>
+
+                          {/* 3 dots */}
+                          <button
+                            onClick={() =>
+                              setOpenMenuId(openMenuId === l.id ? null : l.id)
+                            }
+                            title="More"
+                            className="text-slate-500 hover:text-slate-700"
+                          >
+                            <FaEllipsisV size={16} />
+                          </button>
+                        </div>
+
+                        {/* 3 dots dropdown */}
+                        {openMenuId === l.id && (
+                          <div className="absolute right-6 mt-2 w-32 bg-white border rounded-lg shadow-lg z-20">
+                            {l.status !== "Pending" && (
+                              <button
+                                onClick={() => {
+                                  undoToPending(l.id);
+                                  setOpenMenuId(null);
+                                }}
+                                className="w-full px-4 py-2 text-left text-sm hover:bg-slate-100"
+                              >
+                                Undo
+                              </button>
+                            )}
+                          </div>
+                        )}
+
+                      </td>
+
+                    </tr>
+
+                    {l.status === "Rejected" && l.rejectReason && (
+                      <tr className="bg-red-50">
+                        <td colSpan="6" className="px-6 py-3 text-sm text-red-700">
+                          <strong>Rejection Reason:</strong> {l.rejectReason}
+                        </td>
+                      </tr>
+                    )}
+
+                  </React.Fragment>
                 );
+
               })}
             </tbody>
           </table>
@@ -166,40 +324,74 @@ export default function SuperAdminLeaveRequests() {
       </div>
 
       {/* Today Panel */}
-      <div className="mt-10 bg-white rounded-xl shadow-sm p-4 md:p-6">
-        <h2 className="text-lg font-semibold mb-4">
-          {todaysLeaves.length} people on leave today
-        </h2>
+      <div className="bg-white rounded-xl p-6 shadow">
+        {/* HEADER — KEEP THIS */}
+        <div className="flex items-center justify-between mb-3">
+          <h3 className="font-semibold text-slate-800">
+            {todaysLeaves.length} People on Leave Today
+          </h3>
+        </div>
 
+        {/* CARDS — UPDATED */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
           {todaysLeaves.map(l => {
             const emp = employees.find(e => e.id === l.empId);
             return (
-              <div key={l.id} className="flex justify-between items-center border rounded-lg p-4">
+              <div
+                key={l.id}
+                className="flex justify-between items-center border rounded-lg p-4"
+              >
                 <div className="flex items-center gap-3">
                   <img src={emp.avatar} className="w-8 h-8 rounded-full" alt="" />
                   <div>
                     <p className="font-medium text-sm md:text-base">{emp.name}</p>
-                    <p className="text-xs text-slate-500">{l.type} • Full Day</p>
+                    <p className="text-xs text-slate-500">
+                      {l.type} • Full Day
+                    </p>
                   </div>
                 </div>
-                <span className={`px-3 py-1 rounded-full text-xs ${statusStyles[l.status]}`}>
-                  {l.status}
-                </span>
+
+                <div className="flex flex-col items-end gap-1">
+                  <span
+                    className={`px-3 py-1 rounded-full text-xs ${statusStyles[l.status]}`}
+                  >
+                    {l.status}
+                  </span>
+
+                  {l.status === "Rejected" && l.rejectReason && (
+                    <span className="text-xs text-red-600 max-w-[160px] text-right">
+                      Reason: {l.rejectReason}
+                    </span>
+                  )}
+                </div>
               </div>
             );
           })}
         </div>
       </div>
+
     </div>
+
   );
 }
 
-function SummaryCard({ title, value }) {
+function SummaryCard({ title, value, icon, iconBg, iconColor }) {
   return (
-    <div className="bg-white rounded-xl p-6 shadow-sm border border-transparent hover:border-blue-100 transition">
-      <p className="text-sm text-slate-500 mb-1">{title}</p>
-      <p className="text-2xl md:text-3xl font-bold text-slate-800">{value}</p>
+    <div className="bg-white rounded-xl p-6 shadow-sm flex items-center justify-between border">
+      <div>
+        <p className="text-xs uppercase tracking-wide text-slate-400 mb-1">
+          {title}
+        </p>
+        <p className="text-3xl font-bold text-slate-800">
+          {String(value).padStart(2, "0")}
+        </p>
+      </div>
+
+      <div
+        className={`w-12 h-12 rounded-xl flex items-center justify-center ${iconBg}`}
+      >
+        <span className={`text-xl ${iconColor}`}>{icon}</span>
+      </div>
     </div>
   );
-}
+}  
