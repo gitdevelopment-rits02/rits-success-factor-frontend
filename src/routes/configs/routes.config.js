@@ -6,7 +6,7 @@ export const ROUTES = {
     REGISTER: '/register',
     FORGOTPASSWORD: '/forgotpassword',
     RESET: '/reset',
-    OTP: '/otpvalidation',
+    OTP: '/verify-email',
     PRIVACYPOLICY: '/privacypolicy',
     CONTACTUS: '/contactus',
     ABOUT:"/aboutus",

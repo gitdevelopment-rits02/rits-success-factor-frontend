@@ -1,49 +1,89 @@
-import React from "react";
+import React, { useState } from "react";
 import background from "../../../assets/background.png";
 import theme from "../../../assets/theme1.png";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
+import { loginThunk } from "../../../features/Auth/Redux/authThunk";
 
 function Login() {
+  const navigate = useNavigate();
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const dispatch = useDispatch();
+  const { loginLoading, loginError } = useSelector(
+    (state) => state.auth
+  );
+  const handleLogin = async () => {
+    if (!email || !password) return;
+
+    const result = await dispatch(
+      loginThunk({ email, password })
+    );
+
+    if (loginThunk.fulfilled.match(result)) {
+      navigate("/dashboard"); // or home
+    }
+  };
+
+
+
+
   return (
-  <>
+    <>
+      <div className="pt-24">
+        {/* ===== HEADER (PUT THIS FIRST) ===== */}
+        <header className="w-full bg-blue shadow-sm fixed top-0 left-0 z-50">
+          <div className="w-full backdrop-blur-md bg-blue/60 border-b border-blue/10">
+            <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
 
-    {/* ===== HEADER (PUT THIS FIRST) ===== */}
-    <header className="w-full bg-white shadow-sm fixed top-0 left-0 z-50">
-      <div className="max-w-7xl mx-auto flex items-center justify-between px-6 py-4">
-        <div className="flex items-center gap-2">
-          <div className="h-8 w-8 rounded-full bg-orange-500 flex items-center justify-center text-white font-bold">
-            R
-          </div>
-          <div>
-            <h1 className="font-bold text-lg text-gray-900">
-              RitsSucessFactor
-            </h1>
-            <p className="text-xs text-gray-500">Enterprise Solution</p>
-          </div>
-        </div>
+              {/* LEFT: Logo + Brand */}
+              <div className="flex items-center gap-3">
+                <div className="w-11 h-11 rounded-full bg-orange-500 flex items-center justify-center shadow-md">
+                  <span className="text-white font-bold text-xl">R</span>
+                </div>
 
-        <Link
-          to="/register"
-          className="text-sm font-semibold text-orange-600 hover:underline"
+                <div>
+                  <p className="text-lg font-bold text-gray-900">
+                    Rits<span className="text-blue-900">HrConnect</span>
+                  </p>
+                  <p className="text-xs text-gray-500">Enterprise Solution</p>
+                </div>
+              </div>
+
+              {/* RIGHT: Sign in */}
+
+              <div className="text-sm text-gray-600">
+                Don’t have an account?{" "}
+                <Link
+                  to="/register"
+                  className="text-blue-900 font-medium hover:underline"
+                >
+                  Register
+                </Link>
+
+              </div>
+
+            </div>
+          </div>
+
+
+
+
+        </header>
+
+        {/* ===== PAGE CONTENT (YOUR EXISTING CODE) ===== */}
+
+        {/* <div className="min-h-screen w-full flex flex-col lg:flex-row items-center justify-center lg:pl-20 xl:pl-28"></div> */}
+        <div
+          className="min-h-screen w-full bg-cover bg-center"
+          style={{ backgroundImage: `url(${background})` }}
         >
-          Create account
-        </Link>
-      </div>
-    </header>
+          <div className="min-h-screen w-full flex flex-col lg:flex-row items-center justify-center lg:pl-20 xl:pl-28">
 
-    {/* ===== PAGE CONTENT (YOUR EXISTING CODE) ===== */}
-    
-      {/* <div className="min-h-screen w-full flex flex-col lg:flex-row items-center justify-center lg:pl-20 xl:pl-28"></div> */}
-    <div
-      className="min-h-screen w-full bg-cover bg-center"
-      style={{ backgroundImage: `url(${background})` }}
-    >
-      <div className="min-h-screen w-full flex flex-col lg:flex-row items-center justify-center lg:pl-20 xl:pl-28">
-
-        {/* LEFT SECTION — Illustration */}
-        <div className="w-full lg:w-1/2 flex flex-col items-center justify-center px-4 sm:px-6 md:px-10 py-6">
-          {/* Feature Pills */}
-          <div className="flex flex-wrap justify-center gap-2 sm:gap-3 mb-4 sm:mb-6">
+            {/* LEFT SECTION — Illustration */}
+            <div className="w-full lg:w-1/2 flex flex-col items-center justify-center px-4 sm:px-6 md:px-10 py-16">
+              {/* Feature Pills */}
+              {/* <div className="flex flex-wrap justify-center gap-2 sm:gap-3 mb-4 sm:mb-6">
             {["Time & Attendance", "Performance", "Reports"].map((item) => (
               <div
                 key={item}
@@ -52,48 +92,48 @@ function Login() {
                 {item}
               </div>
             ))}
-          </div>
+          </div> */}
 
 
-          <div className="w-full flex justify-center mb-3 sm:mb-5">
-            <div className="w-full max-w-xs sm:max-w-sm md:max-w-md lg:max-w-lg xl:max-w-xl mx-auto scale-[0.85] sm:scale-100 md:scale-[1.05] lg:scale-[1.15] xl:scale-[1.2] transition-transform">
-              <img
-                src={theme}
-                alt="Restaurant Illustration"
-                className="w-full h-auto object-contain drop-shadow-md"
-              />
-            </div>
-          </div>
+              <div className="w-full flex justify-center mb-3 sm:mb-5">
+                <div className="w-full max-w-xs sm:max-w-sm md:max-w-md lg:max-w-lg xl:max-w-xl mx-auto scale-[0.85] sm:scale-100 md:scale-[1.05] lg:scale-[1.15] xl:scale-[1.2] transition-transform">
+                  <img
+                    src={theme}
+                    alt="Restaurant Illustration"
+                    className="w-full h-auto object-contain drop-shadow-md"
+                  />
+                </div>
+              </div>
 
 
-          {/* Text */}
-          <div className="text-center max-w-md px-2">
-            <h2 className="flex items-center justify-center gap-2 text-sm sm:text-lg md:text-2xl font-semibold text-gray-900 mb-2">
-              Complete HR Management Solution
-            </h2>
-            <p className="text-[11px] sm:text-sm md:text-base text-gray-600 leading-relaxed">
-              Manage hiring, onboarding, performance, and workforce analytics in one platform.
-            </p>
-          </div>
-        </div>
-
-        {/* RIGHT SECTION — Login Card */}
-        <div className="w-full lg:w-1/2 flex justify-center items-center px-4 sm:px-6 py-6">
-          <div className="w-full max-w-md bg-white rounded-3xl shadow-xl px-6 sm:px-8 py-8 sm:py-10">
-
-            {/* Header */}
-            <div className="text-center mb-5 sm:mb-6">
-              <h1 className="text-lg sm:text-xl md:text-2xl font-bold text-gray-900">
-                Sign in to your{" "}
-                <span className="text-blue-700">account</span>
-              </h1>
-              <p className="text-xs sm:text-sm text-gray-500 mt-1">
-                Log in to access your dashboard.
-              </p>
+              {/* Text */}
+              <div className="text-center max-w-md px-2">
+                <h2 className="flex items-center justify-center gap-2 text-sm sm:text-lg md:text-2xl font-semibold text-gray-900 mb-2">
+                  Complete HR Management Solution
+                </h2>
+                <p className="text-[11px] sm:text-sm md:text-base text-gray-600 leading-relaxed">
+                  Manage hiring, onboarding, performance, and workforce analytics in one platform.
+                </p>
+              </div>
             </div>
 
-            {/* Role Switch */}
-            {/* <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-5 sm:mb-6">
+            {/* RIGHT SECTION — Login Card */}
+            <div className="w-full lg:w-1/2 flex justify-center items-center px-4 sm:px-6 py-6">
+              <div className="w-full max-w-md bg-white rounded-3xl shadow-xl px-6 sm:px-8 py-8 sm:py-10">
+
+                {/* Header */}
+                <div className="text-center mb-5 sm:mb-6">
+                  <h1 className="text-lg sm:text-xl md:text-2xl font-bold text-gray-900">
+                    Sign in to your{" "}
+                    <span className="text-blue-700">account</span>
+                  </h1>
+                  <p className="text-xs sm:text-sm text-gray-500 mt-1">
+                    Log in to access your dashboard.
+                  </p>
+                </div>
+
+                {/* Role Switch */}
+                {/* <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-5 sm:mb-6">
               <button className="py-2.5 sm:py-3 rounded-xl bg-orange-500 text-white font-semibold text-xs sm:text-sm shadow-md">
                 Admin Login
               </button>
@@ -102,53 +142,81 @@ function Login() {
               </button>
             </div> */}
 
-            {/* Email */}
-            <div className="mb-4">
-              <label className="text-[11px] sm:text-sm font-semibold text-gray-700">
-                Email
-              </label>
-              <input
-                type="email"
-                placeholder="you@example.com"
-                className="w-full mt-2 px-3.5 sm:px-4 py-2.5 sm:py-3 rounded-xl border border-gray-200 bg-gray-50 focus:ring-2 focus:ring-orange-400 focus:border-orange-500 focus:bg-white outline-none text-sm sm:text-base transition-all"
-              />
-            </div>
+                {/* Email */}
+                <div className="mb-4">
+                  <label className="text-[11px] sm:text-sm font-semibold text-gray-700">
+                    Email
+                  </label>
+                  <input
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    placeholder="you@example.com"
+                    className="w-full mt-2 px-4 py-3 rounded-xl border border-gray-200 bg-gray-50
+                              focus:ring-2 focus:ring-orange-400 focus:border-orange-500
+                              outline-none text-sm transition-all"
+                  />
 
-            {/* Password */}
-            <div className="mb-5">
-              <div className="flex justify-between items-center mb-2">
-                <label className="text-[11px] sm:text-sm font-semibold text-gray-700">
-                  Password
-                </label>
-                <Link
-                  to="/forgotpassword"
-                  className="text-[11px] sm:text-xs text-orange-600 hover:underline"
+
+                </div>
+
+                {/* Password */}
+                <div className="mb-5">
+                  <div className="flex justify-between items-center mb-2">
+                    <label className="text-[11px] sm:text-sm font-semibold text-gray-700">
+                      Password
+                    </label>
+                    <Link
+                      to="/forgotpassword"
+                      className="text-[11px] sm:text-xs text-orange-600 hover:underline"
+                    >
+                      Forgot Password?
+                    </Link>
+
+                  </div>
+                  <input
+                    type="password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    placeholder="••••••••"
+                    className="w-full px-4 py-3 rounded-xl border border-gray-200 bg-gray-50
+                               focus:ring-2 focus:ring-orange-400 focus:border-orange-500
+                               outline-none text-sm transition-all"
+                  />
+
+                </div>
+
+                {/* Login Button */}
+                <button
+                  onClick={handleLogin}
+                  disabled={loginLoading}
+                  className={`w-full py-3 rounded-xl text-white font-semibold text-sm
+                ${loginLoading
+                      ? "bg-gray-400 cursor-not-allowed"
+                      : "bg-gradient-to-r from-blue-900 to-blue-600 hover:from-blue-600 hover:to-blue-700"
+                    } transition-all`}
                 >
-                  Forgot Password?
-                </Link>
+                  {loginLoading ? "Logging in..." : "Login"}
+                </button>
 
+                {loginError && (
+                  <p className="text-red-500 text-sm mt-2 text-center">
+                    {loginError}
+                  </p>
+                )}
+
+
+
+                {/* Footer */}
+                <p className="text-center text-gray-400 text-[10px] sm:text-xs mt-5">
+                  © 2026 Sucess Factor. All rights reserved.
+                </p>
               </div>
-              <input
-                type="password"
-                placeholder="••••••••"
-                className="w-full px-3.5 sm:px-4 py-2.5 sm:py-3 rounded-xl border border-gray-200 bg-gray-50 focus:ring-2 focus:ring-orange-400 focus:border-orange-500 focus:bg-white outline-none text-sm sm:text-base transition-all"
-              />
             </div>
 
-            {/* Login Button */}
-            <button className="w-full py-3 sm:py-3.5 rounded-xl bg-gradient-to-r from-blue-900 to-blue-600 text-white font-semibold text-sm sm:text-base shadow-lg hover:from-blue-600 hover:to-blue-700 transition-all">
-              Login
-            </button>
-
-            {/* Footer */}
-            <p className="text-center text-gray-400 text-[10px] sm:text-xs mt-5">
-              © 2026 Sucess Factor. All rights reserved.
-            </p>
           </div>
         </div>
-
       </div>
-    </div>
     </>
   );
 }
