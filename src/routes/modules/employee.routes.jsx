@@ -56,10 +56,15 @@ import EmployeeRequestTimeOff from "../../features/Employee/pages/EmployeeReques
 import EmployeeViewMyProfile from "../../features/Employee/pages/EmployeeViewMyProfile";
 import EmployeeViewOrgChart from "../../features/Employee/pages/EmployeeViewOrgChart";
 import EmployeeGrowthPortfolio from "../../features/Employee/pages/EmployeeGrowthPortfolio";
-import EmployeeFeedBack from "../../features/Employee/pages/EmployeeFeedBack";
+import EmployeeInsurance from "../../features/Employee/pages/EmployeeInsurance";
 import EmployeeLearning from "../../features/Employee/pages/EmployeeLearning";
 import EmployeePaySlips from "../../features/Employee/pages/EmployeePaySlips";
 import EmployeeTimeSheet from "../../features/Employee/pages/EmployeeTimeSheet";
+import EmployeeDashboard from "../../features/Employee/pages/EmployeeDashboard";
+import EmployeeNotification from "../../features/Employee/pages/EmployeeNotification";
+import EmployeePolicyDocuments from "../../features/Employee/pages/EmployeePolicyDocuments";
+
+
 
 export const employeeRoutes = [
   { path: "clockmytime", element: <EmployeeClockMyTime /> },
@@ -67,8 +72,17 @@ export const employeeRoutes = [
   { path: "profile", element: <EmployeeViewMyProfile /> },
   { path: "orgchart", element: <EmployeeViewOrgChart /> },
   { path: "growthportfolio", element: <EmployeeGrowthPortfolio /> },
-  { path: "feedback", element: <EmployeeFeedBack /> },
+  { path: "insurance", element: <EmployeeInsurance /> },
   { path: "learning", element: <EmployeeLearning /> },
   { path: "payslips", element: <EmployeePaySlips /> },
   { path: "timesheet", element: <EmployeeTimeSheet /> },
+   { path: "dashboard", element: <EmployeeDashboard /> },
+  { path: "notification", element: <EmployeeNotification /> },
+  { path: "policydocuments", element: <EmployeePolicyDocuments /> },
+
+
+
+
+
 ];
+

@@ -6,7 +6,7 @@ export const ROUTES = {
     REGISTER: '/register',
     FORGOTPASSWORD: '/forgotpassword',
     RESET: '/reset',
-    OTP: '/otpvalidation',
+    OTP: '/verify-email',
     PRIVACYPOLICY: '/privacypolicy',
     CONTACTUS: '/contactus',
     ABOUT:"/aboutus",
@@ -27,56 +27,76 @@ export const ROUTES = {
     ADMINMANAGEMENT:'/superadmin/adminmanagement',
     ORG:'/superadmin/org',
     POLICIES:'/superadmin/policies',
-    PAYROLL:'/superadmin/payroll'
+    PAYROLL:'/superadmin/payroll',
+    APPROVALFLOW:'/superadmin/approvalflow',
+    FEEDBACK:'/superadmin/feedback',
+
   },
 
   
  MANAGER: {
-    CLOCKMYTIME: "/manager/clockmytime",
+    CLOCKMYTIME: "/manager/clockmytime",//(not w)
     REQUESTTIMEOFF: "/manager/requesttimeoff",
     PROFILE: "/manager/profile",
     // MANAGEMYTEAM: "/manager/managemyteam",
     ORGCHART: "/manager/orgchart",
-    GROWTHPORTFOLIO:"/manager/growthportfolio",
+  
     FEEDBACK: "/manager/feedback",
     LEARNING: "/manager/learning",
     PAYSLIPS: "/manager/payslips",
-    TEAMABSENCE: "/manager/teamabsence",
-    MANAGEMYTEAM: "/manager/managemyteam",
     MANAGELEAVE: "/manager/manageleave",
-    TIMESHEET:"/manager/timesheet"
+    TIMESHEET:"/manager/timesheet",
+    DASHBOARD:"/manager/dashboard",
+    NOTIFICATION:"/manager/notification",
+    TIMESHEETREVIEW:"/manager/timesheetreview",
+    TASKANDPROJECT:"/manager/taskandproject",
+    PERFORMANCEMANAGEMENT:"/manager/performancereview",
+    POLICIES:"/manager/policies",
+    INSURANCE:"/manager/insurance",
+    LEAVEAPPROVAL:"/manager/leaveapproval",
+    TASKASSIGNMENT:"/manager/taskassignment"
+
 },
 
 
 
 HR: {
-    TIMESHEETAPPROVAL: "/hr/timesheetapproval",
-    CLOCKMYTIME: "/hr/clockmytime",
-    REQUESTTIMEOFF: "/hr/requesttimeoff",
-    PROFILE: "/hr/profile",
-    ORGCHART: "/hr/orgchart",
-    GROWTHPORTFOLIO:"/hr/growthportfolio",
-    FEEDBACK: "/hr/feedback",
-    LEARNING: "/hr/learning",
-    PAYSLIPS: "/hr/payslips",
-    TEAMABSENCE: "/hr/teamabsence",
-    MANAGEMYTEAM: "/hr/managemyteam",
-    MANAGELEAVE: "/hr/manageleave",
-    TIMESHEET:"/hr/timesheet"
+   
+    DASHBOARD:"/hr/dashboard",
+    CLOCKMYTIME:"/hr/clockmytime",
+    INSURANCE:"/hr/insurance",
+    NOTIFICATION:"/hr/notification",
+    ONBOARDING:"/hr/onboarding",
+    PAYSLIPS:"/hr/payslips",
+    POLICYANDINSURANCECREATION:"/hr/policyandinsurancecreation",
+    POLICYDOCUMENTS:"/hr/policydocuments",
+    REQUESTTIMEOFF:"/hr/requesttimeoff",
+    SALARYCREATION:"/hr/salarycreation",
+    TIMESHEET:"/hr/timesheet",
+    ORGCHART:"/hr/orgchart",
+    OFFBOARDING:"/hr/offboarding",
+
+
 },
 
 EMPLOYEE: {
     CLOCKMYTIME: "/employee/clockmytime",
     REQUESTTIMEOFF: "/employee/requesttimeoff",
-    PROFILE: "/employee/profile",
+    VIEWMYPROFILE: "/employee/profile",
     ORGCHART: "/employee/orgchart",
     GROWTHPORTFOLIO:"/employee/growthportfolio",
-    FEEDBACK: "/employee/feedback",
+    INSURANCE: "/employee/insurance",
     LEARNING: "/employee/learning",
     PAYSLIPS: "/employee/payslips",
-    TIMESHEET:"/employee/timesheet"
+    TIMESHEET:"/employee/timesheet",
+    DASHBOARD:"/employee/dashboard",
+    NOTIFICATION:"/employee/notification",
+    POLICYDOCUMENTS:"/employee/policydocuments"
+
+
 },
 
 
  
 };
+

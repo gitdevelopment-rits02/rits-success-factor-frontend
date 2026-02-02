@@ -1,0 +1,1 @@
+export const BASE_URL="https://rits-success-factor-development-dzhnebhehugbg2br.centralindia-01.azurewebsites.net"

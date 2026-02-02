@@ -51,6 +51,15 @@ const AdminLayout = () => {
     path: "/superadmin/profile",
     icon: HiOutlineUserCircle,
   },
+
+{
+    name: "Approval Flow",
+    path: "/superadmin/approvalflow",
+    icon: HiOutlineUsers,
+  },
+
+
+
   {
     name: "Manage My Team",
     path: "/superadmin/managemyteam",
@@ -89,6 +98,11 @@ const AdminLayout = () => {
   {
     name: "Payroll",
     path: "/superadmin/payroll",
+    icon: HiOutlineClock,
+  },
+  {
+    name: "Feedback",
+    path: "/superadmin/feedback",
     icon: HiOutlineClock,
   },
  
