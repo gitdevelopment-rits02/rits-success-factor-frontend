@@ -3,7 +3,8 @@ import { ROUTES } from "../configs/routes.config";
 import Login from "../../features/Auth/Pages/LoginPage";
 import Register from "../../features/Auth/Pages/RegistrationPage";
 import OtpValidation from "../../features/Auth/pages/OtpValidation";
-import ForgotPassword from "../../features/Auth/pages/ForgotPassword";
+// import ForgotPassword from "../../features/Auth/pages/ForgotPassword";
+import ForgotPassword from "../../features/Auth/Pages/ForgotPassword";
 import ResetPassword from "../../features/Auth/pages/ResetPassword";
 const authRoutes = [
   {

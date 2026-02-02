@@ -2,14 +2,14 @@
 import React, { useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 
-import { 
-  FiSearch, 
-  FiPlus, 
-  FiShield, 
-  FiSlash, 
-  FiUserPlus, 
-  FiEdit3, 
-  FiTrash2 
+import {
+  FiSearch,
+  FiPlus,
+  FiShield,
+  FiSlash,
+  FiUserPlus,
+  FiEdit3,
+  FiTrash2
 } from "react-icons/fi";
 
 
@@ -77,43 +77,43 @@ export default function SuperAdminAdminManagement() {
   const [selected, setSelected] = useState(null);
 
   const [form, setForm] = useState({
-  name: "",
-  username: "",
-  phone: "",
-  email: "",
-  password: "",
-  confirmPassword: "",
-  
-});
+    name: "",
+    username: "",
+    phone: "",
+    email: "",
+    password: "",
+    confirmPassword: "",
+
+  });
 
 
 
- const filtered = useMemo(() => {
-  return admins.filter(a => {
-    const matchSearch =
-  a.name.toLowerCase().includes(search.toLowerCase()) ||
-  a.email.toLowerCase().includes(search.toLowerCase()) ||
-  a.employeeId.toLowerCase().includes(search.toLowerCase());
+  const filtered = useMemo(() => {
+    return admins.filter(a => {
+      const matchSearch =
+        a.name.toLowerCase().includes(search.toLowerCase()) ||
+        a.email.toLowerCase().includes(search.toLowerCase()) ||
+        a.employeeId.toLowerCase().includes(search.toLowerCase());
 
 
-    const matchStatus =
-      statusFilter === "All Status" || a.status === statusFilter;
+      const matchStatus =
+        statusFilter === "All Status" || a.status === statusFilter;
 
-    const matchCreator =
-      creatorFilter === "All Creators" ||
-      a.creator === creatorFilter;
+      const matchCreator =
+        creatorFilter === "All Creators" ||
+        a.creator === creatorFilter;
 
-    const matchDate = (() => {
-      if (dateFilter === "All") return true;
-      const createdDate = new Date(a.created);
-      const now = new Date();
-      const diff = (now - createdDate) / (1000 * 60 * 60 * 24);
-      return dateFilter === "7" ? diff <= 7 : diff <= 30;
-    })();
+      const matchDate = (() => {
+        if (dateFilter === "All") return true;
+        const createdDate = new Date(a.created);
+        const now = new Date();
+        const diff = (now - createdDate) / (1000 * 60 * 60 * 24);
+        return dateFilter === "7" ? diff <= 7 : diff <= 30;
+      })();
 
-    return matchSearch && matchStatus && matchCreator && matchDate;
-     });
-     }, [admins, search, statusFilter, creatorFilter, dateFilter]);
+      return matchSearch && matchStatus && matchCreator && matchDate;
+    });
+  }, [admins, search, statusFilter, creatorFilter, dateFilter]);
 
 
 
@@ -137,29 +137,29 @@ export default function SuperAdminAdminManagement() {
       );
     }).length;
   }, [admins]);
-const handleCreate = () => {
-  if (!form.name || !form.email) return;
+  const handleCreate = () => {
+    if (!form.name || !form.email) return;
 
-  setAdmins(prev => [
-    ...prev,
-    {
-      id: Date.now(),
-      employeeId: `EMP${String(prev.length + 1).padStart(3, "0")}`,
-      name: form.name,
-      email: form.email,
-      status: form.status,
-      lastLogin: "Never",
-      created: new Date().toLocaleDateString("en-US", {
-        month: "short",
-        day: "numeric",
-        year: "numeric"
-      })
-    }
-  ]);
+    setAdmins(prev => [
+      ...prev,
+      {
+        id: Date.now(),
+        employeeId: `EMP${String(prev.length + 1).padStart(3, "0")}`,
+        name: form.name,
+        email: form.email,
+        status: form.status,
+        lastLogin: "Never",
+        created: new Date().toLocaleDateString("en-US", {
+          month: "short",
+          day: "numeric",
+          year: "numeric"
+        })
+      }
+    ]);
 
-  setForm({ name: "", email: "", status: "Active" });
-  setOpenCreate(false);
-};
+    setForm({ name: "", email: "", status: "Active" });
+    setOpenCreate(false);
+  };
 
 
   const handleEdit = () => {
@@ -177,7 +177,7 @@ const handleCreate = () => {
   };
 
   return (
-<div className="min-h-screen w-[100%] ml-auto p-8 bg-gradient-to-br from-slate-100 via-blue-50 to-indigo-100">
+    <div className="min-h-screen w-[100%] ml-auto p-8 bg-gradient-to-br from-slate-100 via-blue-50 to-indigo-100">
 
 
 
@@ -190,175 +190,212 @@ const handleCreate = () => {
             Manage and monitor system administrators and their roles.
           </p>
         </div>
-        <br/>
-        <br/>
-      
-
-<button
-  onClick={() => setOpenCreate(true)}
-  className="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2.5 rounded-xl flex items-center gap-2 shadow"
->
-  <FiPlus size={16} />
-  Create Admin
-</button>
-
-</div>
-
-      
-  <div className="grid grid-cols-1 sm:grid-cols-3 gap-14 mb-7">
-  <StatCard
-    icon={<FiShield size={14} className="text-green-700" />}
-    label="Active Admins"
-    value={activeCount}
-    badge={`${activeCount} total`}
-    badgeColor="bg-green-100 text-green-600"/>
-
-  <StatCard
-    icon={<FiSlash size={14} className="text-orange-600" />}
-    label="Disabled Admins"
-    value={disabledCount}
-    badge={`${disabledCount} total`}
-    badgeColor="bg-orange-100 text-orange-600" />
-
-  <StatCard
-    icon={<FiUserPlus size={14} className="text-blue-600" />}
-    label="Admins Created"
-    value={createdThisMonth}
-    badge="This month"
-    badgeColor="bg-blue-100 text-blue-600" />
-</div>
-<br/>
+        {/* <br/> */}
+        {/* <br/> */}
 
 
+        <button
+          onClick={() => setOpenCreate(true)}
+          className="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2.5 rounded-xl flex items-center gap-2 shadow"
+        >
+          <FiPlus size={16} />
+          Create Admin
+        </button>
 
-      
+      </div>
+
+
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-14 mb-7">
+        <StatCard
+          icon={<FiShield size={14} className="text-green-700" />}
+          label="Active Admins"
+          value={activeCount}
+          badge={`${activeCount} total`}
+          badgeColor="bg-green-100 text-green-600" />
+
+        <StatCard
+          icon={<FiSlash size={14} className="text-orange-600" />}
+          label="Disabled Admins"
+          value={disabledCount}
+          badge={`${disabledCount} total`}
+          badgeColor="bg-orange-100 text-orange-600" />
+
+        <StatCard
+          icon={<FiUserPlus size={14} className="text-blue-600" />}
+          label="Admins Created"
+          value={createdThisMonth}
+          badge="This month"
+          badgeColor="bg-blue-100 text-blue-600" />
+      </div>
+      <br />
+
+
+
+
       <div className="bg-white rounded-xl border overflow-hidden">
-        
-       <div className="flex items-center gap-2 p-1 border-b w-full">
 
-<div className="flex items-center border rounded-xl px-3 py-2 w-[550px] bg-slate-80">
-  <FiSearch size={18} className="text-slate-400" />
-  <input
-    value={search}
-    onChange={e => setSearch(e.target.value)}
-    placeholder="Search by name or email"
-    className="ml-3 outline-none text-base w-full bg-transparent"
-  />
-</div>
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 p-4 border-b">
+
+          <div className="flex items-center border rounded-xl px-3 h-10 w-full max-w-sm bg-slate-50">
+            <FiSearch size={18} className="text-slate-400" />
+            <input
+              value={search}
+              onChange={e => setSearch(e.target.value)}
+              placeholder="Search by name, email, or ID"
+              className="ml-3 outline-none text-sm w-full bg-transparent"
+            />
+          </div>
 
 
 
-        <div className="ml-auto flex items-center gap-3">
-  <select
-    value={dateFilter}
-    onChange={e => setDateFilter(e.target.value)}
-    className="border rounded-lg px-3 py-2 text-sm bg-slate-50"
-  >
-    <option value="All">All</option>
-    <option value="7">Last 7 Days</option>
-    <option value="30">Last 30 Days</option>
-  </select>
+          <div className="flex items-center gap-3">
+            <select
+              value={dateFilter}
+              onChange={e => setDateFilter(e.target.value)}
+              // className="border rounded-lg px-3 py-2 text-sm bg-slate-50"
+              className="h-10 px-3 text-sm rounded-lg bg-slate-50 border border-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-300"
 
-  <select
-    value={creatorFilter}
-    onChange={e => setCreatorFilter(e.target.value)}
-    className="border rounded-lg px-3 py-2 text-sm bg-slate-50"
-  >
-    <option>All Creators</option>
-    <option>Admin</option>
-  </select>
+            >
+              <option value="All">All</option>
+              <option value="7">Last 7 Days</option>
+              <option value="30">Last 30 Days</option>
+            </select>
 
-  <select
-    value={statusFilter}
-    onChange={e => setStatusFilter(e.target.value)}
-    className="border rounded-lg px-3 py-2 text-sm bg-slate-50"
-  >
-    <option>All Status</option>
-    <option>Active</option>
-    <option>Disabled</option>
-  </select>
-</div>
-</div>
+            <select
+              value={creatorFilter}
+              onChange={e => setCreatorFilter(e.target.value)}
+              // className="border rounded-lg px-3 py-2 text-sm bg-slate-50"
+              // className="h-10 border rounded-lg px-3 text-sm bg-slate-50"
+              className="h-10 px-3 text-sm rounded-lg bg-slate-50 border border-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-300"
+
+            >
+              <option>All Creators</option>
+              <option>Admin</option>
+            </select>
+
+            <select
+              value={statusFilter}
+              onChange={e => setStatusFilter(e.target.value)}
+              // className="border rounded-lg px-3 py-2 text-sm bg-slate-50"
+              className="h-10 px-3 text-sm rounded-lg bg-slate-50 border border-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-300"
+
+            >
+              <option>All Status</option>
+              <option>Active</option>
+              <option>Disabled</option>
+            </select>
+          </div>
+        </div>
 
         <table className="w-full text-sm">
           <thead className="bg-slate-50 text-slate-500">
-  <tr>
-    <th className="py-3 px-4 text-left">Name</th>
-    <th className="text-left">Employee ID</th>
-    <th className="text-left">Email</th>
-    <th className="text-center">Status</th>
-    <th className="text-center">Last Login</th>
-    <th className="text-center">Created</th>
-    <th className="pr-4 text-center">Actions</th>
-  </tr>
-</thead>
+            <tr>
+              <th className="py-3 px-4 text-left">Name</th>
+              <th className="text-left">Employee ID</th>
+              <th className="text-left">Email</th>
+              <th className="text-center">Status</th>
+              {/* <th className="text-center">Last Login</th> */}
+              <th className="text-right">Last Login</th>
+              {/* <th className="text-center">Created</th> */}
+              <th className="text-right">Created</th>
+              <th className="pr-4 text-center">Actions</th>
+            </tr>
+          </thead>
 
 
           <tbody>
             {filtered.map(a => (
-       <tr key={a.id} className="border-t hover:bg-slate-50">
-  <td className="py-3 px-4 font-medium whitespace-nowrap">
-    {a.name}
-  </td>
+              // <tr key={a.id} className="border-t hover:bg-slate-50">
+              <tr
+                key={a.id}
+                className="border-t hover:bg-slate-50 transition-colors"
+              >
 
-  <td className="whitespace-nowrap text-slate-600">
-  {a.employeeId}
-</td>
+                <td className="py-3 px-4 font-semibold text-slate-900 whitespace-nowrap">
+                  {a.name}
+                </td>
+
+                <td className="whitespace-nowrap text-slate-600">
+                  {a.employeeId}
+                </td>
 
 
-  <td className="whitespace-nowrap">
-    {a.email}
-  </td>
+                <td className="text-slate-500 text-sm truncate max-w-[260px]">
+                  {a.email}
+                </td>
 
 
-  <td className="text-center">
-    <span
-      className={`px-3 py-1 rounded-full text-xs font-medium ${
-        a.status === "Active"
-          ? "bg-green-100 text-green-600"
-          : "bg-red-100 text-red-600"
-      }`}
-    >
-      {a.status}
-    </span>
-  </td>
+                <td className="text-center">
+                  <span
+                    className={`inline-flex items-center justify-center
+                        min-w-[96px] px-3 py-1 rounded-full text-xs font-medium
+                        ${a.status === "Active"
+                        ? "bg-green-100 text-green-700"
+                        : "bg-red-100 text-red-700"
+                      }`}
+                  >
+                    {a.status}
+                  </span>
 
-  <td className="text-center text-slate-500 whitespace-nowrap">
-    {a.lastLogin}
-  </td>
+                </td>
 
-  <td className="text-center text-slate-500 whitespace-nowrap">
-    {a.created}
-  </td>
+                <td className="text-right text-slate-500 whitespace-nowrap">
+                  {a.lastLogin}
+                </td>
 
-  <td className="text-center">
-    <div className="flex justify-center gap-4">
-      <button
-        onClick={() => {
-          setSelected(a);
-          setForm(a);
-          setOpenEdit(true);
-        }}
-        className="text-blue-600 hover:text-blue-800"
-      >
-        <FiEdit3 size={16} />
-      </button>
+                <td className="text-right text-slate-500 whitespace-nowrap">
+                  {a.created}
+                </td>
 
-      <button
-  disabled
-  className="text-gray-400 cursor-not-allowed"
-  title="Delete disabled"> <FiTrash2 size={16} /></button>
+                {/* <td className="text-center">
+                  <div className="flex justify-center gap-4">
+                    <button
+                      disabled
+                      className="text-gray-400 cursor-not-allowed"
+                      title="Delete disabled"> <FiTrash2 size={16} /></button>
 
-    </div>
-  </td>
-</tr>
+                  </div>
+                </td> */}
+                <td className="text-center">
+                  <div className="flex justify-center items-center gap-3">
 
-            ))}
+                    {/* Edit */}
+                    <button
+                      onClick={() => {
+                        setSelected(a);
+                        setForm(a);
+                        setOpenEdit(true);
+                      }}
+                      className="p-2 rounded-md hover:bg-slate-100 text-blue-600"
+                      title="Edit admin"
+                    >
+                      <FiEdit3 size={16} />
+                    </button>
+
+                    {/* Delete (disabled for now) */}
+                    <button
+                      disabled
+                      className="p-2 rounded-md text-slate-400 cursor-not-allowed"
+                      title="Delete disabled"
+                    >
+                      <FiTrash2 size={16} />
+                    </button>
+
+                  </div>
+                </td>
+
+              </tr>
+
+            )
+            
+            
+            
+            )}
           </tbody>
         </table>
       </div>
 
-     
+
       {openCreate && (
         <Modal
           title="Create Admin"
@@ -369,7 +406,7 @@ const handleCreate = () => {
         />
       )}
 
-      
+
       {openEdit && (
         <Modal
           title="Edit Admin"
@@ -434,7 +471,7 @@ function Modal({ title, form, setForm, onClose, onSubmit }) {
             className="w-full border rounded-lg px-3 py-2"
           />
 
-          
+
         </div>
 
         <div className="flex justify-end gap-3 mt-6">
@@ -463,7 +500,7 @@ function StatCard({ icon, label, value, badge, badgeColor }) {
     <div className="bg-white rounded-xl border p-5 flex items-center justify-between
                     transition-all duration-200
                     hover:shadow-md hover:-translate-y-0.5 hover:border-slate-300">
-      
+
       {/* Left */}
       <div className="flex items-start gap-4">
         <div className="w-10 h-10 rounded-lg bg-slate-100 flex items-center justify-center">

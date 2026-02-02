@@ -46,8 +46,8 @@ const EmployeeLayout = () => {
       icon: HiOutlineChartBar,
     },
     {
-      name: "Feedback",
-      path: "/employee/feedback",
+      name: "Insurance",
+      path: "/employee/insurance",
       icon: HiOutlineUsers,
     },
     {

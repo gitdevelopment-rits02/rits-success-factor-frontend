@@ -1,6 +1,9 @@
 import React, { useRef, useState } from "react";
 import background from "../../../assets/background.png";
 import theme from "../../../assets/theme1.png";
+import { useDispatch, useSelector } from "react-redux";
+import { useLocation, useNavigate } from "react-router-dom";
+import { verifyEmailThunk, resendOtpThunk } from "../../../features/Auth/Redux/authThunk";
 
 function OtpVerify() {
   const [otp, setOtp] = useState(Array(6).fill(""));
@@ -41,12 +44,104 @@ function OtpVerify() {
   };
 
   const isComplete = otp.every((digit) => digit !== "");
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const location = useLocation();
+  const [resendButtonDisabled, setResendButtonDisabled] = useState(false);
+  const [timeLeft, setTimeLeft] = useState(0);
+  const timerRef = useRef(null);
+  const formatTime = (seconds) => {
+    const minutes = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${String(minutes).padStart(2, "0")}:${String(secs).padStart(2, "0")}`;
+  };
+  const handleResendOtpTimer = () => {
+    if (timerRef.current) clearInterval(timerRef.current);
+
+    setResendButtonDisabled(true);
+    setTimeLeft(120);
+
+    timerRef.current = setInterval(() => {
+      setTimeLeft((prev) => {
+        if (prev === 1) {
+          clearInterval(timerRef.current);
+          timerRef.current = null;
+          setResendButtonDisabled(false);
+        }
+        return prev - 1;
+      });
+    }, 1000);
+  };
+  const handleResendOtp = async () => {
+    if (!email) {
+      alert("Session expired. Please register again.");
+      navigate("/register");
+      return;
+    }
+
+    handleResendOtpTimer();
+    await dispatch(resendOtpThunk({ email }));
+  };
+
+
+  const email = location.state?.email;
+  const handleVerify = async () => {
+    if (!email) {
+      alert("Session expired. Please register again.");
+      navigate("/register");
+      return;
+    }
+
+    const payload = {
+      email,
+      otp: otp.join(""),
+    };
+
+    const result = await dispatch(verifyEmailThunk(payload));
+
+    if (verifyEmailThunk.fulfilled.match(result)) {
+      navigate("/login");
+    }
+  };
+
+
 
   return (
     <div
       className="min-h-screen w-full bg-cover bg-center"
       style={{ backgroundImage: `url(${background})` }}
     >
+      <div className="w-full backdrop-blur-md bg-red/60 border-b border-blue/70">
+        <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
+
+          {/* LEFT: Logo + Brand */}
+          <div className="flex items-center gap-3">
+            <div className="w-11 h-11 rounded-full bg-orange-500 flex items-center justify-center shadow-md">
+              <span className="text-white font-bold text-xl">R</span>
+            </div>
+
+            <div>
+              <p className="text-lg font-bold text-gray-900">
+                Rits<span className="text-blue-900">HrConnect</span>
+              </p>
+              <p className="text-xs text-gray-500">Enterprise Solution</p>
+            </div>
+          </div>
+
+          {/* RIGHT: Sign in */}
+
+          <div className="text-sm text-gray-600">
+            Already using HRConnect?{" "}
+            <span
+              onClick={() => navigate("/login")}
+              className="text-blue-900 font-medium cursor-pointer hover:underline"
+            >
+              Sign in
+            </span>
+          </div>
+
+        </div>
+      </div>
       <div className="min-h-screen w-full flex flex-col lg:flex-row items-center justify-center lg:pl-20 xl:pl-28">
 
         {/* LEFT SECTION */}
@@ -62,11 +157,20 @@ function OtpVerify() {
             ))}
           </div>
 
-          <img
+          {/* <img
             src={theme}
             alt="Illustration"
-            className="max-w-md mb-4"
-          />
+            className="w-full max-w-sm sm:max-w-md md:max-w-lg lg:max-w-2xl xl:max-w-2xl mb-4"
+          /> */}
+          <div className="w-full flex justify-center mb-3 sm:mb-5">
+            <div className="w-full max-w-xs sm:max-w-sm md:max-w-md lg:max-w-lg xl:max-w-xl mx-auto scale-[0.85] sm:scale-100 md:scale-[1.05] lg:scale-[1.15] xl:scale-[1.2] transition-transform">
+              <img
+                src={theme}
+                alt="Illustration"
+                className="w-full h-auto object-contain drop-shadow-md"
+              />
+            </div>
+          </div>
 
           <h2 className="text-xl font-semibold text-gray-900 text-center">
             Complete HR Management Solution
@@ -113,15 +217,31 @@ function OtpVerify() {
 
             <button
               disabled={!isComplete}
+              onClick={handleVerify}
               className={`w-full py-3 rounded-xl font-semibold text-white transition-all
-                ${
-                  isComplete
-                    ? "bg-gradient-to-r from-blue-900 to-blue-600 hover:from-blue-600 hover:to-blue-700"
-                    : "bg-gray-300 cursor-not-allowed"
+              ${isComplete
+                  ? "bg-gradient-to-r from-blue-900 to-blue-600 hover:from-blue-600 hover:to-blue-700"
+                  : "bg-gray-300 cursor-not-allowed"
                 }`}
             >
               Verify & Continue
             </button>
+            <button
+              type="button"
+              disabled={resendButtonDisabled}
+              onClick={handleResendOtp}
+              className={`font-semibold ${resendButtonDisabled
+                ? "text-gray-400 cursor-not-allowed"
+                : "text-blue-600 hover:underline"
+                }`}
+            >
+              {resendButtonDisabled
+                ? `Resend in ${formatTime(timeLeft)}`
+                : "Resend OTP"}
+            </button>
+
+
+
 
             <p className="text-center text-gray-400 text-xs mt-6">
               © 2026 Success Factor. All rights reserved.
