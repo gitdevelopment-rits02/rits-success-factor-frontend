@@ -4,8 +4,8 @@ export const ROUTES = {
   AUTH: {
     LOGIN: '/login',
     REGISTER: '/register',
-    FORGOTPASSWORD: '/forgotpassword',
-    RESET: '/reset',
+    FORGOTPASSWORD: '/forgotpasswordotp',
+    RESET: '/reset-password',
     OTP: '/verify-email',
     PRIVACYPOLICY: '/privacypolicy',
     CONTACTUS: '/contactus',
