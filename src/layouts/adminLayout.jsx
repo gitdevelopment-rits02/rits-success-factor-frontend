@@ -10,6 +10,10 @@ import {
   HiOutlineCalendarDays,
   HiOutlineClipboardDocumentList,
 } from "react-icons/hi2";
+import { FiHome } from "react-icons/fi";
+import { FiBarChart2 } from "react-icons/fi";
+import { FiUsers } from "react-icons/fi";
+import { FiGitBranch } from "react-icons/fi"
 
 import AdminSideNav from "../features/SuperAdmin/components/SuperAdminSideNav";
 // import adminHomeThunk from "../features/Admin/Redux/thunks/adminHomeThunk";
@@ -23,77 +27,77 @@ const AdminLayout = () => {
     {
     name: "Dashboard",
     path: "/superadmin/dashboard",
-    icon: HiOutlineClipboardDocumentList,
+    icon:  FiBarChart2,
   },
-   {
-    name: "Admin Creation",
-    path: "/superadmin/admincreation",
-    icon: HiOutlineClock,
-  },
+  //  {
+  //   name: "Admin Creation",
+  //   path: "/superadmin/admincreation",
+  //   icon: HiOutlineClock,
+  // },
 
    {
     name: "Admin Management",
     path: "/superadmin/adminmanagement",
-    icon: HiOutlineClock,
+    icon: FiUsers,
   },
-  {
-    name: "Timesheet Approval",
-    path: "/superadmin/timesheetapproval",
-    icon: HiOutlineClipboardDocumentList,
-  },
-  {
-    name: "Request Time Off",
-    path: "/superadmin/requesttimeoff",
-    icon: HiOutlineCalendarDays,
-  },
-  {
-    name: "My Profile",
-    path: "/superadmin/profile",
-    icon: HiOutlineUserCircle,
-  },
+  // {
+  //   name: "Timesheet Approval",
+  //   path: "/superadmin/timesheetapproval",
+  //   icon: HiOutlineClipboardDocumentList,
+  // },
+  // {
+  //   name: "Request Time Off",
+  //   path: "/superadmin/requesttimeoff",
+  //   icon: HiOutlineCalendarDays,
+  // },
+  // {
+  //   name: "My Profile",
+  //   path: "/superadmin/profile",
+  //   icon: HiOutlineUserCircle,
+  // },
 
-{
-    name: "Approval Flow",
-    path: "/superadmin/approvalflow",
-    icon: HiOutlineUsers,
-  },
+// {
+//     name: "Approval Flow",
+//     path: "/superadmin/approvalflow",
+//     icon: HiOutlineUsers,
+//   },
 
 
 
-  {
-    name: "Manage My Team",
-    path: "/superadmin/managemyteam",
-    icon: HiOutlineUsers,
-  },
+  // {
+  //   name: "Manage My Team",
+  //   path: "/superadmin/managemyteam",
+  //   icon: HiOutlineUsers,
+  // },
   {
     name: "Org Chart",
     path: "/superadmin/orgchart",
-    icon: HiOutlineBuildingOffice2,
-  },
-  {
-    name: "Growth Portfolio",
-    path: "/superadmin/growthportfolio",
     icon: HiOutlineChartBar,
   },
-  {
-    name: "Manage Leave",
-    path: "/superadmin/manageleave",
-    icon: HiOutlineCalendarDays,
-  },
-  {
-    name: "Personal Timesheet",
-    path: "/superadmin/personaltimesheet",
-    icon: HiOutlineClock,
-  },
-  {
-    name: "Organization",
-    path: "/superadmin/org",
-    icon: HiOutlineClock,
-  },
+  // {
+  //   name: "Growth Portfolio",
+  //   path: "/superadmin/growthportfolio",
+  //   icon: HiOutlineChartBar,
+  // },
+  // {
+  //   name: "Manage Leave",
+  //   path: "/superadmin/manageleave",
+  //   icon: HiOutlineCalendarDays,
+  // },
+  // {
+  //   name: "Personal Timesheet",
+  //   path: "/superadmin/personaltimesheet",
+  //   icon: HiOutlineClock,
+  // },
+  // {
+  //   name: "Organization",
+  //   path: "/superadmin/org",
+  //   icon: HiOutlineClock,
+  // },
  {
     name: "Policies",
     path: "/superadmin/policies",
-    icon: HiOutlineClock,
+    icon: HiOutlineClipboardDocumentList,
   },
   {
     name: "Payroll",
@@ -103,7 +107,7 @@ const AdminLayout = () => {
   {
     name: "Feedback",
     path: "/superadmin/feedback",
-    icon: HiOutlineClock,
+    icon: HiOutlineClipboardDocumentList,
   },
  
 ];
@@ -126,7 +130,7 @@ const AdminLayout = () => {
       <div className="flex flex-col flex-1 min-h-0">
 
         
-        <main className="flex-1 min-h-0 overflow-y-auto p-6 bg-white">
+        <main className="flex-1 min-h-0 overflow-y-auto  bg-white">
           <Outlet />
         </main>
 
