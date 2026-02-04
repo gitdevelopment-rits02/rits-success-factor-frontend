@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-// import emptyFeedbackImg from "/src/assets/empty-feedback.png";
+import emptyFeedbackImg from "/src/assets/image-Photoroom.png";
 import { HiOutlineFolder } from "react-icons/hi";
 import { HiOutlineCalendar } from "react-icons/hi";
 import { HiOutlineStar } from "react-icons/hi";
@@ -222,10 +222,10 @@ const getHRManagerFeedbackCount = (hr) => {
     <>
       {/* PAGE – FULL WIDTH FIX */}
       <div
-  className="pt-4 px-4 sm:px-6 lg:px-10 min-h-screen w-full bg-cover bg-no-repeat bg-fixed"
-  style={{
-    backgroundImage: "url('/src/assets/dashboard-bg.jpg')",
-  }}
+  className="min-h-screen bg-slate-50 p-6 md:p-10 space-y-16"
+  // style={{
+  //   backgroundImage: "url('/src/assets/dashboard-bg.jpg')",
+  // }}
 >
         {/* HEADER */}
         <div className="flex items-center justify-between mb-6">
@@ -294,7 +294,7 @@ const getHRManagerFeedbackCount = (hr) => {
       {/* No dropdown for total card */}
     </div>
     <p className="text-sm text-gray-500 mt-2">Total Feedbacks</p>
-    <p className="text-xs text-green-600 mt-2">▲ 12% from last month</p>
+    {/* <p className="text-xs text-green-600 mt-2">▲ 12% from last month</p> */}
   </div>
 
   {/* THIS MONTH WITH MONTH SELECT */}
@@ -345,7 +345,7 @@ const getHRManagerFeedbackCount = (hr) => {
       </select>
     </div>
     <p className="text-sm text-gray-500 mt-2">This Month</p>
-    <p className="text-xs text-green-600 mt-2">▲ Filter by month</p>
+    {/* <p className="text-xs text-green-600 mt-2">▲ Filter by month</p> */}
   </div>
 
   {/* AVERAGE RATING WITH MINIMUM FILTER */}
@@ -393,7 +393,7 @@ const getHRManagerFeedbackCount = (hr) => {
       </select>
     </div>
     <p className="text-sm text-gray-500 mt-2">Average Rating</p>
-    <p className="text-xs text-gray-500 mt-2">Based on selected filters</p>
+    {/* <p className="text-xs text-gray-500 mt-2">Based on selected filters</p> */}
   </div>
 
 </div>
@@ -596,7 +596,7 @@ const getHRManagerFeedbackCount = (hr) => {
   <div className="bg-white rounded-2xl border-none p-12 text-center shadow-md hover:shadow-xl transition-shadow duration-300 mb-8">
 
     <img
-      // src={emptyFeedbackImg}
+      src={emptyFeedbackImg}
       alt="No feedback selected"
       className="mx-auto mb-6 w-[520px] max-w-full opacity-90"
     />
