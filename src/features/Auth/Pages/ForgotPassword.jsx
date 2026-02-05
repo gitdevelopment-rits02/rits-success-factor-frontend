@@ -1,8 +1,43 @@
-import React from "react";
+import React, { useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { forgotPasswordThunk } from "../../../features/Auth/Redux/authThunk";
+import { useNavigate } from "react-router-dom";
+import { useEffect } from "react";
 import background from "../../../assets/background.png";
 import theme from "../../../assets/theme1.png";
 
+
+
+
 function ForgotPassword() {
+  const navigate = useNavigate();
+
+  const dispatch = useDispatch();
+const [email, setEmail] = useState("");
+
+
+const { forgotLoading, forgotSuccess, forgotError, forgotMessage } =
+  useSelector((state) => state.auth);
+
+
+
+
+const handleSendOtp = async () => {
+  if (!email.trim()) {
+    alert("Please enter a valid email");
+    return;
+  }
+
+  const result = await dispatch(forgotPasswordThunk({ email }));
+
+  if (forgotPasswordThunk.fulfilled.match(result)) {
+    console.log("OTP sent — navigating now");
+    navigate("/forgotpasswordotpverify", { state: { email } });
+  }
+};
+
+
+
   return (
     <div
       className="min-h-screen w-full bg-cover bg-center"
@@ -24,7 +59,7 @@ function ForgotPassword() {
             ))}
           </div>
 
-          
+
           <div className="w-full flex justify-center mb-3 sm:mb-5">
               <div className="w-full max-w-xs sm:max-w-sm md:max-w-md lg:max-w-lg xl:max-w-xl mx-auto scale-[0.85] sm:scale-100 md:scale-[1.05] lg:scale-[1.15] xl:scale-[1.2] transition-transform">
                 <img
@@ -55,7 +90,7 @@ function ForgotPassword() {
             <div className="text-center mb-5 sm:mb-6">
               <h1 className="text-lg sm:text-xl md:text-2xl font-bold text-gray-900">
                 Forgot Password?
-              
+
               </h1>
               <p className="text-xs sm:text-sm text-gray-500 mt-1">
                 Enter your email to receive a one-time password (OTP)
@@ -77,31 +112,35 @@ function ForgotPassword() {
               <label className="text-[16px] sm:text-sm font-semibold text-gray-700">
                 Email
               </label>
-              <input
-                type="email"
-                placeholder="you@example.com"
-                className="w-full mt-2 px-3.5 sm:px-4 py-2.5 sm:py-3 rounded-xl border border-gray-200 bg-gray-50 focus:ring-2 focus:ring-orange-400 focus:border-orange-500 focus:bg-white outline-none text-sm sm:text-base transition-all"
-              />
+             <input
+  type="email"
+  value={email}
+  onChange={(e) => setEmail(e.target.value)}
+  placeholder="you@example.com"
+  className="w-full mt-2 px-3.5 sm:px-4 py-2.5 sm:py-3 rounded-xl border border-gray-200 bg-gray-50 focus:ring-2 focus:ring-orange-400 focus:border-orange-500 focus:bg-white outline-none text-sm sm:text-base transition-all"
+/>
             </div>
 
-           
-            
 
             {/* Login Button */}
-            <button className="w-full py-3 sm:py-3.5 rounded-xl bg-gradient-to-r from-blue-900 to-blue-600 text-white font-semibold text-sm sm:text-base shadow-lg hover:from-blue-600 hover:to-blue-700 transition-all">
-              Send OTP
-            </button>
-
+           <button
+  type="button"
+  onClick={handleSendOtp}
+  disabled={forgotLoading}
+  className="w-full py-3 sm:py-3.5 rounded-xl bg-gradient-to-r from-blue-900 to-blue-600 text-white font-semibold text-sm sm:text-base shadow-lg hover:from-blue-600 hover:to-blue-700 transition-all disabled:opacity-60">
+  {forgotLoading ? "Sending..." : "Send OTP"}
+</button>
             {/* Footer */}
             <p className="text-center text-gray-400 text-[10px] sm:text-xs mt-5">
               © 2026 Sucess Factor. All rights reserved.
             </p>
           </div>
         </div>
-
       </div>
     </div>
   );
 }
 
 export default ForgotPassword;
+
+ 
