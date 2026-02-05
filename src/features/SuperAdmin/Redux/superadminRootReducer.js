@@ -1,9 +1,10 @@
 import { combineReducers } from "@reduxjs/toolkit";
 // import authSlice from "./authSlice"
+import superAdminDashboardReducer from "./slices/superAdminDashboardSlice";
 
-
-const authRootReducer = combineReducers({
+const superradminRootReducer = combineReducers({
   // main: authSlice,
+  dashboard: superAdminDashboardReducer,
 });
 
-export default authRootReducer;
+export default superradminRootReducer;
