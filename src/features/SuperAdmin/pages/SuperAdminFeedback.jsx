@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-// import emptyFeedbackImg from "/src/assets/empty-feedback.png";
+import emptyFeedbackImg from "/src/assets/image-Photoroom.png";
 import { HiOutlineFolder } from "react-icons/hi";
 import { HiOutlineCalendar } from "react-icons/hi";
 import { HiOutlineStar } from "react-icons/hi";
@@ -222,10 +222,10 @@ const getHRManagerFeedbackCount = (hr) => {
     <>
       {/* PAGE – FULL WIDTH FIX */}
       <div
-  className="pt-4 px-4 sm:px-6 lg:px-10 min-h-screen w-full bg-cover bg-no-repeat bg-fixed"
-  style={{
-    backgroundImage: "url('/src/assets/dashboard-bg.jpg')",
-  }}
+  className="min-h-screen bg-slate-50 p-6 md:p-10 space-y-16"
+  // style={{
+  //   backgroundImage: "url('/src/assets/dashboard-bg.jpg')",
+  // }}
 >
         {/* HEADER */}
         <div className="flex items-center justify-between mb-6">
@@ -270,32 +270,7 @@ const getHRManagerFeedbackCount = (hr) => {
 <div className="grid grid-cols-3 gap-6 mb-6 w-full">
 
   {/* TOTAL FEEDBACKS */}
-  <div className="bg-white rounded-xl p-6 border-none shadow-md hover:shadow-xl transition-shadow duration-300 flex flex-col justify-between">
-
-    <div className="flex justify-between items-center">
-      <div className="flex items-center gap-3">
-
-        <span className="text-3xl font-bold">
-          {activeRole === "HR" && selectedHR
-  ? getHRManagerFeedbackCount(selectedHR)
-  : activeRole === "Manager" && selectedManager
-  ? selectedManager.reportees.reduce((total, emp) => {
-      const empFeedback = feedbackData[emp] || [];
-      return total + empFeedback.length;
-    }, 0)
-  : 0}
-
-        </span>
-        <div className="w-12 h-12 rounded-xl bg-blue-100 flex items-center justify-center">
-  <HiOutlineFolder className="text-blue-600 text-2xl" />
-</div>
-
-      </div>
-      {/* No dropdown for total card */}
-    </div>
-    <p className="text-sm text-gray-500 mt-2">Total Feedbacks</p>
-    <p className="text-xs text-green-600 mt-2">▲ 12% from last month</p>
-  </div>
+  
 
   {/* THIS MONTH WITH MONTH SELECT */}
   <div className="bg-white rounded-xl p-6 border-none shadow-md hover:shadow-xl transition-shadow duration-300flex flex-col justify-between">
@@ -324,28 +299,10 @@ const getHRManagerFeedbackCount = (hr) => {
 </div>
 
       </div>
-      <select
-        value={selectedMonth}
-        onChange={(e) => setSelectedMonth(e.target.value)}
-        className="border rounded-xl p-1 text-sm bg-gray-100"
-      >
-        <option value="">All</option>
-        <option value="0">Jan</option>
-        <option value="1">Feb</option>
-        <option value="2">Mar</option>
-        <option value="3">Apr</option>
-        <option value="4">May</option>
-        <option value="5">Jun</option>
-        <option value="6">Jul</option>
-        <option value="7">Aug</option>
-        <option value="8">Sep</option>
-        <option value="9">Oct</option>
-        <option value="10">Nov</option>
-        <option value="11">Dec</option>
-      </select>
+      
     </div>
     <p className="text-sm text-gray-500 mt-2">This Month</p>
-    <p className="text-xs text-green-600 mt-2">▲ Filter by month</p>
+    {/* <p className="text-xs text-green-600 mt-2">▲ Filter by month</p> */}
   </div>
 
   {/* AVERAGE RATING WITH MINIMUM FILTER */}
@@ -381,19 +338,10 @@ const getHRManagerFeedbackCount = (hr) => {
 </div>
 
       </div>
-      <select
-        value={minRating}
-        onChange={(e) => setMinRating(e.target.value)}
-        className="border rounded-xl p-1 text-sm bg-gray-100"
-      >
-        <option value="">All</option>
-        <option value="3">≥ 3</option>
-        <option value="4">≥ 4</option>
-        <option value="5">≥ 5</option>
-      </select>
+      
     </div>
     <p className="text-sm text-gray-500 mt-2">Average Rating</p>
-    <p className="text-xs text-gray-500 mt-2">Based on selected filters</p>
+    {/* <p className="text-xs text-gray-500 mt-2">Based on selected filters</p> */}
   </div>
 
 </div>
@@ -596,7 +544,7 @@ const getHRManagerFeedbackCount = (hr) => {
   <div className="bg-white rounded-2xl border-none p-12 text-center shadow-md hover:shadow-xl transition-shadow duration-300 mb-8">
 
     <img
-      // src={emptyFeedbackImg}
+      src={emptyFeedbackImg}
       alt="No feedback selected"
       className="mx-auto mb-6 w-[520px] max-w-full opacity-90"
     />
