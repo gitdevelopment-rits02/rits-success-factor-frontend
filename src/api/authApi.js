@@ -40,7 +40,18 @@ authApi.login = (payload) => {
   return axiosInstance.post("/api/auth/login", payload);
 };
 
+authApi.forgotPassword = (payload) => {
+  return axiosInstance.post("/api/auth/forgot-password-otp", payload);
+};
 
+authApi.verifyForgotPasswordOtp = (payload) => {
+  return axiosInstance.post("/api/auth/forgot-password-otp-verify", payload);
+};
+
+authApi.resetPassword = (payload) => {
+  return axiosInstance.post("/api/auth/reset-password", payload);
+};
 
 
 export default authApi;
+ 

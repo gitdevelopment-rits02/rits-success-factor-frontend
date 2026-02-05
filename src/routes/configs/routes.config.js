@@ -4,13 +4,14 @@ export const ROUTES = {
   AUTH: {
     LOGIN: '/login',
     REGISTER: '/register',
-    FORGOTPASSWORD: '/forgotpasswordotp',
+    FORGOTPASSWORD: '/forgotpassword',
     RESET: '/reset-password',
     OTP: '/verify-email',
     PRIVACYPOLICY: '/privacypolicy',
     CONTACTUS: '/contactus',
     ABOUT:"/aboutus",
     DUMMY:"/dummy",
+    FORGOTPASSWORDOTPVERIFY:"/forgotpasswordotpverify"
   },
 
   SUPERADMIN: {
