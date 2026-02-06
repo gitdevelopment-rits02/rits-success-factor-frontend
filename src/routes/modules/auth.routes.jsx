@@ -7,6 +7,7 @@ import OtpValidation from "../../features/Auth/pages/OtpValidation";
 import ForgotPassword from "../../features/Auth/Pages/ForgotPassword";
 import ResetPassword from "../../features/Auth/pages/ResetPassword";
 import ForgotPasswordOtp from "../../features/Auth/Pages/forgotpasswordotp";
+import AboutUs from "../../features/Auth/Pages/AboutUs";
 const authRoutes = [
   {
     path: ROUTES.AUTH.LOGIN,
@@ -35,6 +36,10 @@ const authRoutes = [
    {
     path: ROUTES.AUTH.FORGOTPASSWORDOTPVERIFY,
     element: <ForgotPasswordOtp />,
+  },
+  {
+    path:ROUTES.AUTH.ABOUTUS,
+    element: <AboutUs />
   },
 ];
 

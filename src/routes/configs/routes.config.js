@@ -11,7 +11,8 @@ export const ROUTES = {
     CONTACTUS: '/contactus',
     ABOUT:"/aboutus",
     DUMMY:"/dummy",
-    FORGOTPASSWORDOTPVERIFY:"/forgotpasswordotpverify"
+    FORGOTPASSWORDOTPVERIFY:"/forgotpasswordotpverify",
+    ABOUTUS:"/aboutus"
   },
 
   SUPERADMIN: {

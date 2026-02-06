@@ -30,10 +30,7 @@ import "./index.css";
 import { Provider } from "react-redux";
 
 
-import reducer from "./features/SuperAdmin/Redux/slices/superAdminDashboardSlice";
 
-console.log("Dashboard Reducer:", reducer);
- 
 
 createRoot(document.getElementById("root")).render(
   

@@ -1,13 +1,22 @@
-import React, { useRef, useState } from "react";
+import React, { useRef, useState, useEffect } from "react";
 import background from "../../../assets/background.png";
 import theme from "../../../assets/theme1.png";
 import { useDispatch, useSelector } from "react-redux";
 import { useLocation, useNavigate } from "react-router-dom";
 import { verifyEmailThunk, resendOtpThunk } from "../../../features/Auth/Redux/authThunk";
+import { toast } from "react-toastify";
+
 
 function OtpVerify() {
   const [otp, setOtp] = useState(Array(6).fill(""));
   const inputRefs = useRef([]);
+  useEffect(() => {
+    return () => {
+      if (timerRef.current) {
+        clearInterval(timerRef.current);
+      }
+    };
+  }, []);
 
   const handleOtpChange = (value, index) => {
     if (!/^\d?$/.test(value)) return;
@@ -63,46 +72,74 @@ function OtpVerify() {
 
     timerRef.current = setInterval(() => {
       setTimeLeft((prev) => {
-        if (prev === 1) {
+        if (prev <= 1) {
           clearInterval(timerRef.current);
           timerRef.current = null;
           setResendButtonDisabled(false);
+          return 0;
         }
         return prev - 1;
       });
     }, 1000);
   };
+
   const handleResendOtp = async () => {
     if (!email) {
-      alert("Session expired. Please register again.");
+      toast.error("Session expired. Please register again.");
       navigate("/register");
       return;
     }
 
-    handleResendOtpTimer();
-    await dispatch(resendOtpThunk({ email }));
+    try {
+      handleResendOtpTimer();
+
+      const result = await dispatch(resendOtpThunk({ email }));
+
+      if (resendOtpThunk.fulfilled.match(result)) {
+        toast.success("OTP resent successfully");
+      } else {
+        toast.error(result?.payload || "Failed to resend OTP");
+      }
+    } catch (err) {
+      toast.error("Something went wrong while resending OTP");
+    }
   };
+
 
 
   const email = location.state?.email;
   const handleVerify = async () => {
     if (!email) {
-      alert("Session expired. Please register again.");
+      toast.error("Session expired. Please register again.");
       navigate("/register");
       return;
     }
 
-    const payload = {
-      email,
-      otp: otp.join(""),
-    };
+    if (!isComplete) {
+      toast.error("Please enter the complete 6-digit OTP");
+      return;
+    }
 
-    const result = await dispatch(verifyEmailThunk(payload));
+    try {
+      await dispatch(
+        verifyEmailThunk({
+          email,
+          otp: otp.join(""),
+        })
+      ).unwrap();
 
-    if (verifyEmailThunk.fulfilled.match(result)) {
+      // ✅ ONLY runs on real success
+      toast.success("Email verified successfully");
       navigate("/login");
+
+    } catch (err) {
+      // ✅ ALWAYS runs on wrong OTP
+      toast.error(err?.message || "Invalid OTP");
+      setOtp(Array(6).fill(""));
+      inputRefs.current[0]?.focus();
     }
   };
+
 
 
 

@@ -301,7 +301,7 @@ const getHRManagerFeedbackCount = (hr) => {
       </div>
       
     </div>
-    <p className="text-sm text-gray-500 mt-2">This Month</p>
+    <p className="text-sm text-gray-500 mt-2">Total Feedback</p>
     {/* <p className="text-xs text-green-600 mt-2">▲ Filter by month</p> */}
   </div>
 
@@ -333,14 +333,14 @@ const getHRManagerFeedbackCount = (hr) => {
   : 0}
 
         </span>
-        <div className="w-12 h-12 rounded-xl bg-yellow-100 flex items-center justify-center">
+        {/* <div className="w-12 h-12 rounded-xl bg-yellow-100 flex items-center justify-center">
   <HiOutlineStar className="text-yellow-500 text-2xl" />
-</div>
+</div> */}
 
       </div>
       
     </div>
-    <p className="text-sm text-gray-500 mt-2">Average Rating</p>
+    <p className="text-sm text-gray-500 mt-2">This Month</p>
     {/* <p className="text-xs text-gray-500 mt-2">Based on selected filters</p> */}
   </div>
 
