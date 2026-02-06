@@ -25,31 +25,31 @@ import axiosInstance from "./axiosInstance";
 const authApi = {};
 
 authApi.register = (payload) => {
-  return axiosInstance.post("/api/auth/register", payload);
+  return axiosInstance.post("/auth/register", payload);
 };
 
 authApi.verifyEmail = (payload) => {
-  return axiosInstance.post("/api/auth/verify-email", payload);
+  return axiosInstance.post("/auth/verify-email", payload);
 };
 
 authApi.resendOtp = (payload) => {
-  return axiosInstance.post("/api/auth/resend-otp", payload);
+  return axiosInstance.post("/auth/resend-otp", payload);
 };
 
 authApi.login = (payload) => {
-  return axiosInstance.post("/api/auth/login", payload);
+  return axiosInstance.post("/auth/login", payload);
 };
 
 authApi.forgotPassword = (payload) => {
-  return axiosInstance.post("/api/auth/forgot-password-otp", payload);
+  return axiosInstance.post("/auth/forgot-password-otp", payload);
 };
 
 authApi.verifyForgotPasswordOtp = (payload) => {
-  return axiosInstance.post("/api/auth/forgot-password-otp-verify", payload);
+  return axiosInstance.post("/auth/forgot-password-otp-verify", payload);
 };
 
 authApi.resetPassword = (payload) => {
-  return axiosInstance.post("/api/auth/reset-password", payload);
+  return axiosInstance.post("/auth/reset-password", payload);
 };
 
 

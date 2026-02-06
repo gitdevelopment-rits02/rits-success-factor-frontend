@@ -1,5 +1,8 @@
 import { toast } from "react-toastify";
 
+
+toast.info("Toast system initialized");
+
 const AppToast = {
   showSuccess: (message, position = "top-right") =>
     toast.success(message, { position }),

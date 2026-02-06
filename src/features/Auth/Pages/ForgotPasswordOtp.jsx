@@ -4,6 +4,7 @@ import theme from "../../../assets/theme1.png";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { verifyForgotPasswordOtpThunk } from "../../../features/Auth/Redux/authThunk";
+import { toast } from "react-toastify";
 
 function ForgotPasswordOtp() {
   const [otp, setOtp] = useState(Array(6).fill(""));
@@ -26,9 +27,7 @@ function ForgotPasswordOtp() {
     }
   };
 const dispatch = useDispatch();
-const { verifyForgotOtpLoading, verifyForgotOtpError } = useSelector(
-  (state) => state.auth
-);
+
 
   const handleKeyDown = (e, index) => {
     if (e.key === "Backspace" && !otp[index] && index > 0) {
@@ -57,22 +56,36 @@ const { verifyForgotOtpLoading, verifyForgotOtpError } = useSelector(
   /* ---------------- VERIFY OTP (FRONTEND ONLY) ---------------- */
 const handleVerify = async () => {
   if (!email) {
-    alert("Session expired. Please try again.");
+    // toast.error("Session expired. Please try again.");
     navigate("/reset-password");
     return;
   }
 
-  const payload = {
-    email: email,
-    otp: otp.join(""),
-  };
+  if (!isComplete) {
+    toast.error("Please enter the complete 6-digit OTP");
+    return;
+  }
 
-  const result = await dispatch(verifyForgotPasswordOtpThunk(payload));
+  try {
+    await dispatch(
+      verifyForgotPasswordOtpThunk({
+        email,
+        otp: otp.join(""),
+      })
+    ).unwrap();
 
-  if (verifyForgotPasswordOtpThunk.fulfilled.match(result)) {
+    //  real success only
+    toast.success("OTP verified successfully");
     navigate("/reset-password", { state: { email } });
+
+  } catch (err) {
+    //  always runs when OTP is wrong
+    toast.error(err?.message || "Invalid OTP");
+    setOtp(Array(6).fill(""));
+    inputRefs.current[0]?.focus();
   }
 };
+
 
 
   return (
@@ -119,11 +132,7 @@ const handleVerify = async () => {
                 />
               ))}
             </div>
-{verifyForgotOtpError && (
-  <p className="text-red-600 text-sm text-center mb-3">
-    {verifyForgotOtpError}
-  </p>
-)}
+
 
             <button
               disabled={!isComplete}

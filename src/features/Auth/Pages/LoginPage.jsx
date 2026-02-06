@@ -1,9 +1,10 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import background from "../../../assets/background.png";
 import theme from "../../../assets/theme1.png";
 import { Link, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { loginThunk } from "../../../features/Auth/Redux/authThunk";
+import AppToast from "../../../Services/toastService";
 
 function Login() {
   const navigate = useNavigate();
@@ -13,16 +14,30 @@ function Login() {
   const { loginLoading, loginError } = useSelector(
     (state) => state.auth
   );
+  useEffect(() => {
+    if (loginError) {
+      AppToast.showError(loginError);
+    }
+  }, [loginError]);
+
   const handleLogin = async () => {
-    if (!email || !password) return;
+    // if (!email || !password) return;
+    if (!email || !password) {
+      AppToast.showError("Email and password are required");
+      return;
+    }
+
 
     const result = await dispatch(
       loginThunk({ email, password })
     );
 
     if (loginThunk.fulfilled.match(result)) {
-      navigate("/dashboard"); // or home
+      AppToast.showSuccess("Login successful");
+      navigate("/dashboard");
     }
+
+
   };
 
 
@@ -38,7 +53,7 @@ function Login() {
 
               {/* LEFT: Logo + Brand */}
               <div className="flex items-center gap-3">
-                <div className="w-11 h-11 rounded-full bg-orange-500 flex items-center justify-center shadow-md">
+                <div className="w-11 h-11 rounded-full bg-blue-500 flex items-center justify-center shadow-md">
                   <span className="text-white font-bold text-xl">R</span>
                 </div>
 
@@ -134,7 +149,7 @@ function Login() {
 
                 {/* Role Switch */}
                 {/* <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-5 sm:mb-6">
-              <button className="py-2.5 sm:py-3 rounded-xl bg-orange-500 text-white font-semibold text-xs sm:text-sm shadow-md">
+              <button className="py-2.5 sm:py-3 rounded-xl bg-blue-500 text-white font-semibold text-xs sm:text-sm shadow-md">
                 Admin Login
               </button>
               <button className="py-2.5 sm:py-3 rounded-xl bg-gray-50 text-gray-700 font-semibold text-xs sm:text-sm border border-gray-200 hover:bg-gray-100">
@@ -153,7 +168,7 @@ function Login() {
                     onChange={(e) => setEmail(e.target.value)}
                     placeholder="you@example.com"
                     className="w-full mt-2 px-4 py-3 rounded-xl border border-gray-200 bg-gray-50
-                              focus:ring-2 focus:ring-orange-400 focus:border-orange-500
+                              focus:ring-2 focus:ring-blue-400 focus:border-blue-500
                               outline-none text-sm transition-all"
                   />
 
@@ -168,7 +183,7 @@ function Login() {
                     </label>
                     <Link
                       to="/forgotpassword"
-                      className="text-[11px] sm:text-xs text-orange-600 hover:underline"
+                      className="text-[11px] sm:text-xs text-blue-600 hover:underline"
                     >
                       Forgot Password?
                     </Link>
@@ -180,7 +195,7 @@ function Login() {
                     onChange={(e) => setPassword(e.target.value)}
                     placeholder="••••••••"
                     className="w-full px-4 py-3 rounded-xl border border-gray-200 bg-gray-50
-                               focus:ring-2 focus:ring-orange-400 focus:border-orange-500
+                               focus:ring-2 focus:ring-blue-400 focus:border-blue-500
                                outline-none text-sm transition-all"
                   />
 
@@ -199,11 +214,11 @@ function Login() {
                   {loginLoading ? "Logging in..." : "Login"}
                 </button>
 
-                {loginError && (
+                {/* {loginError && (
                   <p className="text-red-500 text-sm mt-2 text-center">
                     {loginError}
                   </p>
-                )}
+                )} */}
 
 
 
