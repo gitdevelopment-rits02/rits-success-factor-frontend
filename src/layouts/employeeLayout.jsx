@@ -21,6 +21,11 @@ const EmployeeLayout = () => {
 
   const navItems = [
     {
+      name: "Dashboard",
+      path: "/employee/dashboard",
+      icon: HiOutlineClipboardDocumentList,
+    },
+    {
       name: "Clock My Time",
       path: "/employee/clockmytime",
       icon: HiOutlineClock,
@@ -40,41 +45,41 @@ const EmployeeLayout = () => {
       path: "/employee/orgchart",
       icon: HiOutlineBuildingOffice2,
     },
-    {
-      name: "Growth Portfolio",
-      path: "/employee/growthportfolio",
-      icon: HiOutlineChartBar,
-    },
-    {
-      name: "Insurance",
-      path: "/employee/insurance",
-      icon: HiOutlineUsers,
-    },
-    {
-      name: "Learning",
-      path: "/employee/learning",
-      icon: HiOutlineBookOpen,
-    },
+    // {
+    //   name: "Growth Portfolio",
+    //   path: "/employee/growthportfolio",
+    //   icon: HiOutlineChartBar,
+    // },
+    // {
+    //   name: "Insurance",
+    //   path: "/employee/insurance",
+    //   icon: HiOutlineUsers,
+    // },
+    // {
+    //   name: "Learning",
+    //   path: "/employee/learning",
+    //   icon: HiOutlineBookOpen,
+    // },
     {
       name: "Payslips",
       path: "/employee/payslips",
       icon: HiOutlineClipboardDocumentList,
     },
-    {
-      name: "Timesheet",
-      path: "/employee/timesheet",
-      icon: HiOutlineClipboardDocumentList,
-    },
-    {
-      name: "Dashboard",
-      path: "/employee/dashboard",
-      icon: HiOutlineClipboardDocumentList,
-    },
-    {
-        name: "Notification",
-      path: "/employee/notification",
-      icon: HiOutlineClipboardDocumentList,
-    },
+    // {
+    //   name: "Timesheet",
+    //   path: "/employee/timesheet",
+    //   icon: HiOutlineClipboardDocumentList,
+    // },
+    // {
+    //   name: "Dashboard",
+    //   path: "/employee/dashboard",
+    //   icon: HiOutlineClipboardDocumentList,
+    // },
+    // {
+    //     name: "Notification",
+    //   path: "/employee/notification",
+    //   icon: HiOutlineClipboardDocumentList,
+    // },
      {
         name: "Policy Documents",
       path: "/employee/policydocuments",
