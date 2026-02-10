@@ -160,7 +160,7 @@ const [fullscreenDoc, setFullscreenDoc] = useState(null);
               </div>
             </Card>
 
-            <Card
+            {/* <Card
               title="Compensation Structure"
               icon={<FiDollarSign />}
               right={`Annual CTC: ${profile.annualCTC}`}
@@ -181,7 +181,7 @@ const [fullscreenDoc, setFullscreenDoc] = useState(null);
                   <Row label="TDS (Tax)" value="-₹15,000" red />
                 </div>
               </div>
-            </Card>
+            </Card> */}
 
             {/* ================= QUALIFICATIONS (ADDED HERE) ================= */}
             <div className="bg-white rounded-2xl shadow-sm p-6">
@@ -232,10 +232,10 @@ const [fullscreenDoc, setFullscreenDoc] = useState(null);
                       <p className="text-sm text-indigo-600 mt-1">
                         {item.institute}
                       </p>
-                      <div className="mt-4 bg-slate-50 border border-slate-100 rounded-xl px-5 py-4">
+                      {/* <div className="mt-4 bg-slate-50 border border-slate-100 rounded-xl px-5 py-4">
                         <div className="grid grid-cols-3 gap-6 items-center">
     
-                          {/* Major Subjects */}
+                        
                           <div className="col-span-2">
                             <p className="text-[11px] font-semibold text-slate-400 uppercase mb-1">
                               Major Subjects
@@ -245,7 +245,7 @@ const [fullscreenDoc, setFullscreenDoc] = useState(null);
                             </p>
                           </div>
 
-                          {/* Academic Score */}
+                          
                           <div className="text-right">
                             <p className="text-[11px] font-semibold text-slate-400 uppercase mb-1">
                               Academic Score
@@ -260,7 +260,7 @@ const [fullscreenDoc, setFullscreenDoc] = useState(null);
                             </p>
                           </div>
                         </div>
-                     </div>  
+                     </div>   */}
                     </div>
                   </div>
                 ))}
