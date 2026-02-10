@@ -1,6 +1,63 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
-import superAdminPayrollApi from "../../../../api/superAdminApi/SuperAdminPayrollApi";
+import { SuperAdminPayrollApi } from "../../../../api/superAdminApi/SuperAdminPayrollApi";
 
-const superAdminPayrollThunk = {};
+export const fetchPayrollListThunk = createAsyncThunk(
+  "superAdminPayroll/fetchList",
+  async ({ month, year }, { rejectWithValue }) => {
+    try {
+      const data = await SuperAdminPayrollApi.getPayrollList({ month, year });
+      return data;
+    } catch (err) {
+      return rejectWithValue(
+        err.response?.data || "Failed to fetch payroll"
+      );
+    }
+  }
+);
 
-export default superAdminPayrollThunk;
+
+export const fetchPayrollBreakdownThunk = createAsyncThunk(
+  "superAdminPayroll/fetchBreakdown",
+  async (payrollId, { rejectWithValue }) => {
+    try {
+      const data = await SuperAdminPayrollApi.getPayrollBreakdown(payrollId);
+      return { payrollId, data };
+    } catch (err) {
+      return rejectWithValue(
+        err.response?.data || "Failed to fetch breakdown"
+      );
+    }
+  }
+);
+
+export const fetchPayslipPdfThunk = createAsyncThunk(
+  "superAdmin/payroll/fetchPayslipPdf",
+  async (payrollId, { rejectWithValue }) => {
+    try {
+      const pdfBlob = await SuperAdminPayrollApi.getPayslipPdf(payrollId);
+
+      return { payrollId, pdfBlob };
+    } catch (error) {
+      return rejectWithValue(error.response?.data || "Failed to download payslip");
+    }
+  }
+);
+
+export const fetchPayrollReportThunk = createAsyncThunk(
+  "superAdmin/payroll/fetchReport",
+  async ({ month, year }, { rejectWithValue }) => {
+    try {
+      const fileBlob = await SuperAdminPayrollApi.downloadPayrollReport({
+        month,
+        year,
+      });
+
+      return { month, year, fileBlob };
+    } catch (error) {
+      return rejectWithValue(
+        error.response?.data || "Failed to download report"
+      );
+    }
+  }
+);
+ 
