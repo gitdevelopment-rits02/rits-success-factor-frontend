@@ -43,16 +43,16 @@ const HrLayout = () => {
         icon:FiClock
 
     },
-    {
-        name:"Insurance",
-        path:"/hr/insurance",
-        icon:FiShield
-    },
-    {
-        name:"Notifications",
-        path:"/hr/notification",
-        icon:FiBell
-    },
+    // {
+    //     name:"Insurance",
+    //     path:"/hr/insurance",
+    //     icon:FiShield
+    // },
+    // {
+    //     name:"Notifications",
+    //     path:"/hr/notification",
+    //     icon:FiBell
+    // },
     {
         name:"OnBoarding",
         path:"/hr/onboarding",
@@ -68,11 +68,11 @@ const HrLayout = () => {
         path:"/hr/policyandinsurancecreation",
         icon:FiShield
     },
-    {
-        name:"Policy Documents",
-        path:"/hr/policydocuments",
-        icon:FiShield
-    },
+    // {
+    //     name:"Policy Documents",
+    //     path:"/hr/policydocuments",
+    //     icon:FiShield
+    // },
     {
         name:"Request Time Off",
         path:"/hr/requesttimeoff",
@@ -83,11 +83,11 @@ const HrLayout = () => {
         path:"/hr/salarycreation",
         icon:FiDollarSign
     },
-    {
-        name:"TimeSheet",
-        path:"/hr/timesheet",
-        icon:FiClock
-    },
+    // {
+    //     name:"TimeSheet",
+    //     path:"/hr/timesheet",
+    //     icon:FiClock
+    // },
     {
         name:"Organization Chart",
         path:"/hr/orgchart",
