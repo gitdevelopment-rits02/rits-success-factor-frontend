@@ -875,7 +875,7 @@ export default function EmployeePoliciesManager() {
                   onClick={openAdd}
                   className="bg-blue-600 text-white px-4 py-2 rounded-lg flex items-center gap-2"
                 >
-                  <MdAdd /> Add Policy / Insurance
+                  <MdAdd /> Add Policy 
                 </button>
               </div>
             </div>

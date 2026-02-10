@@ -8,6 +8,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { registerThunk } from "../../../features/Auth/Redux/authThunk";
 import { useState } from "react";
 import { AiOutlineEye, AiOutlineEyeInvisible } from "react-icons/ai";
+import { toast } from "react-toastify";
 
 function Register() {
   const navigate = useNavigate();
@@ -78,45 +79,61 @@ function Register() {
   const [passwordError, setPasswordError] = useState("");
 
 
+  // const handleRegister = async () => {
+  //   const isValid = validate();
+  //   if (!isValid) return;
+
+  //   const payload = {
+  //     name: formData.name,
+  //     username: formData.username,
+  //     phone: formData.phone,
+  //     email: formData.email,
+  //     password: formData.password,
+  //     role: "superadmin",
+  //   };
+
+  //   const result = await dispatch(registerThunk(payload));
+
+  //   if (registerThunk.fulfilled.match(result)) {
+  //     navigate("/verify-email", {
+  //       state: { email: formData.email },
+  //     });
+  //   }
+  // };
   const handleRegister = async () => {
-    const isValid = validate();
-    if (!isValid) return;
+  const isValid = validate();
 
-    const payload = {
-      name: formData.name,
-      username: formData.username,
-      phone: formData.phone,
-      email: formData.email,
-      password: formData.password,
-      role: "superadmin",
-    };
+  if (!isValid) {
+    toast.error("Please fix the highlighted fields");
+    return;
+  }
 
+  const payload = {
+    name: formData.name,
+    username: formData.username,
+    phone: formData.phone,
+    email: formData.email,
+    password: formData.password,
+    role: "superadmin",
+  };
+
+  try {
     const result = await dispatch(registerThunk(payload));
 
     if (registerThunk.fulfilled.match(result)) {
-      // /**
-      //  * TYPE: DATA PERSISTENCE (Point Zero)
-      //  * Logic: We save the first registered user (SuperAdmin) locally 
-      //  * so the Org Chart has a "Root" node to start from even before 
-      //  * the backend role management is fully integrated.
-      //  */
-      // localStorage.setItem('successfactor_superadmin', JSON.stringify({
-      //   id: 'SA001',
-      //   name: formData.name,
-      //   designation: 'Super Administrator',
-      //   department: 'Global Management',
-      //   companyEmail: formData.email,
-      //   phone: formData.phone,
-      //   status: 'Active',
-      //   avatar: `https://ui-avatars.com/api/?name=${formData.name.split(' ').join('+')}&background=1e3a8a&color=fff`,
-      //   reportingManager: null // NULL defines this user as the top of the Org Chart
-      // }));
+      toast.success("Account created successfully");
 
       navigate("/verify-email", {
         state: { email: formData.email },
       });
+    } else {
+      toast.error(result?.payload || "Registration failed");
     }
-  };
+  } catch (err) {
+    toast.error("Something went wrong. Try again.");
+  }
+};
+
 
 
 
@@ -237,11 +254,14 @@ function Register() {
                     focus:border-blue-500 transition-all placeholder:text-gray-300"
               />
 
-              {errors.name && (
-                <p className="text-red-500 text-xs mt-1">
-                  {errors.name}
-                </p>
-              )}
+              <div className="h-4 mt-1">
+                {errors.name && (
+                  <p className="text-red-500 text-xs">
+                    {errors.name}
+                  </p>
+                )}
+              </div>
+
             </div>
 
             <div className="mb-4">
@@ -258,11 +278,15 @@ function Register() {
                     focus:border-blue-500 transition-all placeholder:text-gray-300"
               />
 
-              {errors.username && (
-                <p className="text-red-500 text-xs mt-1">
-                  {errors.username}
-                </p>
-              )}
+
+              <div className="h-4 mt-1">
+                {errors.username && (
+                  <p className="text-red-500 text-xs">
+                    {errors.username}
+                  </p>
+                )}
+              </div>
+
             </div>
 
 
@@ -285,11 +309,15 @@ function Register() {
                     focus:border-blue-500 transition-all placeholder:text-gray-300"
               />
 
-              {errors.phone && (
-                <p className="text-red-500 text-xs mt-1">
-                  {errors.phone}
-                </p>
-              )}
+
+              <div className="h-4 mt-1">
+                {errors.phone && (
+                  <p className="text-red-500 text-xs">
+                    {errors.phone}
+                  </p>
+                )}
+              </div>
+
             </div>
 
             <div className="mb-4">
@@ -307,11 +335,15 @@ function Register() {
                     focus:border-blue-500 transition-all placeholder:text-gray-300"
               />
 
-              {errors.email && (
-                <p className="text-red-500 text-xs mt-1">
-                  {errors.email}
-                </p>
-              )}
+
+              <div className="h-4 mt-1">
+                {errors.email && (
+                  <p className="text-red-500 text-xs">
+                    {errors.email}
+                  </p>
+                )}
+              </div>
+
             </div>
 
 
@@ -341,11 +373,15 @@ function Register() {
                 </span>
               </div>
 
-              {errors.password && (
-                <p className="text-red-500 text-xs mt-1">
-                  {errors.password}
-                </p>
-              )}
+
+              <div className="h-4 mt-1">
+                {errors.password && (
+                  <p className="text-red-500 text-xs">
+                    {errors.password}
+                  </p>
+                )}
+              </div>
+
             </div>
 
 
@@ -383,11 +419,15 @@ function Register() {
                 </span>
               </div>
 
-              {errors.confirmPassword && (
-                <p className="text-red-500 text-xs mt-1">
-                  {errors.confirmPassword}
-                </p>
-              )}
+              
+              <div className="h-4 mt-1">
+                {errors.confirmPassword && (
+                  <p className="text-red-500 text-xs">
+                    {errors.confirmPassword}
+                  </p>
+                )}
+              </div>
+
             </div>
 
 
@@ -404,11 +444,11 @@ function Register() {
             >
               {registerLoading ? "Creating..." : "Create Account"}
             </button>
-            {registerError && (
+            {/* {registerError && (
               <p className="text-red-500 text-sm mt-2 text-center">
                 {registerError}
               </p>
-            )}
+            )} */}
 
 
             {/* Footer */}
