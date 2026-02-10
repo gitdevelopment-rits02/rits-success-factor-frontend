@@ -16,7 +16,7 @@ export const ROUTES = {
   },
 
   SUPERADMIN: {
-     TIMESHEETAPPROVAL: "/superadmin/timesheetapproval",//correct
+    TIMESHEETAPPROVAL: "/superadmin/timesheetapproval",//correct
     REQUESTTIMEOFF: '/superadmin/requesttimeoff',//correct
     PROFILE: '/superadmin/profile',//profile
     MANAGEMYTEAM: '/superadmin/managemyteam',//manage my team
@@ -35,14 +35,35 @@ export const ROUTES = {
 
   },
 
-  
- MANAGER: {
+  CHIEF: {
+    DASHBOARD: '/chief/dashboard',
+    WORKFORCEWITHHRANALYTICS: '/chief/workforcewithhranalytics',
+    SYSTEMDASHBOARD: '/chief/systemdashboard',
+    ADMINCREATION: '/chief/admincreation',
+    ADMINMANAGEMENT: '/chief/adminmanagement',
+    APPROVALFLOW: '/chief/approvalflow',
+    FEEDBACK: '/chief/feedback',
+    GROWTHPORTFOLIO: '/chief/growthportfolio',
+    MANAGELEAVE: '/chief/manageleave',
+    MANAGEMYTEAM: '/chief/managemyteam',
+    ORG: '/chief/org',
+    ORGCHART: '/chief/orgchart',
+    PAYROLL: '/chief/payroll',
+    PERSONALTIMESHEET: '/chief/personaltimesheet',
+    POLICIES: '/chief/policies',
+    PROFILE: '/chief/profile',
+    REQUESTTIMEOFF: '/chief/requesttimeoff',
+    TIMESHEETAPPROVAL: '/chief/timesheetapproval',
+  },
+
+
+  MANAGER: {
     CLOCKMYTIME: "/manager/clockmytime",//(not w)
     REQUESTTIMEOFF: "/manager/requesttimeoff",
     PROFILE: "/manager/profile",
     // MANAGEMYTEAM: "/manager/managemyteam",
     ORGCHART: "/manager/orgchart",
-  
+
     FEEDBACK: "/manager/feedback",
     LEARNING: "/manager/learning",
     PAYSLIPS: "/manager/payslips",
@@ -58,12 +79,12 @@ export const ROUTES = {
     LEAVEAPPROVAL:"/manager/leaveapproval",
     TASKASSIGNMENT:"/manager/taskassignment"
 
-},
+  },
 
 
 
-HR: {
-   
+  HR: {
+
     DASHBOARD:"/hr/dashboard",
     CLOCKMYTIME:"/hr/clockmytime",
     INSURANCE:"/hr/insurance",
@@ -79,9 +100,9 @@ HR: {
     OFFBOARDING:"/hr/offboarding",
 
 
-},
+  },
 
-EMPLOYEE: {
+  EMPLOYEE: {
     CLOCKMYTIME: "/employee/clockmytime",
     REQUESTTIMEOFF: "/employee/requesttimeoff",
     VIEWMYPROFILE: "/employee/profile",
@@ -96,9 +117,9 @@ EMPLOYEE: {
     POLICYDOCUMENTS:"/employee/policydocuments"
 
 
-},
+  },
 
 
- 
+
 };
 

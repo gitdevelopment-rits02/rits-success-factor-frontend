@@ -139,7 +139,21 @@ const MOCK_EMPLOYEES = [
     }
 ];
 
-const SuperAdminOrgChart = ({ employees = MOCK_EMPLOYEES }) => {
+const SuperAdminOrgChart = ({ employees: initialEmployees }) => {
+    // Merge all data sources from localStorage for a complete view
+    const allEmployees = useMemo(() => {
+        const superAdminRaw = localStorage.getItem('successfactor_superadmin');
+        const adminsRaw = localStorage.getItem('successfactor_admins');
+        const employeesRaw = localStorage.getItem('successfactor_employees');
+
+        const superAdmin = superAdminRaw ? [JSON.parse(superAdminRaw)] : [];
+        const admins = adminsRaw ? JSON.parse(adminsRaw) : [];
+        const employees = employeesRaw ? JSON.parse(employeesRaw) : initialEmployees || MOCK_EMPLOYEES;
+
+        // Combine all and ensure no duplicates by name (or ID)
+        return [...superAdmin, ...admins, ...employees];
+    }, [initialEmployees]);
+
     const [selectedEmployee, setSelectedEmployee] = useState(null);
     const [zoom, setZoom] = useState(1);
     const [viewMode, setViewMode] = useState('chart');
@@ -147,6 +161,9 @@ const SuperAdminOrgChart = ({ employees = MOCK_EMPLOYEES }) => {
     const [isFilterOpen, setIsFilterOpen] = useState(false);
     const [collapsedNodes, setCollapsedNodes] = useState(new Set());
     const [activeTab, setActiveTab] = useState('details');
+
+    // Use the combined list for all logic
+    const employees = allEmployees;
 
     const toggleNode = (nodeId) => {
         setCollapsedNodes(prev => {

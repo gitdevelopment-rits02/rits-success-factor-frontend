@@ -151,7 +151,11 @@ export default function SuperAdminAdminManagement() {
         employeeId: `EMP${String(prev.length + 1).padStart(3, "0")}`,
         name: form.name,
         email: form.email,
-        status: form.status,
+        status: form.status || "Active",
+        designation: form.designation || "Administrator",
+        department: form.department || "Administration",
+        reportingManager: superAdmin.name, // Link to the SuperAdmin
+        avatar: `https://ui-avatars.com/api/?name=${form.name.split(' ').join('+')}&background=1e40af&color=fff`,
         lastLogin: "Never",
         created: new Date().toLocaleDateString("en-US", {
           month: "short",
@@ -654,3 +658,5 @@ function StatCard({ icon, label, value, badge, badgeColor, gradient, iconBg }) {
     </div>
   );
 }
+
+export default SuperAdminAdminManagement;
