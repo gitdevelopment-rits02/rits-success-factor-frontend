@@ -1,15 +1,92 @@
-import React from "react";
+import React, { useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { forgotPasswordThunk } from "../../../features/Auth/Redux/authThunk";
+import { Link, useNavigate } from "react-router-dom";
+import { useEffect } from "react";
 import background from "../../../assets/background.png";
 import theme from "../../../assets/theme1.png";
 
+
+import { toast } from "react-toastify";
+
+
 function ForgotPassword() {
+  const navigate = useNavigate();
+
+  const dispatch = useDispatch();
+  const [email, setEmail] = useState("");
+
+
+  const { forgotLoading, forgotSuccess, forgotError, forgotMessage } =
+    useSelector((state) => state.auth);
+
+
+
+
+  const handleSendOtp = async () => {
+    if (!email.trim()) {
+      toast.error("Please enter your email");
+      return;
+    }
+
+    try {
+      await dispatch(forgotPasswordThunk({ email })).unwrap();
+
+      toast.success("OTP sent successfully");
+      navigate("/forgotpasswordotpverify", { state: { email } });
+
+    } catch (err) {
+      toast.error(err?.message || "Failed to send OTP");
+    }
+  };
+
+
+
+
   return (
     <div
       className="min-h-screen w-full bg-cover bg-center"
       style={{ backgroundImage: `url(${background})` }}
     >
       <div className="min-h-screen w-full flex flex-col lg:flex-row items-center justify-center lg:pl-20 xl:pl-28">
+        <header className="w-full bg-blue shadow-sm fixed top-0 left-0 z-50">
+          <div className="w-full backdrop-blur-md bg-blue/60 border-b border-blue/10">
+            <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
 
+              {/* LEFT: Logo + Brand */}
+              <div className="flex items-center gap-3">
+                <div className="w-11 h-11 rounded-full bg-blue-500 flex items-center justify-center shadow-md">
+                  <span className="text-white font-bold text-xl">R</span>
+                </div>
+
+                <div>
+                  <p className="text-lg font-bold text-gray-900">
+                    Rits<span className="text-blue-900">HrConnect</span>
+                  </p>
+                  <p className="text-xs text-gray-500">Enterprise Solution</p>
+                </div>
+              </div>
+
+              {/* RIGHT: Sign in */}
+
+              <div className="text-sm text-gray-600">
+                Remembered your password?{" "}
+                <Link
+                  to="/login"
+                  className="text-blue-900 font-medium hover:underline"
+                >
+                  Register
+                </Link>
+
+              </div>
+
+            </div>
+          </div>
+
+
+
+
+        </header>
         {/* LEFT SECTION — Illustration */}
         <div className="w-full lg:w-1/2 flex flex-col items-center justify-center px-4 sm:px-6 md:px-10 py-6">
           {/* Feature Pills */}
@@ -24,16 +101,16 @@ function ForgotPassword() {
             ))}
           </div>
 
-          
+
           <div className="w-full flex justify-center mb-3 sm:mb-5">
-              <div className="w-full max-w-xs sm:max-w-sm md:max-w-md lg:max-w-lg xl:max-w-xl mx-auto scale-[0.85] sm:scale-100 md:scale-[1.05] lg:scale-[1.15] xl:scale-[1.2] transition-transform">
-                <img
-                  src={theme}
-                  alt="Restaurant Illustration"
-                  className="w-full h-auto object-contain drop-shadow-md"
-                />
-              </div>
+            <div className="w-full max-w-xs sm:max-w-sm md:max-w-md lg:max-w-lg xl:max-w-xl mx-auto scale-[0.85] sm:scale-100 md:scale-[1.05] lg:scale-[1.15] xl:scale-[1.2] transition-transform">
+              <img
+                src={theme}
+                alt="Restaurant Illustration"
+                className="w-full h-auto object-contain drop-shadow-md"
+              />
             </div>
+          </div>
 
 
           {/* Text */}
@@ -55,7 +132,7 @@ function ForgotPassword() {
             <div className="text-center mb-5 sm:mb-6">
               <h1 className="text-lg sm:text-xl md:text-2xl font-bold text-gray-900">
                 Forgot Password?
-              
+
               </h1>
               <p className="text-xs sm:text-sm text-gray-500 mt-1">
                 Enter your email to receive a one-time password (OTP)
@@ -64,7 +141,7 @@ function ForgotPassword() {
 
             {/* Role Switch */}
             {/* <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-5 sm:mb-6">
-              <button className="py-2.5 sm:py-3 rounded-xl bg-orange-500 text-white font-semibold text-xs sm:text-sm shadow-md">
+              <button className="py-2.5 sm:py-3 rounded-xl bg-blue-500 text-white font-semibold text-xs sm:text-sm shadow-md">
                 Admin Login
               </button>
               <button className="py-2.5 sm:py-3 rounded-xl bg-gray-50 text-gray-700 font-semibold text-xs sm:text-sm border border-gray-200 hover:bg-gray-100">
@@ -79,29 +156,32 @@ function ForgotPassword() {
               </label>
               <input
                 type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
                 placeholder="you@example.com"
-                className="w-full mt-2 px-3.5 sm:px-4 py-2.5 sm:py-3 rounded-xl border border-gray-200 bg-gray-50 focus:ring-2 focus:ring-orange-400 focus:border-orange-500 focus:bg-white outline-none text-sm sm:text-base transition-all"
+                className="w-full mt-2 px-3.5 sm:px-4 py-2.5 sm:py-3 rounded-xl border border-gray-200 bg-gray-50 focus:ring-2 focus:ring-blue-400 focus:border-blue-500 focus:bg-white outline-none text-sm sm:text-base transition-all"
               />
             </div>
 
-           
-            
 
             {/* Login Button */}
-            <button className="w-full py-3 sm:py-3.5 rounded-xl bg-gradient-to-r from-blue-900 to-blue-600 text-white font-semibold text-sm sm:text-base shadow-lg hover:from-blue-600 hover:to-blue-700 transition-all">
-              Send OTP
+            <button
+              type="button"
+              onClick={handleSendOtp}
+              disabled={forgotLoading}
+              className="w-full py-3 sm:py-3.5 rounded-xl bg-gradient-to-r from-blue-900 to-blue-600 text-white font-semibold text-sm sm:text-base shadow-lg hover:from-blue-600 hover:to-blue-700 transition-all disabled:opacity-60">
+              {forgotLoading ? "Sending..." : "Send OTP"}
             </button>
-
             {/* Footer */}
             <p className="text-center text-gray-400 text-[10px] sm:text-xs mt-5">
               © 2026 Sucess Factor. All rights reserved.
             </p>
           </div>
         </div>
-
       </div>
     </div>
   );
 }
 
 export default ForgotPassword;
+
