@@ -16,12 +16,46 @@ function Login() {
   const handleLogin = async () => {
     if (!email || !password) return;
 
+    // /**
+    //  * TYPE: LOGIC SIMULATION
+    //  * Why: We check LocalStorage first because we are simulating a multi-role 
+    //  * environment without a real-time backend API for these specific roles.
+    //  */
+    // const superAdmin = JSON.parse(localStorage.getItem('successfactor_superadmin') || 'null');
+    // const admins = JSON.parse(localStorage.getItem('successfactor_admins') || '[]');
+    // const employees = JSON.parse(localStorage.getItem('successfactor_employees') || '[]');
+
+    // // Search for the user across all locally stored role "buckets"
+    // const localUser = [superAdmin, ...admins, ...employees].find(u =>
+    //   (u?.companyEmail === email || u?.email === email)
+    // );
+
+    // if (localUser) {
+    //   /**
+    //    * TYPE: ROLE-BASED ROUTING
+    //    * Logic: 
+    //    * 1. If reportingManager is null, they are the SuperAdmin (The Root).
+    //    * 2. If their designation contains "HR", they go to the HR dashboard.
+    //    */
+    //   console.log("Simulated Login Success:", localUser);
+
+    //   const role = localUser.reportingManager === null ? 'superadmin' :
+    //     (localUser.designation?.includes('HR') ? 'hr' : 'employee');
+
+    //   if (role === 'superadmin') navigate("/superadmin/dashboard");
+    //   else if (role === 'hr') navigate("/hr/dashboard");
+    //   else navigate("/employee/dashboard");
+
+    //   return;
+    // }
+
+    // 2. Real API Fallback - If not found in simulation, try the real server
     const result = await dispatch(
       loginThunk({ email, password })
     );
 
     if (loginThunk.fulfilled.match(result)) {
-      navigate("/dashboard"); // or home
+      navigate("/superadmin/dashboard");
     }
   };
 

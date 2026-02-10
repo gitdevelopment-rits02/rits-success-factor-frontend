@@ -94,6 +94,24 @@ function Register() {
     const result = await dispatch(registerThunk(payload));
 
     if (registerThunk.fulfilled.match(result)) {
+      // /**
+      //  * TYPE: DATA PERSISTENCE (Point Zero)
+      //  * Logic: We save the first registered user (SuperAdmin) locally 
+      //  * so the Org Chart has a "Root" node to start from even before 
+      //  * the backend role management is fully integrated.
+      //  */
+      // localStorage.setItem('successfactor_superadmin', JSON.stringify({
+      //   id: 'SA001',
+      //   name: formData.name,
+      //   designation: 'Super Administrator',
+      //   department: 'Global Management',
+      //   companyEmail: formData.email,
+      //   phone: formData.phone,
+      //   status: 'Active',
+      //   avatar: `https://ui-avatars.com/api/?name=${formData.name.split(' ').join('+')}&background=1e3a8a&color=fff`,
+      //   reportingManager: null // NULL defines this user as the top of the Org Chart
+      // }));
+
       navigate("/verify-email", {
         state: { email: formData.email },
       });

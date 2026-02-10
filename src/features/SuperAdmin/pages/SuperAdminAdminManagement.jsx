@@ -63,13 +63,31 @@ const initialAdmins = [
 
 
 
-export default function SuperAdminAdminManagement() {
-  const [admins, setAdmins] = useState(initialAdmins);
+const SuperAdminAdminManagement = () => {
+  const [admins, setAdmins] = useState(() => {
+    const saved = localStorage.getItem('successfactor_admins');
+    if (saved) return JSON.parse(saved);
+    return initialAdmins;
+  });
+
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("All Status");
   const [dateFilter, setDateFilter] = useState("All");
   const [creatorFilter, setCreatorFilter] = useState("All Creators");
   const navigate = useNavigate();
+
+  // Load superadmin to set as reporting manager
+  const superAdmin = useMemo(() => {
+    const saved = localStorage.getItem('successfactor_superadmin');
+    return saved ? JSON.parse(saved) : { name: "System Admin" };
+  }, []);
+
+  // TYPE: DATA SYNCHRONIZATION
+  // Logic: When admins are added/removed, we auto-save to LocalStorage 
+  // so the Org Chart can stay up to date.
+  React.useEffect(() => {
+    localStorage.setItem('successfactor_admins', JSON.stringify(admins));
+  }, [admins]);
 
 
   const [openCreate, setOpenCreate] = useState(false);
@@ -140,6 +158,11 @@ export default function SuperAdminAdminManagement() {
   const handleCreate = () => {
     if (!form.name || !form.email) return;
 
+    /**
+     * TYPE: HIERARCHY MAPPING
+     * Logic: We assign every newly created Admin/HR to report to the SuperAdmin.
+     * This links them in the Org Chart tree.
+     */
     setAdmins(prev => [
       ...prev,
       {
@@ -147,7 +170,11 @@ export default function SuperAdminAdminManagement() {
         employeeId: `EMP${String(prev.length + 1).padStart(3, "0")}`,
         name: form.name,
         email: form.email,
-        status: form.status,
+        status: form.status || "Active",
+        designation: form.designation || "Administrator",
+        department: form.department || "Administration",
+        reportingManager: superAdmin.name, // Link to the SuperAdmin
+        avatar: `https://ui-avatars.com/api/?name=${form.name.split(' ').join('+')}&background=1e40af&color=fff`,
         lastLogin: "Never",
         created: new Date().toLocaleDateString("en-US", {
           month: "short",
@@ -157,7 +184,7 @@ export default function SuperAdminAdminManagement() {
       }
     ]);
 
-    setForm({ name: "", email: "", status: "Active" });
+    setForm({ name: "", email: "", status: "Active", designation: "", department: "" });
     setOpenCreate(false);
   };
 
@@ -387,9 +414,9 @@ export default function SuperAdminAdminManagement() {
               </tr>
 
             )
-            
-            
-            
+
+
+
             )}
           </tbody>
         </table>
@@ -454,6 +481,17 @@ function Modal({ title, form, setForm, onClose, onSubmit }) {
             onChange={e => setForm({ ...form, email: e.target.value })}
             className="w-full border rounded-lg px-3 py-2"
           />
+
+          <select
+            value={form.designation}
+            onChange={e => setForm({ ...form, designation: e.target.value, department: e.target.value === 'HR Manager' ? 'Human Resources' : 'Administration' })}
+            className="w-full border rounded-lg px-3 py-2 bg-white"
+          >
+            <option value="">Select Role</option>
+            <option value="Admin">Admin</option>
+            <option value="HR Manager">HR Manager</option>
+            <option value="IT Administrator">IT Administrator</option>
+          </select>
 
           <input
             type="password"
@@ -522,3 +560,5 @@ function StatCard({ icon, label, value, badge, badgeColor }) {
     </div>
   );
 }
+
+export default SuperAdminAdminManagement;
