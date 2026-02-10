@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from "react";
+import React, { useState, useEffect } from "react";   
 import {
   FiUsers,
   FiHome,
@@ -14,7 +14,6 @@ import {
   HiUsers,
   HiUserPlus,
   HiCalendarDays,
-  HiArrowTrendingUp,
 } from "react-icons/hi2";
 import {
   Chart as ChartJS,
@@ -24,21 +23,17 @@ import {
   Tooltip,
 } from "chart.js";
 import { Bar } from "react-chartjs-2";
+import { useDispatch, useSelector } from "react-redux";
+import superAdminDashboardThunk from "../Redux/thunks/superAdminDashboardThunk";
+import SuperAdminDashboardSkeleton from
+  "../SuperAdminSkeleton/SuperAdminDashboardSkeleton";
+
+
+
+
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, Tooltip);
 
-const INITIAL_DATA = [
-  { id: 1, name: "John Smith", dept: "Sales", time: "9:05 AM", status: "In Office", color: "text-blue-600" },
-  { id: 2, name: "Emily Davis", dept: "Marketing", time: "—", status: "WFH", color: "text-cyan-500" },
-  { id: 3, name: "Michael Lee", dept: "HR", time: "—", status: "Absent", color: "text-slate-400" },
-  { id: 4, name: "Sarah Johnson", dept: "IT", time: "8:55 AM", status: "In Office", color: "text-blue-600" },
-  { id: 5, name: "David Chen", dept: "IT", time: "9:15 AM", status: "In Office", color: "text-blue-600" },
-  { id: 6, name: "Angela Moss", dept: "Finance", time: "—", status: "On Leave", color: "text-indigo-400" },
-  { id: 7, name: "Chris Evans", dept: "Sales", time: "—", status: "WFH", color: "text-cyan-500" },
-  { id: 8, name: "Jessica Alba", dept: "Marketing", time: "9:02 AM", status: "In Office", color: "text-blue-600" },
-  { id: 9, name: "Robert Fox", dept: "Finance", time: "—", status: "Absent", color: "text-slate-400" },
-  { id: 10, name: "Linda Blair", dept: "IT", time: "8:30 AM", status: "In Office", color: "text-blue-600" },
-];
 const OFFICE_START_TIME = 9 * 60; // 9:00 AM
 
 function parseTimeToMinutes(time) {
@@ -55,23 +50,58 @@ function parseTimeToMinutes(time) {
 
 export default function SuperAdminDashboard() {
   const [activeTab, setActiveTab] = useState("attendance");
+  const [showSkeleton, setShowSkeleton] = useState(true);
+
+  const {
+    getAttendanceDataLoading,
+    getDashboardDataLoading,
+  } = useSelector((state) => state.superAdmin?.dashboard || {});
+
+useEffect(() => {
+  if (
+    (activeTab === "attendance" && !getAttendanceDataLoading) ||
+    (activeTab === "analytics" && !getDashboardDataLoading)
+  ) {
+    const timer = setTimeout(() => {
+      setShowSkeleton(false);
+    }, 1500);
+
+    return () => clearTimeout(timer);
+  } else {
+    setShowSkeleton(true);
+  }
+}, [activeTab,getAttendanceDataLoading, getDashboardDataLoading]);
 
   return (
+
     <div className="min-h-screen bg-[#F8FAFC] p-6 md:p-10 font-sans text-slate-700">
+
+  {showSkeleton && (
+      <div className="absolute inset-0 z-50 bg-[#F8FAFC]">
+        <SuperAdminDashboardSkeleton />
+      </div>
+    )}
+
+
+
 
       {/* TOGGLE NAVIGATION */}
       <div className="flex justify-center mb-10">
         <div className="bg-white p-1 rounded-2xl flex gap-1 border border-slate-200 shadow-sm">
           <button
             onClick={() => setActiveTab("analytics")}
-            className={`px-6 py-2 rounded-xl font-bold text-sm transition-all ${activeTab === "analytics" ? "bg-blue-600 text-white shadow-md" : "text-slate-500 hover:bg-slate-50"
+            className={`px-6 py-2 rounded-xl font-bold text-sm transition-all ${activeTab === "analytics"
+              ? "bg-blue-600 text-white shadow-md"
+              : "text-slate-500 hover:bg-slate-50"
               }`}
           >
             Analytics
           </button>
           <button
             onClick={() => setActiveTab("attendance")}
-            className={`px-6 py-2 rounded-xl font-bold text-sm transition-all ${activeTab === "attendance" ? "bg-blue-600 text-white shadow-md" : "text-slate-500 hover:bg-slate-50"
+            className={`px-6 py-2 rounded-xl font-bold text-sm transition-all ${activeTab === "attendance"
+              ? "bg-blue-600 text-white shadow-md"
+              : "text-slate-500 hover:bg-slate-50"
               }`}
           >
             Attendance
@@ -89,21 +119,20 @@ export default function SuperAdminDashboard() {
     </div>
   );
 }
-function LateCheckInMonitor() {
-  const lateEmployees = INITIAL_DATA.filter(emp => {
-    if (emp.status !== "In Office") return false;
-    const minutes = parseTimeToMinutes(emp.time);
-    return minutes !== null && minutes > OFFICE_START_TIME;
-  });
 
-  const deptCounts = lateEmployees.reduce((acc, emp) => {
-    acc[emp.dept] = (acc[emp.dept] || 0) + 1;
-    return acc;
-  }, {});
+function LateCheckInMonitor() {
+  const { dashboardData } = useSelector(
+    (state) => state.superAdmin?.dashboard || {}
+  );
+
+  const lateEmployees = dashboardData?.lateCheckins?.employees || [];
+  const lateCount = dashboardData?.lateCheckins?.count || 0;
+
   const deptIcons = {
     Sales: <FiTrendingUp className="text-blue-500" />,
     IT: <FiServer className="text-indigo-500" />,
     Marketing: <FiActivity className="text-emerald-500" />,
+    Finance: <FiActivity className="text-purple-500" />,
   };
 
   return (
@@ -112,41 +141,28 @@ function LateCheckInMonitor() {
         <FiActivity /> Late Check-In Monitor
       </h3>
 
-      {lateEmployees.length === 0 ? (
+      {lateCount === 0 ? (
         <p className="text-sm font-bold text-emerald-600">
-          No late check-ins today
+          No late check-ins today ✓
         </p>
       ) : (
         <>
-          {/* Department Summary */}
-          <div className="space-y-2">
-            {Object.entries(deptCounts).map(([dept, count]) => (
-              <div
-                key={dept}
-                className="flex items-center justify-between text-sm font-bold"
-              >
-                <div className="flex items-center gap-2 text-slate-600">
-                  {deptIcons[dept]}
-                  <span>{dept}</span>
-                </div>
-                <span className="text-red-500">{count}</span>
-              </div>
-            ))}
-
+          <div className="text-2xl font-black text-red-600">
+            {lateCount} {lateCount === 1 ? 'employee' : 'employees'} late
           </div>
 
           <hr className="border-red-100" />
 
           {/* Individual List */}
           <div className="space-y-3 max-h-40 overflow-y-auto">
-            {lateEmployees.map(emp => (
-              <div key={emp.id} className="flex justify-between items-center">
+            {lateEmployees.map((emp, idx) => (
+              <div key={idx} className="flex justify-between items-center">
                 <div>
-                  <p className="font-bold text-slate-700">{emp.name}</p>
-                  <p className="text-xs text-slate-400">{emp.dept}</p>
+                  <p className="font-bold text-slate-700">{emp.name || 'Unknown'}</p>
+                  <p className="text-xs text-slate-400">{emp.department || 'N/A'}</p>
                 </div>
                 <span className="font-mono text-red-600 font-black">
-                  {emp.time}
+                  {emp.checkInTime || '—'}
                 </span>
               </div>
             ))}
@@ -158,47 +174,93 @@ function LateCheckInMonitor() {
 }
 
 
-// ==========================================
-// VIEW 1: ATTENDANCE TRACKER (Matches Image)
-// ==========================================
+// VIEW 1: ATTENDANCE TRACKER 
+
 function LiveAttendanceTracker() {
+  const dispatch = useDispatch();
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedStatus, setSelectedStatus] = useState("All");
+  const [selectedDepartment, setSelectedDepartment] = useState("All");
 
+  // GET ATTENDANCE DATA (NOT DASHBOARD DATA!)
+  const {
+    attendanceData,
+    getAttendanceDataLoading,
+  } = useSelector((state) => state.superAdmin?.dashboard || {});
+  // GET DASHBOARD DATA FOR DEPARTMENTS LIST
+  const { dashboardData } = useSelector(
+    (state) => state.superAdmin?.dashboard || {}
+  );
+
+ 
+  useEffect(() => {
+    // Fetch attendance data
+    dispatch(superAdminDashboardThunk.getAttendanceDataThunk())
+      .unwrap()
+      .then((res) => {
+        console.log("Attendance data:", res);
+      })
+      .catch((err) => {
+        console.log("Error fetching attendance:", err);
+      });
+
+    // Fetch dashboard data for departments
+    dispatch(superAdminDashboardThunk.getDashboardDataThunk())
+      .unwrap()
+      .then((res) => {
+        console.log("Dashboard data:", res);
+      })
+      .catch((err) => {
+        console.log("Error fetching dashboard:", err);
+      });
+  }, [dispatch]);
+
+  
   const stats = {
-    total: 10,
-    present: 5,
-    remote: 2,
-    absence: 2,
+    total: attendanceData?.overview?.totalStaff || 0,
+    present: attendanceData?.overview?.present || 0,
+    remote: attendanceData?.overview?.wfh || 0,
+    absence: attendanceData?.overview?.absent || 0,
   };
-  const OFFICE_START_TIME = 9 * 60; // 9:00 AM in minutes
 
-  function parseTimeToMinutes(time) {
-    if (!time || time === "—") return null;
 
-    const [clock, meridian] = time.split(" ");
-    let [hour, minute] = clock.split(":").map(Number);
+  const roster = attendanceData?.roster || [];
+  const departments = dashboardData?.departmentHeadcount?.map(d => d.department) || [];
 
-    if (meridian === "PM" && hour !== 12) hour += 12;
-    if (meridian === "AM" && hour === 12) hour = 0;
-
-    return hour * 60 + minute;
-  }
-
-  const filteredData = INITIAL_DATA.filter(emp => {
-    const matchesSearch = emp.name.toLowerCase().includes(searchTerm.toLowerCase());
+  const filteredData = roster.filter((emp) => {
+    const matchesSearch = emp.name?.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesStatus = selectedStatus === "All" || emp.status === selectedStatus;
-    return matchesSearch && matchesStatus;
+    const matchesDepartment = selectedDepartment === "All" || emp.department === selectedDepartment;
+    return matchesSearch && matchesStatus && matchesDepartment;
   });
 
+  // if (getAttendanceDataLoading) {
+  //   return (
+  //     <div className="flex items-center justify-center h-64">
+  //       <div className="text-blue-600 text-lg font-bold">Loading...</div>
+  //     </div>
+  //   );
+  // }
+
+
+// if (getAttendanceDataLoading) {
+//   return <SuperAdminDashboardSkeleton />;
+// }
+// if (showSkeleton) {
+//   return <SuperAdminDashboardSkeleton />;
+// }
 
 
   return (
     <div className="space-y-6">
       {/* Header */}
       <div>
-        <h1 className="text-4xl font-black text-[#1E3A8A] tracking-tight">Live Attendance Tracker</h1>
-        <p className="text-blue-500 font-semibold mt-1">Live updates from all departments</p>
+        <h1 className="text-4xl font-black text-[#1E3A8A] tracking-tight">
+          Live Attendance Tracker
+        </h1>
+        <p className="text-blue-500 font-semibold mt-1">
+          Live updates from all departments
+        </p>
       </div>
 
       {/* Search Bar */}
@@ -222,19 +284,54 @@ function LiveAttendanceTracker() {
             </div>
 
             <div>
-              <label className="text-[11px] font-black uppercase tracking-widest text-blue-400">Department</label>
-              <select className="mt-3 w-full rounded-xl border border-slate-200 p-3 bg-slate-50/50 text-sm outline-none focus:border-blue-500">
-                <option>All</option>
+              <label className="text-[11px] font-black uppercase tracking-widest text-blue-400">
+                Department
+              </label>
+              <select
+                className="mt-3 w-full rounded-xl border border-slate-200 p-3 bg-slate-50/50 text-sm outline-none focus:border-blue-500"
+                value={selectedDepartment}
+                onChange={(e) => setSelectedDepartment(e.target.value)}
+              >
+                <option value="All">All</option>
+                {departments.map((dept, idx) => (
+                  <option key={idx} value={dept}>
+                    {dept}
+                  </option>
+                ))}
               </select>
             </div>
 
             <div>
-              <label className="text-[11px] font-black uppercase tracking-widest text-blue-400">Quick Status</label>
+              <label className="text-[11px] font-black uppercase tracking-widest text-blue-400">
+                Quick Status
+              </label>
               <div className="mt-4 space-y-2">
-                <StatusFilterBtn label="All" active={selectedStatus === "All"} onClick={() => setSelectedStatus("All")} />
-                <StatusFilterBtn icon={FiCheckCircle} label="In Office" active={selectedStatus === "In Office"} onClick={() => setSelectedStatus("In Office")} color="text-blue-500" />
-                <StatusFilterBtn icon={FiHome} label="WFH" active={selectedStatus === "WFH"} onClick={() => setSelectedStatus("WFH")} color="text-cyan-500" />
-                <StatusFilterBtn icon={FiXCircle} label="Absent" active={selectedStatus === "Absent"} onClick={() => setSelectedStatus("Absent")} color="text-slate-400" />
+                <StatusFilterBtn
+                  label="All"
+                  active={selectedStatus === "All"}
+                  onClick={() => setSelectedStatus("All")}
+                />
+                <StatusFilterBtn
+                  icon={FiCheckCircle}
+                  label="In Office"
+                  active={selectedStatus === "In Office"}
+                  onClick={() => setSelectedStatus("In Office")}
+                  color="text-blue-500"
+                />
+                <StatusFilterBtn
+                  icon={FiHome}
+                  label="WFH"
+                  active={selectedStatus === "WFH"}
+                  onClick={() => setSelectedStatus("WFH")}
+                  color="text-cyan-500"
+                />
+                <StatusFilterBtn
+                  icon={FiXCircle}
+                  label="Absent"
+                  active={selectedStatus === "Absent"}
+                  onClick={() => setSelectedStatus("Absent")}
+                  color="text-slate-400"
+                />
               </div>
             </div>
           </div>
@@ -243,42 +340,90 @@ function LiveAttendanceTracker() {
         {/* Stats and Table */}
         <main className="col-span-12 lg:col-span-9 space-y-8">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <ImgStatCard label="TOTAL STAFF" value={stats.total} icon={FiUsers} color="text-blue-600" />
-            <ImgStatCard label="PRESENT" value={stats.present} icon={FiCheckCircle} color="text-blue-500" />
-            <ImgStatCard label="REMOTE" value={stats.remote} icon={FiHome} color="text-cyan-500" />
-            <ImgStatCard label="ABSENCE" value={stats.absence} icon={FiXCircle} color="text-slate-400" />
+            <ImgStatCard
+              label="TOTAL STAFF"
+              value={stats.total}
+              icon={FiUsers}
+              color="text-blue-600"
+            />
+            <ImgStatCard
+              label="PRESENT"
+              value={stats.present}
+              icon={FiCheckCircle}
+              color="text-blue-500"
+            />
+            <ImgStatCard
+              label="REMOTE"
+              value={stats.remote}
+              icon={FiHome}
+              color="text-cyan-500"
+            />
+            <ImgStatCard
+              label="ABSENCE"
+              value={stats.absence}
+              icon={FiXCircle}
+              color="text-slate-400"
+            />
           </div>
 
           <div className="bg-white rounded-[2rem] border border-slate-100 shadow-sm overflow-hidden">
             <div className="p-8 pb-4">
-              <h3 className="text-xl font-bold text-[#1E3A8A]">Attendance Roster</h3>
+              <h3 className="text-xl font-bold text-[#1E3A8A]">
+                Attendance Roster
+              </h3>
             </div>
             <div className="overflow-x-auto">
-              <table className="w-full">
-                <thead className="text-left text-[11px] font-black text-blue-400 uppercase tracking-[0.15em]">
-                  <tr className="border-b border-slate-50">
-                    <th className="px-8 py-5">Employee</th>
-                    <th className="px-8 py-5">Status</th>
-                    <th className="px-8 py-5">Department</th>
-                    <th className="px-8 py-5 text-right">Check-In</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-slate-50">
-                  {filteredData.map((emp) => (
-                    <tr key={emp.id} className="hover:bg-slate-50/80 transition-colors group">
-                      <td className="px-8 py-5 font-bold text-slate-700">{emp.name}</td>
-                      <td className="px-8 py-5">
-                        <div className={`flex items-center gap-2 font-bold ${emp.color}`}>
-                          {emp.status === "In Office" ? <FiCheckCircle /> : emp.status === "WFH" ? <FiHome /> : <FiXCircle />}
-                          {emp.status}
-                        </div>
-                      </td>
-                      <td className="px-8 py-5 text-slate-500 font-medium">{emp.dept}</td>
-                      <td className="px-8 py-5 text-right text-slate-400 font-mono text-sm">{emp.time}</td>
+              {filteredData.length === 0 ? (
+                <div className="p-8 text-center text-gray-500">
+                  <p>No attendance records found.</p>
+                </div>
+              ) : (
+                <table className="w-full">
+                  <thead className="text-left text-[11px] font-black text-blue-400 uppercase tracking-[0.15em]">
+                    <tr className="border-b border-slate-50">
+                      <th className="px-8 py-5">Employee</th>
+                      <th className="px-8 py-5">Status</th>
+                      <th className="px-8 py-5">Department</th>
+                      <th className="px-8 py-5 text-right">Check-In</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
+                  </thead>
+                  <tbody className="divide-y divide-slate-50">
+                    {filteredData.map((emp, idx) => (
+                      <tr
+                        key={idx}
+                        className="hover:bg-slate-50/80 transition-colors group"
+                      >
+                        <td className="px-8 py-5 font-bold text-slate-700">
+                          {emp.name}
+                        </td>
+                        <td className="px-8 py-5">
+                          <div
+                            className={`flex items-center gap-2 font-bold ${emp.status === "Present" ? "text-blue-500" :
+                              emp.status === "WFH" ? "text-cyan-500" :
+                                "text-slate-400"
+                              }`}
+                          >
+                            {emp.status === "Present" ? (
+                              <FiCheckCircle />
+                            ) : emp.status === "WFH" ? (
+                              <FiHome />
+                            ) : (
+                              <FiXCircle />
+                            )}
+                            {emp.status}
+                          </div>
+                        </td>
+                        <td className="px-8 py-5 text-slate-500 font-medium">
+                          {emp.department || "N/A"}
+                        </td>
+                        <td className="px-8 py-5 text-right text-slate-400 font-mono text-sm">
+                          {emp.checkInTime || "—"}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              )}
             </div>
           </div>
         </main>
@@ -287,56 +432,102 @@ function LiveAttendanceTracker() {
   );
 }
 
-// ==========================================
 // VIEW 2: ANALYTICS (With Quick Insights)
-// ==========================================
+
 function SuperAdminSystemDashboard() {
+  const dispatch = useDispatch();
+  const { dashboardData } = useSelector(
+    (state) => state.superAdmin?.dashboard || {}
+  );
+
+  useEffect(() => {
+    dispatch(superAdminDashboardThunk.getDashboardDataThunk())
+      .unwrap()
+      .then((res) => {
+        console.log("Analytics dashboard data:", res);
+      })
+      .catch((err) => {
+        console.log("Error:", err);
+      });
+  }, [dispatch]);
+
+  // Extract department data for chart
+  const departmentLabels = dashboardData?.departmentHeadcount?.map(d => d.department) || [];
+  const departmentCounts = dashboardData?.departmentHeadcount?.map(d => d.count) || [];
+
   return (
     <div className="space-y-8">
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-
-        <ImgStatCard label="TOTAL STAFF" value="1,284" icon={HiUsers} color="text-blue-600" />
-        <ImgStatCard label="NEW HIRES" value="24" icon={HiUserPlus} color="text-emerald-500" />
-        <ImgStatCard label="ON LEAVE" value="12" icon={HiCalendarDays} color="text-amber-500" />
-        {/* <ImgStatCard label="EFFICIENCY" value="94%" icon={HiArrowTrendingUp} color="text-indigo-500" /> */}
+        <ImgStatCard
+          label="TOTAL STAFF"
+          value={dashboardData?.totalStaff || "0"}
+          icon={HiUsers}
+          color="text-blue-600"
+        />
+        <ImgStatCard
+          label="NEW HIRES"
+          value={dashboardData?.newHires || "0"}
+          icon={HiUserPlus}
+          color="text-emerald-500"
+        />
+        <ImgStatCard
+          label="ON LEAVE"
+          value={dashboardData?.onLeave || "0"}
+          icon={HiCalendarDays}
+          color="text-amber-500"
+        />
       </div>
 
       <div className="grid grid-cols-12 gap-8">
         <div className="col-span-12 lg:col-span-8 bg-white p-8 rounded-[2rem] border border-slate-100 shadow-sm">
-          <h3 className="text-xl font-bold text-[#1E3A8A] mb-8">Department Headcount</h3>
+          <h3 className="text-xl font-bold text-[#1E3A8A] mb-8">
+            Department Headcount
+          </h3>
           <div className="h-[350px]">
-            <Bar
-              data={{
-                labels: ["Design", "Dev", "Marketing", "Sales", "Ops"],
-                datasets: [{ data: [45, 110, 65, 85, 30], backgroundColor: "#3B82F6", borderRadius: 12, barThickness: 45 }],
-              }}
-              options={{ maintainAspectRatio: false, plugins: { legend: { display: false } } }}
-            />
+            {departmentLabels.length > 0 ? (
+              <Bar
+                data={{
+                  labels: departmentLabels,
+                  datasets: [
+                    {
+                      data: departmentCounts,
+                      backgroundColor: "#3B82F6",
+                      borderRadius: 12,
+                      barThickness: 45,
+                    },
+                  ],
+                }}
+                options={{
+                  maintainAspectRatio: false,
+                  plugins: { legend: { display: false } },
+                }}
+              />
+            ) : (
+              <div className="flex items-center justify-center h-full text-gray-500">
+                No department data available
+              </div>
+            )}
           </div>
         </div>
 
         <div className="col-span-12 lg:col-span-4 space-y-6">
-
           {/* LATE CHECK-IN MONITOR */}
           <LateCheckInMonitor />
-
-          {/* SYSTEM INSIGHTS */}
-
-
         </div>
-
       </div>
     </div>
   );
 }
 
-// --- SHARED COMPONENTS ---
+
 
 function StatusFilterBtn({ icon: Icon, label, active, onClick, color }) {
   return (
     <button
       onClick={onClick}
-      className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all font-bold text-sm ${active ? "bg-blue-600 text-white shadow-lg" : "text-slate-600 hover:bg-slate-50"
+      className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all font-bold text-sm ${active
+        ? "bg-blue-600 text-white shadow-lg"
+        : "text-slate-600 hover:bg-slate-50"
         }`}
     >
       {Icon && <Icon className={active ? "text-white" : color} size={18} />}
@@ -351,6 +542,9 @@ function ImgStatCard({ label, value, icon: Icon, color }) {
     "text-emerald-500": "from-emerald-100 to-emerald-50",
     "text-amber-500": "from-amber-100 to-amber-50",
     "text-indigo-500": "from-indigo-100 to-indigo-50",
+    "text-blue-500": "from-blue-100 to-blue-50",
+    "text-cyan-500": "from-cyan-100 to-cyan-50",
+    "text-slate-400": "from-slate-100 to-slate-50",
   };
 
   return (
@@ -363,7 +557,6 @@ function ImgStatCard({ label, value, icon: Icon, color }) {
         <svg
           className="absolute bottom-0 left-0 w-[140%] h-full opacity-70 transition-transform duration-700 ease-out 
            group-hover:translate-x-[-14%] group-hover:scale-y-110"
-
           viewBox="0 0 1440 320"
           preserveAspectRatio="none"
         >
@@ -381,9 +574,7 @@ function ImgStatCard({ label, value, icon: Icon, color }) {
           <p className="text-[11px] font-black uppercase tracking-widest text-slate-500 mb-4">
             {label}
           </p>
-          <p className="text-4xl font-black text-slate-800">
-            {value}
-          </p>
+          <p className="text-4xl font-black text-slate-800">{value}</p>
         </div>
 
         <div className="bg-white/80 backdrop-blur p-3 rounded-xl shadow-sm transition-transform duration-500 group-hover:scale-110">
