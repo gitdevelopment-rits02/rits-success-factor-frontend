@@ -1,5 +1,4 @@
 import { useState, useEffect, useMemo } from "react";
-
 import {
   FaSearch,
   FaCheckCircle,
@@ -13,31 +12,26 @@ import {
   FaUser,
   FaEllipsisV,
 } from "react-icons/fa";
-
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 import * as XLSX from "xlsx";
-// import timesheetBg from "./timesheet-bg.png";
 
 export default function SuperAdminPersonalTimeSheet() {
-
   const [filter, setFilter] = useState("Today");
   const [search, setSearch] = useState("");
-const [departmentFilter, setDepartmentFilter] = useState("All Departments");
-
+  const [departmentFilter, setDepartmentFilter] = useState("All Departments");
   const [statusFilter, setStatusFilter] = useState("All");
   const [bulkApproved, setBulkApproved] = useState(false);
-    const [selectedRows, setSelectedRows] = useState([]);
-
+  const [selectedRows, setSelectedRows] = useState([]);
   const [openAction, setOpenAction] = useState(null);
+  const [now, setNow] = useState(new Date());
 
-useEffect(() => {
-  const timer = setInterval(() => {
-    setNow(new Date());
-  }, 60000); // every 1 minute
-
-  return () => clearInterval(timer);
-}, []);
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setNow(new Date());
+    }, 60000);
+    return () => clearInterval(timer);
+  }, []);
 
   const [records, setRecords] = useState([
     {
@@ -130,50 +124,36 @@ useEffect(() => {
     },
   ]);
 
+  const calcHours = (inTime, outTime, breakTime, date) => {
+    if (inTime === "--") return 0;
 
-const [now, setNow] = useState(new Date());
+    const [ih, im] = inTime.split(":").map(Number);
+    const [bh, bm] = breakTime.split(":").map(Number);
 
-  /* ---------------- HELPERS ---------------- */
+    const start = new Date(date);
+    start.setHours(ih, im, 0, 0);
 
-const calcHours = (inTime, outTime, breakTime, date) => {
-  if (inTime === "--") return 0;
+    let end;
+    if (outTime === "--" || new Date(date).toDateString() === now.toDateString()) {
+      end = now;
+    } else {
+      const [oh, om] = outTime.split(":").map(Number);
+      end = new Date(date);
+      end.setHours(oh, om, 0, 0);
+    }
 
-  const [ih, im] = inTime.split(":").map(Number);
-  const [bh, bm] = breakTime.split(":").map(Number);
+    const workedMs = end - start;
+    const workedHrs = workedMs / (1000 * 60 * 60);
+    const breakHrs = bh + bm / 60;
 
-  const start = new Date(date);
-  start.setHours(ih, im, 0, 0);
+    return Math.max(workedHrs - breakHrs, 0);
+  };
 
-  let end;
-
-  // ✅ LIVE calculation for TODAY
-  if (
-    outTime === "--" ||
-    new Date(date).toDateString() === now.toDateString()
-  ) {
-    end = now;
-  } else {
-    const [oh, om] = outTime.split(":").map(Number);
-    end = new Date(date);
-    end.setHours(oh, om, 0, 0);
-  }
-
-  const workedMs = end - start;
-  const workedHrs = workedMs / (1000 * 60 * 60);
-
-  const breakHrs = bh + bm / 60;
-
-  return Math.max(workedHrs - breakHrs, 0);
-};
-
-const getTotalHoursFromRecords = (records) => {
-  return records
-    .reduce(
-      (sum, r) => sum + calcHours(r.clockIn, r.clockOut, r.break,r.date),
-      0
-    )
-    .toFixed(2);
-};
+  const getTotalHoursFromRecords = (records) => {
+    return records
+      .reduce((sum, r) => sum + calcHours(r.clockIn, r.clockOut, r.break, r.date), 0)
+      .toFixed(2);
+  };
 
   const matchDateFilter = (dateStr) => {
     const d = new Date(dateStr);
@@ -190,37 +170,27 @@ const getTotalHoursFromRecords = (records) => {
     }
 
     if (filter === "This Month") {
-      return (
-        d.getMonth() === today.getMonth() &&
-        d.getFullYear() === today.getFullYear()
-      );
+      return d.getMonth() === today.getMonth() && d.getFullYear() === today.getFullYear();
     }
     return true;
   };
 
-const filteredRecords = useMemo(() => {
-  return records.filter((r) => {
-    const matchSearch = `${r.name} ${r.role} ${r.department}`
-      .toLowerCase()
-      .includes(search.toLowerCase());
+  const filteredRecords = useMemo(() => {
+    return records.filter((r) => {
+      const matchSearch = `${r.name} ${r.role} ${r.department}`
+        .toLowerCase()
+        .includes(search.toLowerCase());
+      const matchStatus = statusFilter === "All" || r.status === statusFilter;
+      const matchDepartment = departmentFilter === "All Departments" || r.department === departmentFilter;
+      const matchDate = matchDateFilter(r.date);
 
-    const matchStatus =
-      statusFilter === "All" || r.status === statusFilter;
+      return matchSearch && matchStatus && matchDepartment && matchDate;
+    });
+  }, [records, search, statusFilter, departmentFilter, filter]);
 
-   const matchDepartment =
-  departmentFilter === "All Departments" ||
-  r.department === departmentFilter;
-
-
-    const matchDate = matchDateFilter(r.date);
-
-    return matchSearch && matchStatus && matchDepartment && matchDate;
-  });
-}, [records, search, statusFilter, departmentFilter, filter]);
-
-const departments = useMemo(() => {
-  return ["All Departments", ...new Set(records.map((r) => r.department))];
-}, [records]);
+  const departments = useMemo(() => {
+    return ["All Departments", ...new Set(records.map((r) => r.department))];
+  }, [records]);
 
   const stats = useMemo(() => {
     let totalHours = 0;
@@ -229,7 +199,7 @@ const departments = useMemo(() => {
     let pending = 0;
 
     filteredRecords.forEach((r) => {
-      const hrs = calcHours(r.clockIn, r.clockOut, r.break,r.date);
+      const hrs = calcHours(r.clockIn, r.clockOut, r.break, r.date);
       totalHours += hrs;
       if (hrs > 8) overtime += hrs - 8;
       if (["Late", "Absent"].includes(r.status)) discrepancies++;
@@ -242,7 +212,7 @@ const departments = useMemo(() => {
         value: totalHours.toFixed(1),
         unit: "hrs",
         icon: FaClock,
-        bg: "bg-blue-100",
+        bg: "bg-blue-50",
         color: "text-blue-600",
       },
       {
@@ -250,7 +220,7 @@ const departments = useMemo(() => {
         value: discrepancies,
         unit: "Days",
         icon: FaExclamationTriangle,
-        bg: "bg-orange-100",
+        bg: "bg-orange-50",
         color: "text-orange-600",
       },
       {
@@ -258,7 +228,7 @@ const departments = useMemo(() => {
         value: overtime.toFixed(1),
         unit: "hrs",
         icon: FaBolt,
-        bg: "bg-green-100",
+        bg: "bg-green-50",
         color: "text-green-600",
       },
       {
@@ -266,7 +236,7 @@ const departments = useMemo(() => {
         value: pending,
         unit: "Tasks",
         icon: FaClipboardCheck,
-        bg: "bg-purple-100",
+        bg: "bg-purple-50",
         color: "text-purple-600",
       },
     ];
@@ -278,173 +248,148 @@ const departments = useMemo(() => {
     setRecords(updated);
   };
 
-const bulkApprove = () => {
-  if (!isMonthlyView || selectedRows.length === 0) return;
+  const bulkApprove = () => {
+    if (!isMonthlyView || selectedRows.length === 0) return;
 
-  setRecords((prev) =>
-    prev.map((r, idx) =>
-      selectedRows.includes(idx) && r.status !== "Absent"
-        ? { ...r, status: "Approved" }
-        : r
-    )
-  );
+    setRecords((prev) =>
+      prev.map((r, idx) =>
+        selectedRows.includes(idx) && r.status !== "Absent" ? { ...r, status: "Approved" } : r
+      )
+    );
 
-  setSelectedRows([]);
-  setBulkApproved(true);
-};
+    setSelectedRows([]);
+    setBulkApproved(true);
+    setTimeout(() => setBulkApproved(false), 2000);
+  };
 
-const exportExcel = () => {
-  const worksheetData = filteredRecords.map((r) => ({
-    Employee: r.name,
-    Department: r.department,
-    Location: r.location,
-    Date: r.date,
-    "Clock In": r.clockIn,
-    "Clock Out": r.clockOut,
-    Break: r.break,
-    "Total Hours": calcHours(r.clockIn, r.clockOut, r.break).toFixed(2),
-    Status: r.status,
-  }));
+  const exportExcel = () => {
+    const worksheetData = filteredRecords.map((r) => ({
+      Employee: r.name,
+      Department: r.department,
+      Location: r.location,
+      Date: r.date,
+      "Clock In": r.clockIn,
+      "Clock Out": r.clockOut,
+      Break: r.break,
+      "Total Hours": calcHours(r.clockIn, r.clockOut, r.break, r.date).toFixed(2),
+      Status: r.status,
+    }));
 
-  const worksheet = XLSX.utils.json_to_sheet(worksheetData);
-  const workbook = XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(workbook, worksheet, "Timesheet");
+    const worksheet = XLSX.utils.json_to_sheet(worksheetData);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Timesheet");
+    XLSX.writeFile(workbook, "timesheet.xlsx");
+  };
 
-  XLSX.writeFile(workbook, "timesheet.xlsx");
-};
+  const exportSinglePDF = (r) => {
+    const doc = new jsPDF();
 
+    const employeeMonthRecords = records.filter(
+      (rec) =>
+        rec.role === r.role &&
+        new Date(rec.date).getMonth() === new Date().getMonth() &&
+        new Date(rec.date).getFullYear() === new Date().getFullYear()
+    );
 
-// ✅ Single PDF
-const exportSinglePDF = (r) => {
-  const doc = new jsPDF();
+    const monthName = new Date().toLocaleString("default", {
+      month: "long",
+      year: "numeric",
+    });
 
-  // Filter only this employee & current month
-  const employeeMonthRecords = records.filter(
-    (rec) =>
-      rec.role === r.role
-&&
-      new Date(rec.date).getMonth() === new Date().getMonth() &&
-      new Date(rec.date).getFullYear() === new Date().getFullYear()
-  );
+    const totalMonthHours = getTotalHoursFromRecords(employeeMonthRecords);
 
-  const monthName = new Date().toLocaleString("default", {
-    month: "long",
-    year: "numeric",
-  });
+    doc.setFontSize(14);
+    doc.text(`Timesheet - ${r.name}`, 14, 15);
 
-  const totalMonthHours = getTotalHoursFromRecords(employeeMonthRecords);
+    doc.setFontSize(10);
+    doc.text(`Month: ${monthName}`, 14, 22);
+    doc.text(`Total Hours (This Month): ${totalMonthHours} hrs`, 14, 28);
 
-  doc.setFontSize(14);
-  doc.text(`Timesheet - ${r.name}`, 14, 15);
+    autoTable(doc, {
+      startY: 35,
+      head: [["Date", "Clock In", "Clock Out", "Break", "Hours", "Status"]],
+      body: employeeMonthRecords.map((rec) => [
+        rec.date,
+        rec.clockIn,
+        rec.clockOut,
+        rec.break,
+        calcHours(rec.clockIn, rec.clockOut, rec.break, rec.date).toFixed(2),
+        rec.status,
+      ]),
+      styles: { fontSize: 9 },
+      headStyles: { fillColor: [37, 99, 235] },
+    });
 
-  doc.setFontSize(10);
-  doc.text(`Month: ${monthName}`, 14, 22);
-  doc.text(`Total Hours (This Month): ${totalMonthHours} hrs`, 14, 28);
+    const finalY = doc.lastAutoTable.finalY + 10;
+    doc.setFontSize(11);
+    doc.text(`Grand Total Hours (${monthName}): ${totalMonthHours} hrs`, 14, finalY);
 
-  autoTable(doc, {
-    startY: 35,
-    head: [["Date", "Clock In", "Clock Out", "Break", "Hours", "Status"]],
-    body: employeeMonthRecords.map((rec) => [
-      rec.date,
-      rec.clockIn,
-      rec.clockOut,
-      rec.break,
-      calcHours(rec.clockIn, rec.clockOut, rec.break).toFixed(2),
-      rec.status,
-    ]),
-    styles: { fontSize: 9 },
-    headStyles: { fillColor: [37, 99, 235] },
-  });
+    doc.save(`${r.name}_Monthly_Timesheet.pdf`);
+  };
 
-  const finalY = doc.lastAutoTable.finalY + 10;
-  doc.setFontSize(11);
-  doc.text(
-    `Grand Total Hours (${monthName}): ${totalMonthHours} hrs`,
-    14,
-    finalY
-  );
+  const exportSingleExcel = (r) => {
+    const worksheet = XLSX.utils.json_to_sheet([
+      {
+        Name: r.name,
+        Role: r.role,
+        Department: r.department,
+        Date: r.date,
+        "Clock In": r.clockIn,
+        "Clock Out": r.clockOut,
+        Break: r.break,
+        "Total Hours": calcHours(r.clockIn, r.clockOut, r.break, r.date).toFixed(2),
+        Status: r.status,
+      },
+    ]);
 
-  doc.save(`${r.name}_Monthly_Timesheet.pdf`);
-};
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Timesheet");
+    XLSX.writeFile(workbook, `${r.name}_Timesheet.xlsx`);
+  };
 
+  const exportPDF = () => {
+    const doc = new jsPDF();
 
-// ✅ Single Excel
-const exportSingleExcel = (r) => {
-  const worksheet = XLSX.utils.json_to_sheet([{
-    Name: r.name,
-   Role: r.role,
-Department: r.department,
+    const monthName =
+      filter === "This Month"
+        ? new Date().toLocaleString("default", { month: "long", year: "numeric" })
+        : filter;
 
-    Date: r.date,
-    "Clock In": r.clockIn,
-    "Clock Out": r.clockOut,
-    Break: r.break,
-    "Total Hours": calcHours(r.clockIn, r.clockOut, r.break,r.date).toFixed(2),
-    Status: r.status,
-  }]);
+    const totalMonthHours = getTotalHoursFromRecords(filteredRecords);
 
-  const workbook = XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(workbook, worksheet, "Timesheet");
-  XLSX.writeFile(workbook, `${r.name}_Timesheet.xlsx`);
-};
+    doc.setFontSize(14);
+    doc.text("Employee Timesheet Report", 14, 15);
 
+    doc.setFontSize(10);
+    doc.text(`Period: ${monthName}`, 14, 22);
+    doc.text(`Total Hours (Entire Period): ${totalMonthHours} hrs`, 14, 28);
 
+    autoTable(doc, {
+      startY: 35,
+      head: [
+        ["Name", "ID", "Department", "Date", "Clock In", "Clock Out", "Break", "Hours", "Status"],
+      ],
+      body: filteredRecords.map((r) => [
+        r.name,
+        r.role,
+        r.department,
+        r.date,
+        r.clockIn,
+        r.clockOut,
+        r.break,
+        calcHours(r.clockIn, r.clockOut, r.break, r.date).toFixed(2),
+        r.status,
+      ]),
+      styles: { fontSize: 9 },
+      headStyles: { fillColor: [37, 99, 235] },
+    });
 
-const exportPDF = () => {
-  const doc = new jsPDF();
+    const finalY = doc.lastAutoTable.finalY + 10;
+    doc.setFontSize(11);
+    doc.text(`Grand Total Hours (${monthName}): ${totalMonthHours} hrs`, 14, finalY);
 
-  const monthName =
-    filter === "This Month"
-      ? new Date().toLocaleString("default", { month: "long", year: "numeric" })
-      : filter;
-
-  const totalMonthHours = getTotalHoursFromRecords(filteredRecords);
-
-  doc.setFontSize(14);
-  doc.text("Employee Timesheet Report", 14, 15);
-
-  doc.setFontSize(10);
-  doc.text(`Period: ${monthName}`, 14, 22);
-  doc.text(`Total Hours (Entire Period): ${totalMonthHours} hrs`, 14, 28);
-
-  autoTable(doc, {
-    startY: 35,
-    head: [[
-      "Name",
-      "ID",
-     "Department",
-      "Date",
-      "Clock In",
-      "Clock Out",
-      "Break",
-      "Hours",
-      "Status",
-    ]],
-    body: filteredRecords.map((r) => [
-      r.name,
-     r.role,
-r.department,
-      r.date,
-      r.clockIn,
-      r.clockOut,
-      r.break,
-      calcHours(r.clockIn, r.clockOut, r.break,r.date).toFixed(2),
-      r.status,
-    ]),
-    styles: { fontSize: 9 },
-    headStyles: { fillColor: [37, 99, 235] },
-  });
-
-  const finalY = doc.lastAutoTable.finalY + 10;
-  doc.setFontSize(11);
-  doc.text(
-    `Grand Total Hours (${monthName}): ${totalMonthHours} hrs`,
-    14,
-    finalY
-  );
-
-  doc.save("Timesheet_Monthly_Report.pdf");
-};
+    doc.save("Timesheet_Monthly_Report.pdf");
+  };
 
   const statusStyle = {
     Approved: "bg-green-100 text-green-700",
@@ -453,434 +398,288 @@ r.department,
     "On Time": "bg-green-100 text-green-600",
     Absent: "bg-red-100 text-red-600",
   };
+
   const showTimeColumns = filter === "Today";
-const isMonthlyView = filter === "This Month";
+  const isMonthlyView = filter === "This Month";
 
   return (
-    <div
-      className="min-h-screen bg-cover bg-center relative"
-      // style={{ backgroundImage: `url(${timesheetBg})` }}
-    >
-      <div className="absolute inset-0 bg-blue-60/90" />
+    <div className="min-h-screen bg-blue-50 p-4 sm:p-6">
+      <div className="max-w-7xl mx-auto px-4 py-6 sm:px-6 lg:px-8">
+        
+        {/* header section */}
+        <div className="mb-7">
+          <div className="flex items-start justify-between mb-5">
+            <div>
+              <h1 className="text-3xl font-bold text-gray-900">Time Sheet Dashboard</h1>
+              <p className="text-gray-600 mt-1">Manage and approve attendance records</p>
+            </div>
 
-      <div className="relative z-10 p-6 max-w-7xl mx-auto">
-        {/* HEADER */}
-       <div className="flex flex-col md:flex-row md:justify-between md:items-start gap-6 mb-6">
+            <div className="flex items-center gap-3">
+              <div className="bg-white px-4 py-2 rounded-lg border shadow-sm flex items-center gap-2">
+                <div className="bg-blue-600 p-2 rounded">
+                  <FaUser className="text-white text-sm" />
+                </div>
+                <span className="font-medium text-sm">Super Admin</span>
+              </div>
+            </div>
+          </div>
 
-      <div className="mt-10 md:mt-6">
+          {/* action buttons */}
+          <div className="flex items-center gap-3 justify-end">
+            {isMonthlyView && (
+              <button
+                onClick={bulkApprove}
+                disabled={selectedRows.length === 0}
+                className={`px-5 py-2 rounded-lg font-medium text-sm flex items-center gap-2 ${
+                  bulkApproved
+                    ? "bg-green-600 text-white"
+                    : selectedRows.length > 0
+                    ? "bg-blue-600 text-white hover:bg-blue-700"
+                    : "bg-gray-300 text-gray-500 cursor-not-allowed"
+                }`}
+              >
+                <FaCheckCircle />
+                {bulkApproved ? "Approved!" : `Bulk Approve (${selectedRows.length})`}
+              </button>
+            )}
 
-  {/* Title */}
-  <h1 className="text-[28px] font-bold tracking-wide text-gray-900">
-    Time Sheet Dashboard
-  </h1>
+            <button onClick={exportPDF} className="px-4 py-2 bg-white border rounded-lg hover:bg-gray-50 flex items-center gap-2">
+              <FaFileAlt className="text-red-600" />
+              <span className="font-medium text-sm">PDF</span>
+            </button>
 
-  {/* Subtitle */}
-  <p className="text-[15px] font-semibold tracking-wide text-gray-500 mt-1">
-    Manage and approve attendance records
-  </p>
-</div>
+            <button onClick={exportExcel} className="px-4 py-2 bg-white border rounded-lg hover:bg-gray-50 flex items-center gap-2">
+              <FaFileExcel className="text-green-600" />
+              <span className="font-medium text-sm">Excel</span>
+            </button>
+          </div>
+        </div>
 
+        {/* filters */}
+        <div className="bg-white p-4 rounded-lg shadow-sm border mb-6">
+          <div className="flex flex-wrap gap-3 items-center">
+            {["Today", "This Week", "This Month"].map((f) => (
+              <button
+                key={f}
+                onClick={() => setFilter(f)}
+                className={`px-4 py-2 rounded-lg text-sm font-medium ${
+                  filter === f
+                    ? "bg-blue-600 text-white"
+                    : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                }`}
+              >
+                {f}
+              </button>
+            ))}
 
+            <select
+              value={departmentFilter}
+              onChange={(e) => setDepartmentFilter(e.target.value)}
+              className="px-3 py-2 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            >
+              {departments.map((dep) => (
+                <option key={dep}>{dep}</option>
+              ))}
+            </select>
 
-          <div className="flex flex-col items-end gap-3">
-           <div
-  className="flex items-center gap-4 bg-white px-6 py-3
-             rounded-2xl shadow-sm border
-             w-[240px]"
->
-  {/* Icon */}
-  <div
-    className="w-11 h-11 bg-blue-600 rounded-2xl
-               flex items-center justify-center"
-  >
-    <FaUser className="text-white" size={18} />
-  </div>
+            <select
+              value={statusFilter}
+              onChange={(e) => setStatusFilter(e.target.value)}
+              className="px-3 py-2 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            >
+              <option value="All">All Status</option>
+              <option value="Approved">Approved</option>
+              <option value="Pending">Pending</option>
+              <option value="Late">Late</option>
+              <option value="On Time">On Time</option>
+              <option value="Absent">Absent</option>
+            </select>
 
-  {/* Text */}
-  <div>
-    <p className="text-[15px] font-semibold tracking-wide text-gray-800">
-      Super Admin
-    </p>
-
-  </div>
-</div>
-
-
-           <div className="flex flex-wrap gap-3 mt-2 justify-end">
-
-         <button
-  onClick={bulkApprove}
-  disabled={!isMonthlyView || selectedRows.length === 0}
-  className={`px-6 py-2.5 rounded-xl flex items-center gap-2
-    text-[15px] font-semibold tracking-wide transition-all
-    ${
-      bulkApproved
-        ? "bg-green-600 text-white"
-        : isMonthlyView && selectedRows.length > 0
-          ? "bg-blue-600 text-white hover:bg-blue-700"
-          : "bg-gray-200 text-gray-400 cursor-not-allowed"
-    }`}
->
-  <FaCheckCircle size={16} />
-  {bulkApproved ? "Approved" : "Bulk Approve"}
-</button>
-
-            <div className="flex gap-4">
-  {/* PDF */}
-  <button
-    onClick={exportPDF}
-    className="flex items-center gap-3
-               px-7 py-3
-               rounded-2xl
-               border border-gray-300
-               bg-transparent
-               hover:bg-gray-100
-               transition"
-  >
-    <FaFileAlt className="text-black text-xl" />
-    <span className="text-lg font-medium text-gray-900">PDF</span>
-  </button>
-
-  {/* Excel */}
-  <button
-    onClick={exportExcel}
-    className="flex items-center gap-3
-               px-7 py-3
-               rounded-2xl
-               border border-gray-300
-               bg-transparent
-               hover:bg-gray-100
-               transition"
-  >
-    <FaFileExcel className="text-black text-xl" />
-    <span className="text-lg font-medium text-gray-900">Excel</span>
-  </button>
-</div>
-
+            <div className="relative flex-1 min-w-[200px]">
+              <FaSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm" />
+              <input
+                type="text"
+                placeholder="Search employee or ID"
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                className="w-full pl-10 pr-3 py-2 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
             </div>
           </div>
         </div>
 
-
-
-
-
-
-
-        {/* FILTER BAR */}
-       <div className="flex flex-wrap items-center gap-4 mb-6
-                bg-white/70 backdrop-blur-md
-                p-4 rounded-2xl shadow-sm">
-
-          {["Today", "This Week", "This Month"].map((f) => (
-            <button
-              key={f}
-              onClick={() => setFilter(f)}
-             className={`px-6 py-2 rounded-xl border transition
-  text-[15px] font-semibold tracking-wide
-  ${
-    filter === f
-      ? "bg-blue-600 text-white border-blue-600"
-      : "bg-white text-gray-800 hover:bg-gray-50"
-  }`}
-
-            >
-              {f}
-            </button>
+        {/* stats cards */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5 mb-6">
+          {stats.map((s, i) => (
+            <div key={i} className="bg-white p-5 rounded-lg shadow-sm border">
+              <div className="flex items-center gap-3">
+                <div className={`p-3 rounded-lg ${s.bg}`}>
+                  <s.icon className={s.color} size={22} />
+                </div>
+                <div>
+                  <p className="text-sm text-gray-600 mb-1">{s.title}</p>
+                  <div className="flex items-baseline gap-1">
+                    <span className="text-2xl font-bold text-gray-900">{s.value}</span>
+                    <span className="text-xs text-gray-500">{s.unit}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
           ))}
-<select
-  value={departmentFilter}
-  onChange={(e) => setDepartmentFilter(e.target.value)}
-className="px-5 py-2 rounded-xl border bg-white
-           text-[15px] font-semibold tracking-wide
-           text-gray-800
-           focus:outline-none focus:ring-2 focus:ring-blue-500"
-
->
-  {departments.map((dep) => (
-    <option key={dep} value={dep}>
-      {dep}
-    </option>
-  ))}
-</select>
-
-
-
-          <select
-            value={statusFilter}
-            onChange={(e) => setStatusFilter(e.target.value)}
-           className="px-5 py-2 rounded-xl border bg-white
-           text-[15px] font-semibold tracking-wide
-           text-gray-800
-           focus:outline-none focus:ring-2 focus:ring-blue-500"
-
-          >
-            <option value="All">All Status</option>
-            <option value="Approved">Approved</option>
-            <option value="Pending">Pending</option>
-            <option value="Late">Late</option>
-            <option value="On Time">On Time</option>
-            <option value="Absent">Absent</option>
-          </select>
-
-        <div className="relative">
-  <FaSearch
-    className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"
-    size={16}
-  />
-
-  <input
-    type="text"
-    placeholder="Search employee or ID"
-    value={search}
-    onChange={(e) => setSearch(e.target.value)}
-    className="pl-11 pr-5 py-2 rounded-xl border bg-white
-               text-[15px] font-semibold tracking-wide
-               text-gray-800
-               focus:outline-none focus:ring-2 focus:ring-blue-500"
-  />
-</div>
-
         </div>
 
-        {/* STATS */}
-       {/* STATS */}
-<div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
-  {stats.map((s, i) => (
-    <div
-      key={i}
-      className="bg-white rounded-2xl p-6 shadow-sm border flex items-center gap-5"
-    >
-      {/* Icon */}
-      <div
-        className={`w-14 h-14 rounded-2xl flex items-center justify-center ${s.bg}`}
-      >
-        <s.icon className={s.color} size={24} />
-      </div>
+        {/* table */}
+        <div className="bg-white rounded-lg shadow-sm border overflow-hidden">
+          <div className="overflow-x-auto">
+            <table className="w-full">
+              <thead className="bg-blue-600 text-white">
+                <tr>
+                  {isMonthlyView && (
+                    <th className="px-4 py-3 text-center">
+                      <input
+                        type="checkbox"
+                        checked={selectedRows.length === filteredRecords.length && filteredRecords.length > 0}
+                        onChange={(e) =>
+                          setSelectedRows(e.target.checked ? filteredRecords.map((_, i) => i) : [])
+                        }
+                        className="w-4 h-4"
+                      />
+                    </th>
+                  )}
+                  <th className="px-6 py-3 text-left text-sm font-semibold">Employee</th>
+                  <th className="px-6 py-3 text-left text-sm font-semibold">Department</th>
+                  <th className="px-6 py-3 text-left text-sm font-semibold">Date</th>
 
-      {/* Text */}
-      <div>
-        {/* Title */}
-        <p className="text-[15px] font-semibold text-gray-500 tracking-wide">
-          {s.title}
-        </p>
+                  {showTimeColumns && (
+                    <>
+                      <th className="px-6 py-3 text-center text-sm font-semibold">Clock In</th>
+                      <th className="px-6 py-3 text-center text-sm font-semibold">Clock Out</th>
+                      <th className="px-6 py-3 text-center text-sm font-semibold">Break</th>
+                    </>
+                  )}
 
-        {/* Value */}
-        <div className="flex items-end gap-1 mt-1">
-          <span className="text-3xl font-bold text-gray-900">
-            {s.value}
-          </span>
-          <span className="text-sm font-semibold text-gray-400 mb-1">
-            {s.unit}
-          </span>
-        </div>
-      </div>
-    </div>
-  ))}
-</div>
+                  <th className="px-6 py-3 text-center text-sm font-semibold">Total Hrs</th>
+                  <th className="px-6 py-3 text-center text-sm font-semibold">Status</th>
+                  <th className="px-6 py-3 text-center text-sm font-semibold">Actions</th>
+                </tr>
+              </thead>
 
+              <tbody>
+                {filteredRecords.map((r, i) => (
+                  <tr key={i} className="border-b hover:bg-gray-50">
+                    {isMonthlyView && (
+                      <td className="px-4 py-3 text-center">
+                        <input
+                          type="checkbox"
+                          checked={selectedRows.includes(i)}
+                          onChange={() =>
+                            setSelectedRows((prev) =>
+                              prev.includes(i) ? prev.filter((id) => id !== i) : [...prev, i]
+                            )
+                          }
+                          className="w-4 h-4"
+                        />
+                      </td>
+                    )}
 
-        {/* TABLE */}
-       <div className="bg-white rounded-xl shadow border overflow-x-auto md:overflow-visible">
+                    <td className="px-6 py-3">
+                      <div className="font-medium text-gray-900">{r.name}</div>
+                      <div className="text-xs text-gray-500">{r.role}</div>
+                    </td>
 
-         <table className="w-full table-fixed">
+                    <td className="px-6 py-3 text-sm text-gray-700">{r.department}</td>
 
-           <thead className="bg-gray-50">
-  <tr>
-     {isMonthlyView && (
-      <th className="px-4 py-4 text-center">
-        <input
-          type="checkbox"
-          checked={
-            selectedRows.length === filteredRecords.length &&
-            filteredRecords.length > 0
-          }
-          onChange={(e) =>
-            setSelectedRows(
-              e.target.checked ? filteredRecords.map((_, i) => i) : []
-            )
-          }
-        />
-      </th>
-    )}
-    <th className="px-4 py-4 text-left text-[16px] font-bold">Employee</th>
-    <th className="px-0 py-4 text-left text-[16px] font-bold">Department</th>
-    <th className="px-7 py-4 text-left text-[16px] font-bold">Date</th>
+                    <td className="px-6 py-3 text-sm text-gray-700">{r.date}</td>
 
-    {showTimeColumns && (
-      <>
-        <th className="px-4 py-4 text-center text-[16px] font-bold">Clock In</th>
-<th className="px-4 py-4 text-center text-[16px] font-bold">Clock Out</th>
-<th className="px-4 py-4 text-center text-[16px] font-bold">Break</th>
+                    {showTimeColumns && (
+                      <>
+                        <td className="px-6 py-3 text-center text-sm text-gray-700">{r.clockIn}</td>
+                        <td className="px-6 py-3 text-center text-sm text-gray-700">{r.clockOut}</td>
+                        <td className="px-6 py-3 text-center text-sm text-gray-700">{r.break}</td>
+                      </>
+                    )}
 
-      </>
-    )}
+                    <td className="px-6 py-3 text-center">
+                      <span className="font-medium text-gray-900 text-sm">
+                        {r.clockIn === "--" ? "--" : calcHours(r.clockIn, r.clockOut, r.break, r.date).toFixed(2)}
+                      </span>
+                    </td>
 
-    <th className="px-4 py-4 text-center text-[16px] font-bold">Total Hrs</th>
-    <th className="px-4 py-4 text-center text-[16px] font-bold">Status</th>
-    <th className="px-4 py-4 text-center text-[16px] font-bold">Actions</th>
-  </tr>
-</thead>
+                    <td className="px-6 py-3 text-center">
+                      <span className={`px-2 py-1 rounded-full text-xs font-medium ${statusStyle[r.status]}`}>
+                        {r.status}
+                      </span>
+                    </td>
 
+                    <td className="px-6 py-3 relative">
+                      <div className="flex items-center justify-center gap-3">
+                        <FaCheckCircle
+                          size={18}
+                          className={
+                            isMonthlyView
+                              ? "text-green-600 cursor-pointer hover:text-green-700"
+                              : "text-gray-300 cursor-not-allowed"
+                          }
+                          onClick={() => isMonthlyView && updateStatus(i, "Approved")}
+                        />
 
+                        <FaTimesCircle
+                          size={18}
+                          className={
+                            isMonthlyView
+                              ? "text-red-500 cursor-pointer hover:text-red-600"
+                              : "text-gray-300 cursor-not-allowed"
+                          }
+                          onClick={() => isMonthlyView && updateStatus(i, "Pending")}
+                        />
 
+                        <FaEllipsisV
+                          size={16}
+                          className={
+                            isMonthlyView
+                              ? "text-gray-600 cursor-pointer hover:text-gray-800"
+                              : "text-gray-300 cursor-not-allowed"
+                          }
+                          onClick={() => isMonthlyView && setOpenAction(openAction === i ? null : i)}
+                        />
 
-          <tbody>
-  {filteredRecords.map((r, i) => (
-    <tr key={i} className="border-t hover:bg-gray-50 transition">
-{isMonthlyView && (
-        <td className="px-4 py-3 text-center">
-          <input
-            type="checkbox"
-            checked={selectedRows.includes(i)}
-            onChange={() =>
-              setSelectedRows((prev) =>
-                prev.includes(i)
-                  ? prev.filter((id) => id !== i)
-                  : [...prev, i]
-              )
-            }
-          />
-        </td>
-      )}
-  {/* Employee (Name + ID) */}
-  <td className="px-4 py-3 text-left">
-<div className="font-medium text-gray-900 leading-tight">
-  {r.name}
-</div>
+                        {openAction === i && isMonthlyView && (
+                          <div className="absolute right-0 top-10 bg-white border rounded-lg shadow-lg w-32 z-50">
+                            <button
+                              onClick={() => {
+                                exportSinglePDF(r);
+                                setOpenAction(null);
+                              }}
+                              className="w-full px-3 py-2 text-left text-sm hover:bg-gray-50"
+                            >
+                              📄 PDF
+                            </button>
+                            <button
+                              onClick={() => {
+                                exportSingleExcel(r);
+                                setOpenAction(null);
+                              }}
+                              className="w-full px-3 py-2 text-left text-sm hover:bg-gray-50 border-t"
+                            >
+                              📊 Excel
+                            </button>
+                          </div>
+                        )}
+                      </div>
+                    </td>
+                  </tr>
+                ))}
 
-  <div className="text-xs text-gray-400">
-    {r.role}
-  </div>
-</td>
-
-
-
-
-
-  {/* Department */}
-<td className="px-15 py-3 text-left">
-  {r.department}
-</td>
-
-
-
-
-{/* Date */}
-<td className="px-6 py-3 text-left tabular-nums">{r.date}</td>
-
-{showTimeColumns && (
-  <>
-    <td className="px-10 py-3 text-left tabular-nums">{r.clockIn}</td>
-    <td className="px-8 py-3 text-left tabular-nums">{r.clockOut}</td>
-    <td className="px-12 py-3 text-left tabular-nums">{r.break}</td>
-  </>
-)}
-
-
-  {/* Total Hours */}
-<td className="px-4 py-3 text-center">
-  <div className="font-medium text-gray-900 leading-tight tabular-nums">
-    {r.clockIn === "--"
-      ? "--"
-      : calcHours(r.clockIn, r.clockOut, r.break, r.date).toFixed(2)}
-  </div>
-</td>
-
-
-  {/* Status */}
-  <td className="px-4 py-3 text-center">
-    <span className={`inline-flex px-3 py-1 rounded-full text-xs ${statusStyle[r.status]}`}>
-      {r.status}
-    </span>
-  </td>
-
-
-
-      {/* Actions */}
-     {/* Actions */}
-<td className="px-4 py-3 relative">
-  <div className="flex items-center justify-center gap-4">
-
-    {/* ✅ APPROVE */}
-    <FaCheckCircle
-      size={18}
-      className={
-        isMonthlyView
-          ? "text-green-600 cursor-pointer hover:text-green-700"
-          : "text-gray-300 cursor-not-allowed"
-      }
-      onClick={() => isMonthlyView && updateStatus(i, "Approved")}
-    />
-
-    {/* ❌ REJECT */}
-    <FaTimesCircle
-      size={18}
-      className={
-        isMonthlyView
-          ? "text-red-500 cursor-pointer hover:text-red-600"
-          : "text-gray-300 cursor-not-allowed"
-      }
-      onClick={() => isMonthlyView && updateStatus(i, "Pending")}
-    />
-
-    {/* ⋮ THREE DOT MENU */}
-    <FaEllipsisV
-      size={16}
-      className={
-        isMonthlyView
-          ? "text-gray-700 cursor-pointer hover:text-black"
-          : "text-gray-300 cursor-not-allowed"
-      }
-      onClick={() =>
-        isMonthlyView &&
-        setOpenAction(openAction === i ? null : i)
-      }
-    />
-
-    {/* DROPDOWN */}
-    {openAction === i && isMonthlyView && (
-      <div className="absolute right-6 top-10 bg-white border rounded-xl shadow-lg w-32 z-50">
-        <button
-          onClick={() => {
-            exportSinglePDF(r);
-            setOpenAction(null);
-          }}
-          className="w-full px-4 py-2 text-left text-sm hover:bg-gray-100"
-        >
-          📄 PDF
-        </button>
-
-        <button
-          onClick={() => {
-            exportSingleExcel(r);
-            setOpenAction(null);
-          }}
-          className="w-full px-4 py-2 text-left text-sm hover:bg-gray-100"
-        >
-          📊 Excel
-        </button>
-      </div>
-    )}
-
-  </div>
-</td>
-
-
-    </tr>
-  ))}
-
-  {filteredRecords.length === 0 && (
-    <tr>
-      <td colSpan="9" className="px-4 py-6 text-center text-gray-400">
-        No records found
-      </td>
-    </tr>
-  )}
-</tbody>
-
-
-          </table>
+                {filteredRecords.length === 0 && (
+                  <tr>
+                    <td colSpan="10" className="px-6 py-10 text-center text-gray-500">
+                      No records found
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
         </div>
       </div>
     </div>
