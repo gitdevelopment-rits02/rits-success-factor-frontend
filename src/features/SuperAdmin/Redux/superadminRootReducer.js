@@ -1,5 +1,5 @@
 import { combineReducers } from "@reduxjs/toolkit";
-// import authSlice from "./authSlice"
+
 import superAdminDashboardReducer from "./slices/superAdminDashboardSlice";
 import superAdminAdminManagementReducer from "./slices/superAdminAdminManagementSlice";
 import superAdminFeedbackReducer from "./slices/superAdminFeedbackSlice";
@@ -8,13 +8,13 @@ import superAdminPayrollReducer from "./slices/superAdminPayrollSlice";
 import superAdminPolicyReducer from "./slices/superAdminPolicySlice";
 
 const superradminRootReducer = combineReducers({
-  // main: authSlice,
   dashboard: superAdminDashboardReducer,
   adminManagement: superAdminAdminManagementReducer,
-  feedback: superAdminFeedbackReducer,
+  superAdminFeedback: superAdminFeedbackReducer,
   orgChart: superAdminOrgChartReducer,
   payroll: superAdminPayrollReducer,
   policy: superAdminPolicyReducer,
 });
 
 export default superradminRootReducer;
+ 

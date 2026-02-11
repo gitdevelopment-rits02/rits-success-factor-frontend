@@ -37,10 +37,10 @@
 //           />
 //         ))}
 //       </Route>
-      
+
 //     </Routes>
 
-    
+
 //   );
 // }
 
@@ -87,9 +87,9 @@
 //         ))}
 //       </Route>
 
-       
 
-      
+
+
 //       <Route path="/employee" element={<EmployeeLayout />}>
 //   {employeeRoutes.map((r) => (
 //     <Route key={r.path} path={r.path} element={r.element} />
@@ -110,7 +110,10 @@ import  hrRoutes  from "./modules/hr.routes";
 import AdminLayout from "../layouts/adminLayout";
 import ManagerLayout from "../layouts/managerLayout";
 import EmployeeLayout from "../layouts/employeeLayout";
-import HrLayout from  "../layouts/hrLayout";
+import HrLayout from "../layouts/hrLayout";
+import ChiefLayout from "../layouts/ChiefLayout";
+import { chiefRoutes } from "./modules/chief.routes";
+
 export default function AppRouter() {
   return (
     <Routes>
@@ -122,12 +125,23 @@ export default function AppRouter() {
         <Route key={r.path} path={r.path} element={r.element} />
       ))}
 
+      {/* Chief Routes */}
+      <Route path="/chief" element={<ChiefLayout />}>
+        {chiefRoutes.map((r) => (
+          <Route
+            key={r.path}
+            path={r.path.replace("/chief/", "")}
+            element={r.element}
+          />
+        ))}
+      </Route>
+
       {/* Super Admin - Using relative paths in the map if possible */}
       <Route path="/superadmin" element={<AdminLayout />}>
         {superAdminRoutes.map((r) => (
           <Route
             key={r.path}
-            path={r.path.replace("/superadmin/", "")} 
+            path={r.path.replace("/superadmin/", "")}
             element={r.element}
           />
         ))}
@@ -157,10 +171,10 @@ export default function AppRouter() {
       {/* Employee */}
       <Route path="/employee" element={<EmployeeLayout />}>
         {employeeRoutes.map((r) => (
-          <Route 
-            key={r.path} 
+          <Route
+            key={r.path}
             path={r.path.replace("/employee/", "")} // Added replacement for consistency
-            element={r.element} 
+            element={r.element}
           />
         ))}
       </Route>
