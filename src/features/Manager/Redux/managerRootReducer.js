@@ -6,7 +6,7 @@ import managerFeedBackOfEmployeeReducer from "./slices/ManagerFeedBackOfEmployee
 import managerInsuranceReducer from "./slices/ManagerInsuranceSlice.js";
 import managerLeaveApprovalReducer from "./slices/ManagerLeaveApprovalSlice.js";
 import managerNotificationReducer from "./slices/ManagerNotificationSlice.js";
-import managerOrgChartReducer from "./slices/ManagerOrgChartSlice.js";
+
 import managerPayslipsReducer from "./slices/ManagerPayslipsSlice.js";
 import managerPerformanceReviewReducer from "./slices/ManagerPerformanceReviewSlice.js";
 import managerPolicyDocumentsReducer from "./slices/ManagerPolicyDocumentsSlice.js";
@@ -24,7 +24,7 @@ const managerRootReducer = combineReducers({
     insurance: managerInsuranceReducer,
     leaveApproval: managerLeaveApprovalReducer,
     notification: managerNotificationReducer,
-    orgChart: managerOrgChartReducer,
+
     payslips: managerPayslipsReducer,
     performanceReview: managerPerformanceReviewReducer,
     policyDocuments: managerPolicyDocumentsReducer,
