@@ -1,22 +1,23 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
 import superAdminAdminManagementApi from "../../../../api/superAdminApi/SuperAdminAdminManagementApi";
  
+ 
 const normalizeAdmin = (admin = {}) => ({
   _id: admin._id,
   name: admin.employeeName || "",
   email: admin.officialEmail || "",
-  employeeId: admin.employeeNo || "",
+  employeeNo: admin.employeeNo || "",
   phone: admin.phoneNumber || "",
-  status: admin.status === "active" ? "Active" : "Disabled",
-  created: admin.createdAt
-    ? new Date(admin.createdAt).toLocaleDateString()
-    : "",
+  status: admin.status || "inactive",   
+  created: admin.createdAt || "",
   lastLogin: admin.lastLogin || "Never",
 });
+
  
 const superAdminAdminManagementThunk = {
  
-  // GET ADMINS 
+  // GET ADMINS
+ 
   getAdmins: createAsyncThunk(
   "superAdminAdminManagement/getAdmins",
   async (_, { rejectWithValue }) => {
@@ -65,7 +66,9 @@ getAdminById: createAsyncThunk(
   }
 ),
  
-  // CREATE ADMIN 
+ 
+  // CREATE ADMIN
+ 
   createAdmin: createAsyncThunk(
     "superAdminAdminManagement/createAdmin",
     async (data, { rejectWithValue }) => {
@@ -86,8 +89,10 @@ getAdminById: createAsyncThunk(
       }
     }
   ),
-
-  // UPDATE ADMIN 
+ 
+ 
+  // UPDATE ADMIN
+ 
   updateAdmin: createAsyncThunk(
     "superAdminAdminManagement/updateAdmin",
     async ({ id, data }, { rejectWithValue }) => {
@@ -109,8 +114,10 @@ getAdminById: createAsyncThunk(
       }
     }
   ),
-  
-  // DELETE ADMIN 
+ 
+ 
+  // DELETE ADMIN
+ 
   deleteAdmin: createAsyncThunk(
     "superAdminAdminManagement/deleteAdmin",
     async (id, { rejectWithValue }) => {
@@ -129,3 +136,4 @@ getAdminById: createAsyncThunk(
 };
  
 export default superAdminAdminManagementThunk;
+ 

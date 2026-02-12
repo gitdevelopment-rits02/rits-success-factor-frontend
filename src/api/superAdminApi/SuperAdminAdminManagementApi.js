@@ -34,4 +34,3 @@ const superAdminAdminManagementApi = {
 };
 
 export default superAdminAdminManagementApi;
-
