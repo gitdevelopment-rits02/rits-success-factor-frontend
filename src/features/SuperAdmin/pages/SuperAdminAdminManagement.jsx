@@ -2,7 +2,7 @@ import React, { useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useEffect } from "react";
 import { toast } from "react-toastify";
-
+import DummySkeleton from "../../SuperAdmin/SuperAdminSkeleton/SuperAdminAdminManagementSkeleton";
 
 import superAdminAdminManagementThunk
   from "..//Redux/thunks/superAdminAdminManagementThunk";
@@ -33,12 +33,11 @@ import {
   FiAward,
 } from "react-icons/fi";
 
-
 const initialAdmins = [
   {
     id: 1,
     employeeId: "EMP001",
-    name: "Ashwini new",
+    name: "Ashwini Patil",
     email: "ashwinipatil@company.com",
     status: "Disabled",
     lastLogin: "Yesterday, 10:45 AM",
@@ -97,7 +96,9 @@ const mapAdminToForm = (admin) => ({
 
 
   personalDetails: {
-    dob: admin.personalDetails?.dob || "",
+    dob: admin.personalDetails?.dob
+      ? admin.personalDetails.dob.split("T")[0]
+      : "",
     bloodGroup: admin.personalDetails?.bloodGroup || "",
     personalEmail: admin.personalDetails?.personalEmail || "",
     alternateNumber: admin.personalDetails?.alternateNumber || "",
@@ -109,7 +110,9 @@ const mapAdminToForm = (admin) => ({
   workDetails: {
     department: admin.workDetails?.department || "",
     designation: admin.workDetails?.designation || "",
-    dateOfJoining: admin.workDetails?.dateOfJoining || "",
+    dateOfJoining: admin.workDetails?.dateOfJoining
+      ? admin.workDetails.dateOfJoining.split("T")[0]
+      : "",
     reportingManager: admin.workDetails?.reportingManager || "",
     workLocation: admin.workDetails?.workLocation || "",
     workType: admin.workDetails?.workType || "",
@@ -134,16 +137,17 @@ const mapAdminToForm = (admin) => ({
       jobTitle: e.jobTitle || "",
       companyName: e.companyName || "",
       duration: e.duration || "",
-      documentUrl: e.documentUrl || "",
+      documentUrl: e.documentUrl || null,
     }))
-    : [{ jobTitle: "", companyName: "", duration: "", documentUrl: "" }],
+    : [{ jobTitle: "", companyName: "", duration: "", documentUrl: null }],
 
   documents: admin.documents?.length
     ? admin.documents.map(d => ({
       documentName: d.documentName || "",
-      documentUrl: d.documentUrl || "",
+      documentUrl: d.documentUrl || null,
     }))
-    : [{ documentName: "", documentUrl: "" }],
+    : [{ documentName: "", documentUrl: null }],
+
 
   assets: admin.assets?.length
     ? admin.assets.map(a => ({
@@ -152,9 +156,10 @@ const mapAdminToForm = (admin) => ({
       assignedDate: a.assignedDate
         ? a.assignedDate.split("T")[0]
         : "",
-      documentUrl: a.documentUrl || "",
+      documentUrl: a.documentUrl || null,
     }))
-    : [{ assetName: "", serialNumber: "", assignedDate: "", documentUrl: "" }],
+    : [{ assetName: "", serialNumber: "", assignedDate: "", documentUrl: null }],
+
 
   salary: {
     basic: admin.salary?.basic || "",
@@ -250,57 +255,8 @@ export default function SuperAdminAdminManagement() {
       netPay: "",
     },
   });
- 
-  function Field({
-  label,
-  name,
-  icon,
-  value,
-  onChange,
-  placeholder,
-  type = "text",
-}) {
-  const error = name
-    ?.split(".")
-    .reduce((acc, key) => acc?.[key], errors);
 
-  return (
-    <div>
-      <label className="mb-2 block text-sm font-medium text-slate-700">
-        {label}
-      </label>
 
-      <div className="relative">
-        {icon && (
-          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">
-            {icon}
-          </span>
-        )}
-
-        <input
-          type={type}
-          placeholder={placeholder}
-          value={value}
-          onChange={(e) => onChange(e.target.value)}
-          className={`w-full rounded-xl border-2 py-3 pr-4 transition-all duration-200
-            ${icon ? "pl-10" : "pl-4"}
-            ${
-              error
-                ? "border-red-400 focus:ring-red-100"
-                : "border-slate-200 focus:border-blue-400 focus:ring-blue-100"
-            }
-            focus:outline-none focus:ring-4`}
-        />
-      </div>
-
-      {error && (
-        <p className="mt-1 text-xs font-medium text-red-500">
-          {error}
-        </p>
-      )}
-    </div>
-  );
-}
 
   const dispatch = useDispatch();
 
@@ -326,7 +282,8 @@ export default function SuperAdminAdminManagement() {
 
       const matchStatus =
         statusFilter === "All Status" ||
-        a.status.toLowerCase() === statusFilter.toLowerCase();
+        a.status === statusFilter;
+
 
 
       const matchCreator = creatorFilter === "All Creators";
@@ -345,14 +302,16 @@ export default function SuperAdminAdminManagement() {
   }, [admins, search, statusFilter, creatorFilter, dateFilter]);
 
   const activeCount = useMemo(
-    () => admins.filter((a) => a.status?.toLowerCase() === "active").length,
+    () => admins.filter((a) => a.status === "active").length,
     [admins]
   );
 
   const disabledCount = useMemo(
-    () => admins.filter((a) => a.status?.toLowerCase() === "disabled").length,
+    () => admins.filter((a) => a.status === "inactive").length,
     [admins]
   );
+
+
 
   const createdThisMonth = useMemo(() => {
     const now = new Date();
@@ -430,183 +389,243 @@ export default function SuperAdminAdminManagement() {
   };
 
   const validateBasicDetails = () => {
-    const e = {};
+  const e = {};
 
-    if (!form.employeeName.trim())
-      e.employeeName = "Employee Name is required";
-    setAdmins((prev) => [
-      ...prev,
-      {
-        id: Date.now(),
-        employeeId: `EMP${String(prev.length + 1).padStart(3, "0")}`,
-        name: form.name,
-        email: form.email,
-        status: form.status || "Active",
-        designation: form.designation || "Administrator",
-        department: form.department || "Administration",
-        reportingManager: superAdmin.name, // Link to the SuperAdmin
-        avatar: `https://ui-avatars.com/api/?name=${form.name.split(' ').join('+')}&background=1e40af&color=fff`,
-        lastLogin: "Never",
-        created: new Date().toLocaleDateString("en-US", {
-          month: "short",
-          day: "numeric",
-          year: "numeric",
-        }),
-        username: form.username,
-        phone: form.phone,
-      },
-    ]);
+  if (!form.employeeName.trim())
+    e.employeeName = "Employee Name is required";
 
-    if (!form.officialEmail.trim())
-      e.officialEmail = "Official Email is required";
+  if (!form.officialEmail.trim()) {
+    e.officialEmail = "Official Email is required";
+  } else if (
+    !/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i.test(form.officialEmail)
+  ) {
+    e.officialEmail = "Invalid email format";
+  }
 
-    if (!form.phoneNumber.trim())
-      e.phoneNumber = "Phone Number is required";
+  if (!form.phoneNumber) {
+    e.phoneNumber = "Phone Number is required";
+  } else if (form.phoneNumber.length !== 10) {
+    e.phoneNumber = "Phone Number must be 10 digits";
+  }
 
-    if (!form.password.trim())
-      e.password = "Password is required";
+  if (!form.password && !selected)
+    e.password = "Password is required";
 
-    return e;
-  };
+  if (!form.status)
+    e.status = "Status is required";
 
-  
-  const validatePersonalDetails = () => {
-    const e = {};
-    const p = form.personalDetails;
+  return e;
+};
 
-    if (!p.dob) e["personalDetails.dob"] = "DOB is required";
-    if (!p.city.trim()) e["personalDetails.city"] = "City is required";
-    if (!p.pinCode.trim()) e["personalDetails.pinCode"] = "Pin Code is required";
 
-    return e;
-  };
 
-  // 3. Work Details
-  const validateWorkDetails = () => {
-    const e = {};
-    const w = form.workDetails;
+ const validatePersonalDetails = () => {
+  const e = {};
+  const p = form.personalDetails;
 
-    if (!w.department.trim())
-      e["workDetails.department"] = "Department is required";
+  if (!p.dob)
+    e["personalDetails.dob"] = "DOB is required";
 
-    if (!w.designation.trim())
-      e["workDetails.designation"] = "Designation is required";
+  if (!p.bloodGroup.trim())
+    e["personalDetails.bloodGroup"] = "Blood group is required";
 
-    if (!w.dateOfJoining)
-      e["workDetails.dateOfJoining"] = "Joining date is required";
+  if (!p.personalEmail.trim()) {
+    e["personalDetails.personalEmail"] = "Personal email is required";
+  } else if (
+    !/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i.test(p.personalEmail)
+  ) {
+    e["personalDetails.personalEmail"] = "Invalid email format";
+  }
 
-    return e;
-  };
+  if (!p.alternateNumber) {
+    e["personalDetails.alternateNumber"] = "Alternate number is required";
+  } else if (p.alternateNumber.length !== 10) {
+    e["personalDetails.alternateNumber"] =
+      "Alternate number must be 10 digits";
+  }
 
-  // 4. Skills
+  if (!p.city.trim())
+    e["personalDetails.city"] = "City is required";
+
+  if (!p.pinCode.trim()) {
+    e["personalDetails.pinCode"] = "Pin Code is required";
+  } else if (!/^\d{6}$/.test(p.pinCode)) {
+    e["personalDetails.pinCode"] = "Pin Code must be 6 digits";
+  }
+
+  if (!p.address.trim())
+    e["personalDetails.address"] = "Address is required";
+
+  return e;
+};
+
+const validateWorkDetails = () => {
+  const e = {};
+  const w = form.workDetails;
+
+  if (!w.department.trim())
+    e["workDetails.department"] = "Department is required";
+
+  if (!w.designation.trim())
+    e["workDetails.designation"] = "Designation is required";
+
+  if (!w.dateOfJoining)
+    e["workDetails.dateOfJoining"] = "Joining date is required";
+
+  if (!w.reportingManager.trim())
+    e["workDetails.reportingManager"] = "Reporting manager required";
+
+  if (!w.workLocation.trim())
+    e["workDetails.workLocation"] = "Work location required";
+
+  if (!w.workType.trim())
+    e["workDetails.workType"] = "Work type required";
+
+  if (!w.employmentStatus)
+    e["workDetails.employmentStatus"] = "Employment status required";
+
+  return e;
+};
+
+
   const validateSkills = () => {
-    const e = {};
+  const e = {};
 
-    form.skills.forEach((s, i) => {
-      if (!s.skillCategory.trim())
-        e[`skills.${i}.skillCategory`] = "Skill category required";
+  form.skills.forEach((s, i) => {
+    if (!s.skillCategory.trim())
+      e[`skills.${i}.skillCategory`] = "Skill category required";
 
-      if (!s.skillName.trim())
-        e[`skills.${i}.skillName`] = "Skill name required";
-    });
+    if (!s.skillName.trim())
+      e[`skills.${i}.skillName`] = "Skill name required";
+  });
 
-    return e;
-  };
+  return e;
+};
+
 
   // 5. Qualification
   const validateQualification = () => {
-    const e = {};
-    const q = form.qualification;
+  const e = {};
+  const q = form.qualification;
 
-    if (!q.degree.trim())
-      e["qualification.degree"] = "Degree required";
+  if (!q.degree.trim())
+    e["qualification.degree"] = "Degree required";
 
-    if (!q.institution.trim())
-      e["qualification.institution"] = "Institution required";
+  if (!q.institution.trim())
+    e["qualification.institution"] = "Institution required";
 
-    if (!q.yearOfCompletion)
-      e["qualification.yearOfCompletion"] = "Year required";
+  if (!q.yearOfCompletion) {
+    e["qualification.yearOfCompletion"] = "Year required";
+  } else if (q.yearOfCompletion < 1950 || q.yearOfCompletion > new Date().getFullYear()) {
+    e["qualification.yearOfCompletion"] = "Invalid year";
+  }
 
-    return e;
-  };
+  return e;
+};
 
-  // 6. Experience
-  const validateExperiences = () => {
-    const e = {};
+ const validateExperiences = () => {
+  const e = {};
 
-    form.experiences.forEach((ex, i) => {
-      if (!ex.jobTitle.trim())
-        e[`experiences.${i}.jobTitle`] = "Job title required";
+  form.experiences.forEach((ex, i) => {
+    if (!ex.jobTitle.trim())
+      e[`experiences.${i}.jobTitle`] = "Job title required";
 
-      if (!ex.companyName.trim())
-        e[`experiences.${i}.companyName`] = "Company name required";
-    });
+    if (!ex.companyName.trim())
+      e[`experiences.${i}.companyName`] = "Company name required";
 
-    return e;
-  };
+    if (!ex.duration.trim())
+      e[`experiences.${i}.duration`] = "Duration required";
 
-  // 7. Documents
-  const validateDocuments = () => {
-    const e = {};
+    if (!ex.documentUrl)
+      e[`experiences.${i}.documentUrl`] = "Experience document required";
+  });
 
-    form.documents.forEach((d, i) => {
-      if (!d.documentName.trim())
-        e[`documents.${i}.documentName`] = "Document name required";
-    });
+  return e;
+};
 
-    return e;
-  };
 
-  // 8. Assets
-  const validateAssets = () => {
-    const e = {};
+const validateDocuments = () => {
+  const e = {};
 
-    form.assets.forEach((a, i) => {
-      if (!a.assetName.trim())
-        e[`assets.${i}.assetName`] = "Asset name required";
+  form.documents.forEach((d, i) => {
+    if (!d.documentName.trim())
+      e[`documents.${i}.documentName`] = "Document name is required";
 
-      if (!a.serialNumber.trim())
-        e[`assets.${i}.serialNumber`] = "Serial number required";
-    });
+    if (!d.documentUrl)
+      e[`documents.${i}.documentUrl`] = "Document file is required";
+  });
 
-    return e;
-  };
+  return e;
+};
 
-  // 9. Salary
-  const validateSalary = () => {
-    const e = {};
-    const s = form.salary;
 
-    if (!s.basic) e["salary.basic"] = "Basic salary required";
-    if (!s.grossSalary) e["salary.grossSalary"] = "Gross salary required";
-    if (!s.netPay) e["salary.netPay"] = "Net pay required";
 
-    return e;
-  };
+ const validateAssets = () => {
+  const e = {};
 
-  // 🔥 FINAL COMBINED VALIDATION
+  form.assets.forEach((a, i) => {
+    if (!a.assetName.trim())
+      e[`assets.${i}.assetName`] = "Asset name required";
+
+    if (!a.serialNumber.trim())
+      e[`assets.${i}.serialNumber`] = "Serial number required";
+
+    if (!a.assignedDate)
+      e[`assets.${i}.assignedDate`] = "Assigned date required";
+  });
+
+  return e;
+};
+
+
+ const validateSalary = () => {
+  const e = {};
+  const s = form.salary;
+
+  const isValidNumber = (val) =>
+    val !== "" && !isNaN(val) && Number(val) >= 0;
+
+  if (!isValidNumber(s.basic))
+    e["salary.basic"] = "Basic salary is required";
+
+  if (!isValidNumber(s.hra))
+    e["salary.hra"] = "HRA is required";
+
+  if (!isValidNumber(s.conveyance))
+    e["salary.conveyance"] = "Conveyance is required";
+
+  if (!isValidNumber(s.specialAllowance))
+    e["salary.specialAllowance"] = "Special Allowance is required";
+
+  if (!isValidNumber(s.grossSalary))
+    e["salary.grossSalary"] = "Gross salary is required";
+
+  if (!isValidNumber(s.netPay))
+    e["salary.netPay"] = "Net pay is required";
+
+  return e;
+};
+
+  
   const validateAllSections = () => {
-    const allErrors = {
-      ...validateBasicDetails(),
-      ...validatePersonalDetails(),
-      ...validateWorkDetails(),
-      ...validateSkills(),
-      ...validateQualification(),
-      ...validateExperiences(),
-      ...validateDocuments(),
-      ...validateAssets(),
-      ...validateSalary(),
-    };
-
-    setErrors(allErrors);
-    return Object.keys(allErrors).length === 0;
+  const allErrors = {
+    ...validateBasicDetails(),
+    ...validatePersonalDetails(),
+    ...validateWorkDetails(),
+    ...validateSkills(),
+    ...validateQualification(),
+    ...validateExperiences(),
+    ...validateDocuments(),
+    ...validateAssets(),
+    ...validateSalary(),
   };
 
-
+  setErrors(allErrors);
+  return Object.keys(allErrors).length === 0;
+};
 
   const handleCreate = async () => {
     if (!validateAllSections()) return;
-
 
     const formData = new FormData();
 
@@ -890,16 +909,16 @@ export default function SuperAdminAdminManagement() {
                   onChange={(e) => setStatusFilter(e.target.value)}
                   className="h-10 flex-1 cursor-pointer rounded-xl border-2 border-slate-200 bg-slate-50 px-3 text-sm font-medium text-slate-700 transition-all duration-200 hover:bg-slate-100 focus:border-blue-400 focus:outline-none focus:ring-4 focus:ring-blue-100 sm:h-11 sm:px-4"
                 >
-                  <option>All Status</option>
-                  <option>Active</option>
-                  <option>Disabled</option>
+                  <option value="All Status">All Status</option>
+                  <option value="active">Active</option>
+                  <option value="inactive">Inactive</option>
                 </select>
               </div>
             </div>
           </div>
 
           {/*  Loading  */}
-          
+          {loading && !error && <DummySkeleton />}
 
           {/* Error */}
           {error && (
@@ -945,8 +964,7 @@ export default function SuperAdminAdminManagement() {
                         </td>
                         <td className="text-center">
                           <span
-                            className={`inline-flex min-w-[90px] items-center justify-center rounded-full px-3 py-1.5 text-xs font-semibold ${a.status?.toLowerCase() === "active"
-
+                            className={`inline-flex min-w-[90px] items-center justify-center rounded-full px-3 py-1.5 text-xs font-semibold ${a.status === "active"
                               ? "bg-green-100 text-green-700 ring-2 ring-green-200"
                               : "bg-red-100 text-red-700 ring-2 ring-red-200"
                               }`}
@@ -955,7 +973,7 @@ export default function SuperAdminAdminManagement() {
                           </span>
                         </td>
                         <td className="text-center text-sm text-slate-600">{a.lastLogin}</td>
-                        <td className="text-center text-sm text-slate-600">{a.created}</td>
+                        <td className="text-center text-sm text-slate-600">{a.created ? new Date(a.created).toLocaleDateString() : "-"}</td>
                         <td className="pr-6">
                           <div className="flex items-center justify-center gap-2">
                             <button
@@ -1032,7 +1050,7 @@ export default function SuperAdminAdminManagement() {
                       </div>
                       <div>
                         <span className="text-slate-500">Created:</span>
-                        <p className="mt-0.5 font-medium text-slate-700">{a.created}</p>
+                        <p className="mt-0.5 font-medium text-slate-700">{a.created ? new Date(a.created).toLocaleDateString() : "-"}</p>
                       </div>
                     </div>
 
@@ -1088,6 +1106,8 @@ export default function SuperAdminAdminManagement() {
           title="Create Admin"
           form={form}
           setForm={setForm}
+          errors={errors}
+          setErrors={setErrors}
           onClose={() => {
             setOpenCreate(false);
             resetForm();
@@ -1102,6 +1122,8 @@ export default function SuperAdminAdminManagement() {
           title="Edit Admin"
           form={form}
           setForm={setForm}
+          errors={errors}        // 🔥 ADD THIS
+          setErrors={setErrors}
           onClose={() => {
             setOpenEdit(false);
             setSelected(null);
@@ -1115,12 +1137,12 @@ export default function SuperAdminAdminManagement() {
   );
 }
 
-function Modal({ title, form, setForm, onClose, onSubmit, submitText }) {
+function Modal({ title, form, setForm, errors, setErrors, onClose, onSubmit, submitText }) {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm">
       <div className="w-full max-w-screen-lg transform rounded-2xl bg-white shadow-2xl transition-all">
-        <div className="flex items-center justify-between rounded-2xl border-b border-slate-200 bg-gradient-to-r from-slate-50 to-white p-6">
-          <h2 className="text-xl font-bold text-slate-900">{title}</h2>
+        <div  className="flex items-center bg-slate-100 justify-between rounded-2xl border-b border-slate-200 bg-gradient-to-r from-slate-50 to-white p-6">
+          <h2 className="text-xl font-bold  text-slate-900">{title}</h2>
           <button
             onClick={onClose}
             className="rounded-lg p-2 text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-600"
@@ -1129,16 +1151,16 @@ function Modal({ title, form, setForm, onClose, onSubmit, submitText }) {
           </button>
         </div>
 
-        <div className="max-h-[calc(100vh-200px)] overflow-y-auto p-6">
-          <div className="grid grid-cols-1 gap-8 lg:grid-cols-2">
+        <div className="max-h-[calc(100vh-200px)]  overflow-y-auto p-6">
+          <div className="grid grid-cols-1 gap-8  lg:grid-cols-2">
 
             {/*  BASIC DETAILS  */}
- 
-            <section className="lg:col-span-2 space-y-4 rounded-xl border p-5">
+
+            <section className="lg:col-span-2  bg-slate-100 space-y-4 rounded-xl border p-5">
               <h3 className="text-sm font-semibold">Basic Details</h3>
 
               <div className="grid sm:grid-cols-2 gap-4">
-              
+
                 <Field
                   label="Employee Name"
                   name="employeeName"
@@ -1148,6 +1170,7 @@ function Modal({ title, form, setForm, onClose, onSubmit, submitText }) {
                     setForm({ ...form, employeeName: v });
                     setErrors({ ...errors, employeeName: "" });
                   }}
+                  errors={errors}
                 />
 
                 <Field
@@ -1159,6 +1182,7 @@ function Modal({ title, form, setForm, onClose, onSubmit, submitText }) {
                     setForm({ ...form, officialEmail: v });
                     setErrors({ ...errors, officialEmail: "" });
                   }}
+                  errors={errors}
                 />
 
                 <Field
@@ -1167,10 +1191,14 @@ function Modal({ title, form, setForm, onClose, onSubmit, submitText }) {
                   placeholder="Enter phone number"
                   value={form.phoneNumber}
                   onChange={(v) => {
-                    setForm({ ...form, phoneNumber: v });
+                    const onlyNumbers = v.replace(/\D/g, "").slice(0, 10); // allow only digits, max 10
+
+                    setForm({ ...form, phoneNumber: onlyNumbers });
                     setErrors({ ...errors, phoneNumber: "" });
                   }}
+                  errors={errors}
                 />
+
 
                 <Field
                   label="Password"
@@ -1182,6 +1210,7 @@ function Modal({ title, form, setForm, onClose, onSubmit, submitText }) {
                     setForm({ ...form, password: v });
                     setErrors({ ...errors, password: "" });
                   }}
+                  errors={errors}
                 />
 
                 <div>
@@ -1195,16 +1224,19 @@ function Modal({ title, form, setForm, onClose, onSubmit, submitText }) {
                       setForm({ ...form, status: e.target.value });
                       setErrors({ ...errors, status: "" });
                     }}
-                    className={`w-full rounded-xl border-2 bg-white px-4 py-3 text-sm transition-all duration-200
-                  ${errors.status
-                        ? "border-red-400 focus:ring-red-100"
-                        : "border-slate-200 focus:border-blue-400 focus:ring-blue-100"
+                    className={`w-full rounded-xl border bg-white pl-4 pr-8 py-2.5 text-sm font-medium text-slate-700 shadow-sm transition-all duration-200
+    ${errors.status
+                        ? "border-red-400 focus:ring-4 focus:ring-red-100 focus:border-red-400"
+                        : "border-slate-300 hover:border-slate-400 focus:ring-4 focus:ring-blue-100 focus:border-blue-500"
                       }
-                   focus:outline-none focus:ring-4`} >
+    focus:outline-none cursor-pointer`}
+                  >
                     <option value="">Select status</option>
                     <option value="active">Active</option>
                     <option value="disabled">Disabled</option>
                   </select>
+
+
 
                   {errors.status && (
                     <p className="mt-1 text-xs font-medium text-red-500">
@@ -1216,12 +1248,12 @@ function Modal({ title, form, setForm, onClose, onSubmit, submitText }) {
             </section>
 
             {/* PERSONAL DETAILS */}
-            
-            <section className="space-y-4 rounded-xl border p-5">
+
+            <section className="space-y-4 bg-slate-100 rounded-xl border p-5">
               <h3 className="text-sm font-semibold">Personal Details</h3>
 
               <div className="grid sm:grid-cols-2 gap-4">
-               
+
                 <Field
                   label="DOB"
                   name="personalDetails.dob"
@@ -1234,6 +1266,7 @@ function Modal({ title, form, setForm, onClose, onSubmit, submitText }) {
                     });
                     setErrors({ ...errors, "personalDetails.dob": "" });
                   }}
+                  errors={errors}
                 />
 
                 <Field
@@ -1248,8 +1281,9 @@ function Modal({ title, form, setForm, onClose, onSubmit, submitText }) {
                     });
                     setErrors({ ...errors, "personalDetails.bloodGroup": "" });
                   }}
+                  errors={errors}
                 />
-             
+
                 <Field
                   label="Personal Email"
                   name="personalDetails.personalEmail"
@@ -1262,24 +1296,30 @@ function Modal({ title, form, setForm, onClose, onSubmit, submitText }) {
                     });
                     setErrors({ ...errors, "personalDetails.personalEmail": "" });
                   }}
+                  errors={errors}
                 />
-           
+
                 <Field
                   label="Alternate Number"
                   name="personalDetails.alternateNumber"
                   placeholder="Enter alternate phone number"
                   value={form.personalDetails.alternateNumber}
                   onChange={(v) => {
+                    const onlyNumbers = v.replace(/\D/g, "").slice(0, 10); // only digits, max 10
+
                     setForm({
                       ...form,
                       personalDetails: {
                         ...form.personalDetails,
-                        alternateNumber: v,
+                        alternateNumber: onlyNumbers,
                       },
                     });
+
                     setErrors({ ...errors, "personalDetails.alternateNumber": "" });
                   }}
+                  errors={errors}
                 />
+
 
                 <Field
                   label="City"
@@ -1293,6 +1333,7 @@ function Modal({ title, form, setForm, onClose, onSubmit, submitText }) {
                     });
                     setErrors({ ...errors, "personalDetails.city": "" });
                   }}
+                  errors={errors}
                 />
 
                 <Field
@@ -1307,9 +1348,10 @@ function Modal({ title, form, setForm, onClose, onSubmit, submitText }) {
                     });
                     setErrors({ ...errors, "personalDetails.pinCode": "" });
                   }}
+                  errors={errors}
                 />
               </div>
-            
+
               <Field
                 label="Address"
                 name="personalDetails.address"
@@ -1322,18 +1364,17 @@ function Modal({ title, form, setForm, onClose, onSubmit, submitText }) {
                   });
                   setErrors({ ...errors, "personalDetails.address": "" });
                 }}
+                errors={errors}
               />
             </section>
 
-
-
             {/* WORK DETAILS  */}
-          
-            <section className="space-y-4 rounded-xl border p-5">
+
+            <section className="space-y-4 bg-slate-100 rounded-xl border p-5">
               <h3 className="text-sm font-semibold">Work Details</h3>
 
               <div className="grid sm:grid-cols-2 gap-4">
-            
+
                 <Field
                   label="Department"
                   name="workDetails.department"
@@ -1346,6 +1387,7 @@ function Modal({ title, form, setForm, onClose, onSubmit, submitText }) {
                     });
                     setErrors({ ...errors, "workDetails.department": "" });
                   }}
+                  errors={errors}
                 />
 
                 <Field
@@ -1360,6 +1402,7 @@ function Modal({ title, form, setForm, onClose, onSubmit, submitText }) {
                     });
                     setErrors({ ...errors, "workDetails.designation": "" });
                   }}
+                  errors={errors}
                 />
 
                 <Field
@@ -1374,6 +1417,7 @@ function Modal({ title, form, setForm, onClose, onSubmit, submitText }) {
                     });
                     setErrors({ ...errors, "workDetails.dateOfJoining": "" });
                   }}
+                  errors={errors}
                 />
 
                 <Field
@@ -1391,6 +1435,7 @@ function Modal({ title, form, setForm, onClose, onSubmit, submitText }) {
                     });
                     setErrors({ ...errors, "workDetails.reportingManager": "" });
                   }}
+                  errors={errors}
                 />
 
                 <Field
@@ -1405,6 +1450,7 @@ function Modal({ title, form, setForm, onClose, onSubmit, submitText }) {
                     });
                     setErrors({ ...errors, "workDetails.workLocation": "" });
                   }}
+                  errors={errors}
                 />
 
                 <Field
@@ -1419,10 +1465,11 @@ function Modal({ title, form, setForm, onClose, onSubmit, submitText }) {
                     });
                     setErrors({ ...errors, "workDetails.workType": "" });
                   }}
+                  errors={errors}
                 />
 
                 <div>
-                  <label className="mb-2 block text-sm font-medium text-slate-700">
+                  <label className="mb-2 block  text-sm font-medium text-slate-700">
                     Employment Status
                   </label>
 
@@ -1459,12 +1506,8 @@ function Modal({ title, form, setForm, onClose, onSubmit, submitText }) {
               </div>
             </section>
 
-
-
-
             {/*  SKILLS  */}
-
-            <section className="lg:col-span-2 space-y-4 rounded-xl border p-5">
+            <section className="lg:col-span-2 bg-slate-100 space-y-4 rounded-xl border p-5">
               <h3 className="text-sm font-semibold">Skills</h3>
 
               {form.skills.map((s, i) => (
@@ -1481,6 +1524,7 @@ function Modal({ title, form, setForm, onClose, onSubmit, submitText }) {
                       setForm({ ...form, skills });
                       setErrors({ ...errors, [`skills.${i}.skillCategory`]: "" });
                     }}
+                    errors={errors}
                   />
 
                   <Field
@@ -1494,6 +1538,7 @@ function Modal({ title, form, setForm, onClose, onSubmit, submitText }) {
                       setForm({ ...form, skills });
                       setErrors({ ...errors, [`skills.${i}.skillName`]: "" });
                     }}
+                    errors={errors}
                   />
                 </div>
               ))}
@@ -1514,7 +1559,7 @@ function Modal({ title, form, setForm, onClose, onSubmit, submitText }) {
 
             {/*  QUALIFICATION  */}
 
-            <section className="lg:col-span-2 space-y-4 rounded-xl border border-slate-200 p-5">
+            <section className="lg:col-span-2 space-y-4 bg-slate-100 rounded-xl border border-slate-200 p-5">
               <h3 className="text-sm font-semibold">Qualification</h3>
 
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
@@ -1534,6 +1579,7 @@ function Modal({ title, form, setForm, onClose, onSubmit, submitText }) {
                     });
                     setErrors({ ...errors, "qualification.degree": "" });
                   }}
+                  errors={errors}
                 />
 
                 <Field
@@ -1551,6 +1597,7 @@ function Modal({ title, form, setForm, onClose, onSubmit, submitText }) {
                     });
                     setErrors({ ...errors, "qualification.institution": "" });
                   }}
+                  errors={errors}
                 />
 
                 <Field
@@ -1569,15 +1616,13 @@ function Modal({ title, form, setForm, onClose, onSubmit, submitText }) {
                     });
                     setErrors({ ...errors, "qualification.yearOfCompletion": "" });
                   }}
+                  errors={errors}
                 />
               </div>
             </section>
 
-
-
             {/*  EXPERIENCE  */}
-
-            <section className="lg:col-span-2 space-y-4 rounded-xl border p-5">
+            <section className="lg:col-span-2 bg-slate-100 space-y-4 rounded-xl border p-5">
               <h3 className="text-sm font-semibold">Experience</h3>
 
               {form.experiences.map((e, i) => (
@@ -1594,6 +1639,7 @@ function Modal({ title, form, setForm, onClose, onSubmit, submitText }) {
                       setForm({ ...form, experiences: exps });
                       setErrors({ ...errors, [`experiences.${i}.jobTitle`]: "" });
                     }}
+                    errors={errors}
                   />
 
                   <Field
@@ -1607,6 +1653,7 @@ function Modal({ title, form, setForm, onClose, onSubmit, submitText }) {
                       setForm({ ...form, experiences: exps });
                       setErrors({ ...errors, [`experiences.${i}.companyName`]: "" });
                     }}
+                    errors={errors}
                   />
 
                   <Field
@@ -1619,6 +1666,7 @@ function Modal({ title, form, setForm, onClose, onSubmit, submitText }) {
                       exps[i].duration = v;
                       setForm({ ...form, experiences: exps });
                     }}
+                    errors={errors}
                   />
 
                   <div>
@@ -1644,19 +1692,18 @@ function Modal({ title, form, setForm, onClose, onSubmit, submitText }) {
                     />
 
                     {typeof e.documentUrl === "string" && e.documentUrl && (
-                      <p className="mt-1 text-xs text-slate-600">
-                        Existing file:{" "}
+                      <p className="mt-1 text-xs text-slate-600">Existing file :{" "}
+
                         <a
                           href={e.documentUrl}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="font-medium text-blue-600 underline"
+                          className="font-medium text-blue-600 hover:underline"
                         >
                           {e.documentUrl.split("/").pop()}
                         </a>
                       </p>
                     )}
-
                     {e.documentUrl instanceof File && (
                       <p className="mt-1 text-xs text-slate-500">
                         Selected file: {e.documentUrl.name}
@@ -1688,7 +1735,7 @@ function Modal({ title, form, setForm, onClose, onSubmit, submitText }) {
             </section>
 
             {/*  DOCUMENTS */}
-           <section className="lg:col-span-2 space-y-4 rounded-xl border p-5">
+            <section className="lg:col-span-2 bg-slate-100 space-y-4 rounded-xl border p-5">
               <h3 className="text-sm font-semibold">Documents</h3>
 
               {form.documents.map((d, i) => (
@@ -1705,6 +1752,7 @@ function Modal({ title, form, setForm, onClose, onSubmit, submitText }) {
                       setForm({ ...form, documents: docs });
                       setErrors({ ...errors, [`documents.${i}.documentName`]: "" });
                     }}
+                    errors={errors}
                   />
 
                   <div>
@@ -1724,12 +1772,12 @@ function Modal({ title, form, setForm, onClose, onSubmit, submitText }) {
                         setForm({ ...form, documents: docs });
                       }}
                       className="w-full rounded-xl border-2 border-slate-200 bg-white px-4 py-3 text-sm
-            file:mr-4 file:rounded-lg file:border-0
-            file:bg-blue-600 file:px-4 file:py-2
-            file:text-white hover:file:bg-blue-700"
-                    />
+                          file:mr-4 file:rounded-lg file:border-0
+                             file:bg-blue-600 file:px-4 file:py-2
+                            file:text-white hover:file:bg-blue-700"
+                     />
 
-                    {typeof d.documentUrl === "string" && d.documentUrl && (
+                     {typeof d.documentUrl === "string" && d.documentUrl && (
                       <p className="mt-1 text-xs text-slate-600">
                         Existing file:{" "}
                         <a
@@ -1768,11 +1816,8 @@ function Modal({ title, form, setForm, onClose, onSubmit, submitText }) {
               </button>
             </section>
 
-
-
-
             {/* SALARY  */}
-            <section className="lg:col-span-2 space-y-4 rounded-xl border border-slate-200 p-5">
+            <section className="lg:col-span-2 bg-slate-100 space-y-4 rounded-xl border border-slate-200 p-5">
               <h3 className="text-sm font-semibold">Salary</h3>
 
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
@@ -1790,6 +1835,7 @@ function Modal({ title, form, setForm, onClose, onSubmit, submitText }) {
                     });
                     setErrors({ ...errors, "salary.basic": "" });
                   }}
+                  errors={errors}
                 />
 
 
@@ -1806,6 +1852,7 @@ function Modal({ title, form, setForm, onClose, onSubmit, submitText }) {
                     });
                     setErrors({ ...errors, "salary.hra": "" });
                   }}
+                  errors={errors}
                 />
 
 
@@ -1822,6 +1869,7 @@ function Modal({ title, form, setForm, onClose, onSubmit, submitText }) {
                     });
                     setErrors({ ...errors, "salary.conveyance": "" });
                   }}
+                  errors={errors}
                 />
 
 
@@ -1838,6 +1886,7 @@ function Modal({ title, form, setForm, onClose, onSubmit, submitText }) {
                     });
                     setErrors({ ...errors, "salary.specialAllowance": "" });
                   }}
+                  errors={errors}
                 />
 
                 <Field
@@ -1853,6 +1902,7 @@ function Modal({ title, form, setForm, onClose, onSubmit, submitText }) {
                     });
                     setErrors({ ...errors, "salary.grossSalary": "" });
                   }}
+                  errors={errors}
                 />
 
                 <Field
@@ -1868,17 +1918,18 @@ function Modal({ title, form, setForm, onClose, onSubmit, submitText }) {
                     });
                     setErrors({ ...errors, "salary.netPay": "" });
                   }}
+                  errors={errors}
                 />
               </div>
             </section>
 
             {/*  ASSETS */}
-           <section className="lg:col-span-2 space-y-4 rounded-xl border p-5">
+            <section className="lg:col-span-2 space-y-4 bg-slate-100 rounded-xl border p-5">
               <h3 className="text-sm font-semibold">Assets</h3>
 
               {form.assets.map((a, i) => (
                 <div key={i} className="grid sm:grid-cols-2 gap-4">
-    
+
                   <Field
                     label="Asset Name"
                     name={`assets.${i}.assetName`}
@@ -1890,6 +1941,7 @@ function Modal({ title, form, setForm, onClose, onSubmit, submitText }) {
                       setForm({ ...form, assets });
                       setErrors({ ...errors, [`assets.${i}.assetName`]: "" });
                     }}
+                    errors={errors}
                   />
 
                   <Field
@@ -1903,6 +1955,7 @@ function Modal({ title, form, setForm, onClose, onSubmit, submitText }) {
                       setForm({ ...form, assets });
                       setErrors({ ...errors, [`assets.${i}.serialNumber`]: "" });
                     }}
+                    errors={errors}
                   />
 
                   <Field
@@ -1915,6 +1968,7 @@ function Modal({ title, form, setForm, onClose, onSubmit, submitText }) {
                       assets[i].assignedDate = v;
                       setForm({ ...form, assets });
                     }}
+                    errors={errors}
                   />
 
                   <div>
@@ -1987,10 +2041,6 @@ function Modal({ title, form, setForm, onClose, onSubmit, submitText }) {
 
           </div>
         </div>
-
-
-
-
         <div className="flex gap-3 border-t border-slate-200 bg-slate-50 p-6">
           <button
             onClick={onClose}
@@ -2011,9 +2061,65 @@ function Modal({ title, form, setForm, onClose, onSubmit, submitText }) {
   );
 }
 
+function Field({
+  label,
+  name,
+  icon,
+  value,
+  onChange,
+  placeholder,
+  type = "text",
+  errors = {},
+}) {
+  const [isFocused, setIsFocused] = useState(false);
+  const error = errors[name];
 
+  return (
+    <div>
+      <label className="mb-2 block text-sm font-medium text-slate-700">
+        {label}
+      </label>
 
+      <div className="relative">
+        {icon && (
+          <span
+            className={`absolute left-3 top-1/2 -translate-y-1/2 transition-colors
+              ${isFocused ? "text-blue-500" : "text-slate-400"}
+            `}
+          >
+            {icon}
+          </span>
+        )}
 
+        <input
+          type={type}
+          placeholder={placeholder}
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+          onFocus={() => setIsFocused(true)}
+          onBlur={() => setIsFocused(false)}
+          className={`w-full rounded-xl border-2 py-3 pr-4 transition-all duration-200
+            ${icon ? "pl-10" : "pl-4"}
+            
+            ${error
+              ? "border-red-400 focus:ring-red-100"
+              : isFocused
+              ? "border-blue-500 ring-4 ring-blue-100"
+              : "border-slate-200 focus:border-blue-400 focus:ring-blue-100"
+            }
+
+            focus:outline-none`}
+        />
+      </div>
+
+      {error && (
+        <p className="mt-1 text-xs font-medium text-red-500">
+          {error}
+        </p>
+      )}
+    </div>
+  );
+}
 function StatCard({ icon, label, value, badge, badgeColor, gradient, iconBg }) {
   return (
     <div
@@ -2040,5 +2146,3 @@ function StatCard({ icon, label, value, badge, badgeColor, gradient, iconBg }) {
     </div>
   );
 }
-
-
