@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 
-// --- Configuration & Mock Data ---
 const LEAVE_QUOTAS = {
   "Sick Leave": 12,
   "Casual Leave": 10,
@@ -12,11 +11,9 @@ const initialHistory = [
   { id: 2, type: "Casual Leave", from: "2026-01-12", to: "2026-01-12", days: 1, dayType: "Full Day", reason: "Family work", status: "Pending" },
 ];
 
-// --- Helper Functions ---
 const formatDate = (d) => d.toISOString().split("T")[0];
 
 export default function LeaveManagementSystem() {
-  // State
   const [leaveType, setLeaveType] = useState("");
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
@@ -28,7 +25,6 @@ export default function LeaveManagementSystem() {
 
   const minDate = formatDate(new Date(new Date().setDate(new Date().getDate() + 1)));
 
-  // Logic: Calculate Balance
   const getUsedBalance = () => {
     const used = { "Sick Leave": 0, "Casual Leave": 0, "Paid Leave": 0 };
     history.forEach((h) => {
@@ -54,15 +50,14 @@ export default function LeaveManagementSystem() {
 
   const appliedDays = calculateDays();
 
-  // Logic: Form Submission
   const handleSubmit = () => {
     if (!leaveType || !startDate || !endDate || !reason) {
-      setError("Please fill in all fields, including a reason.");
+      setError("Please fill in all fields before submitting.");
       return;
     }
     const currentBalance = LEAVE_QUOTAS[leaveType] - (used[leaveType] || 0);
     if (appliedDays > currentBalance) {
-      setError(`Insufficient balance. Only ${currentBalance} days remaining.`);
+      setError(`You only have ${currentBalance} days left for ${leaveType}.`);
       return;
     }
     setError("");
@@ -79,99 +74,130 @@ export default function LeaveManagementSystem() {
     };
 
     setHistory([newRequest, ...history]);
-    // Reset form
-    setLeaveType(""); setStartDate(""); setEndDate(""); setReason(""); setDayType("Full Day");
+    setLeaveType("");
+    setStartDate("");
+    setEndDate("");
+    setReason("");
+    setDayType("Full Day");
   };
 
   return (
-    <div className="min-h-screen bg-[#F8FAFC] p-4 md:p-12 text-[#1E293B] font-['Inter',_sans-serif]">
-      {/* Google Font Import */}
-      <style>{`@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');`}</style>
-
-      <div className="max-w-6xl mx-auto">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-sky-50 p-6 md:p-10">
+      <div className="max-w-7xl mx-auto">
+        
         {/* Header */}
-        <header className="mb-12">
-          <h1 className="text-4xl font-extrabold tracking-tight text-[#0F172A]">Time Off</h1>
-          <p className="text-slate-500 font-medium mt-2">Plan your leave and track your balances.</p>
-        </header>
+        <div className="mb-10">
+          <h1 className="text-3xl font-semibold text-slate-800 mb-1">Leave Management</h1>
+          <p className="text-slate-500">Request time off and keep track of your balance</p>
+        </div>
 
-        {/* Balance Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
+        {/* Balance Overview */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-5 mb-10">
           {Object.entries(LEAVE_QUOTAS).map(([type, total]) => {
             const remaining = total - (used[type] || 0);
-            const progress = (remaining / total) * 100;
+            const usedAmount = used[type] || 0;
+            const percentage = (usedAmount / total) * 100;
+            
             return (
-              <div key={type} className="bg-white p-6 rounded-[24px] border border-slate-100 shadow-sm hover:shadow-md transition-shadow">
-                <div className="flex justify-between items-start mb-4">
-                  <span className={`p-2 rounded-lg text-xs font-bold uppercase tracking-wider ${type === 'Sick Leave' ? 'bg-rose-50 text-rose-600' : 'bg-blue-50 text-blue-600'}`}>
-                    {type}
-                  </span>
-                  <span className="text-2xl font-black text-slate-900">{remaining}</span>
+              <div key={type} className="bg-white rounded-2xl p-6 shadow-sm border border-blue-100/50">
+                <div className="flex items-start justify-between mb-4">
+                  <div>
+                    <p className="text-sm text-slate-600 mb-1">{type}</p>
+                    <p className="text-3xl font-semibold text-slate-800">{remaining}</p>
+                    <p className="text-xs text-slate-400 mt-0.5">days remaining</p>
+                  </div>
+                  <div className="bg-blue-50 rounded-lg px-3 py-1.5">
+                    <p className="text-xs font-medium text-blue-700">{total} total</p>
+                  </div>
                 </div>
-                <div className="w-full bg-slate-100 h-1.5 rounded-full overflow-hidden">
+                
+                <div className="relative w-full h-2 bg-slate-100 rounded-full overflow-hidden">
                   <div 
-                    className={`h-full transition-all duration-700 ${type === 'Sick Leave' ? 'bg-rose-500' : 'bg-blue-500'}`} 
-                    style={{ width: `${progress}%` }}
+                    className="absolute top-0 left-0 h-full bg-gradient-to-r from-blue-400 to-blue-500 rounded-full transition-all duration-500"
+                    style={{ width: `${percentage}%` }}
                   />
                 </div>
-                <p className="text-[11px] font-bold text-slate-400 mt-3 uppercase tracking-widest">
-                  Used: {used[type]} / {total} Days
-                </p>
+                
+                <p className="text-xs text-slate-500 mt-3">{usedAmount} days used this year</p>
               </div>
             );
           })}
         </div>
 
-        <div className="grid lg:grid-cols-3 gap-8 mb-12">
-          {/* Main Form Area */}
-          <div className="lg:col-span-2 bg-white p-8 md:p-10 rounded-[32px] border border-slate-100 shadow-sm">
-            <h2 className="text-xl font-bold mb-8 flex items-center gap-3 text-slate-800">
-              <span className="w-1.5 h-6 bg-blue-600 rounded-full"></span>
-              Request Details
-            </h2>
+        <div className="grid lg:grid-cols-3 gap-6 mb-10">
+          
+          {/* Request Form */}
+          <div className="lg:col-span-2 bg-white rounded-2xl p-8 shadow-sm border border-blue-100/50">
+            <h2 className="text-lg font-semibold text-slate-800 mb-6">New Leave Request</h2>
 
-            <div className="space-y-8">
-              <div className="grid md:grid-cols-2 gap-8">
-                <div className="space-y-2">
-                  <label className="text-xs font-bold text-slate-400 uppercase tracking-widest ml-1">Leave Type</label>
+            <div className="space-y-6">
+              
+              {/* Leave Type & Days Display */}
+              <div className="grid md:grid-cols-5 gap-5">
+                <div className="md:col-span-3">
+                  <label className="block text-sm font-medium text-slate-700 mb-2">
+                    Type of Leave
+                  </label>
                   <select
                     value={leaveType}
                     onChange={(e) => setLeaveType(e.target.value)}
-                    className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3.5 text-sm focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all font-medium"
+                    className="w-full bg-white border border-slate-200 rounded-lg px-4 py-2.5 text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent transition"
                   >
-                    <option value="">Choose category...</option>
-                    {Object.keys(LEAVE_QUOTAS).map(q => <option key={q} value={q}>{q}</option>)}
+                    <option value="">Select leave type</option>
+                    {Object.keys(LEAVE_QUOTAS).map(q => (
+                      <option key={q} value={q}>{q}</option>
+                    ))}
                   </select>
                 </div>
 
-                <div className="bg-slate-50 rounded-2xl p-4 flex flex-col items-center justify-center border border-dashed border-slate-200">
-                  <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Estimated</p>
-                  <p className="text-3xl font-black text-blue-600">{appliedDays} <span className="text-sm">Days</span></p>
+                <div className="md:col-span-2 bg-gradient-to-br from-blue-50 to-sky-50 rounded-lg p-5 flex flex-col items-center justify-center border border-blue-100">
+                  <p className="text-xs text-slate-500 mb-1">Total Days</p>
+                  <p className="text-2xl font-semibold text-blue-600">{appliedDays}</p>
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-6">
-                <div className="space-y-2">
-                  <label className="text-xs font-bold text-slate-400 uppercase tracking-widest ml-1">Start Date</label>
-                  <input type="date" min={minDate} value={startDate} onChange={(e) => setStartDate(e.target.value)}
-                    className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3.5 text-sm focus:ring-2 focus:ring-blue-500/20 outline-none transition-all" />
+              {/* Date Selection */}
+              <div className="grid grid-cols-2 gap-5">
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 mb-2">
+                    Start Date
+                  </label>
+                  <input 
+                    type="date" 
+                    min={minDate} 
+                    value={startDate} 
+                    onChange={(e) => setStartDate(e.target.value)}
+                    className="w-full bg-white border border-slate-200 rounded-lg px-4 py-2.5 text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent transition"
+                  />
                 </div>
-                <div className="space-y-2">
-                  <label className="text-xs font-bold text-slate-400 uppercase tracking-widest ml-1">End Date</label>
-                  <input type="date" min={startDate || minDate} value={endDate} onChange={(e) => setEndDate(e.target.value)}
-                    className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3.5 text-sm focus:ring-2 focus:ring-blue-500/20 outline-none transition-all" />
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 mb-2">
+                    End Date
+                  </label>
+                  <input 
+                    type="date" 
+                    min={startDate || minDate} 
+                    value={endDate} 
+                    onChange={(e) => setEndDate(e.target.value)}
+                    className="w-full bg-white border border-slate-200 rounded-lg px-4 py-2.5 text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent transition"
+                  />
                 </div>
               </div>
 
-              <div className="space-y-3">
-                <label className="text-xs font-bold text-slate-400 uppercase tracking-widest ml-1">Duration Type</label>
-                <div className="flex bg-slate-100 p-1 rounded-xl w-fit">
+              {/* Day Type Toggle */}
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-3">
+                  Duration
+                </label>
+                <div className="inline-flex bg-slate-100 rounded-lg p-1">
                   {["Full Day", "Half Day"].map((type) => (
                     <button
                       key={type}
                       onClick={() => setDayType(type)}
-                      className={`px-8 py-2.5 text-xs font-bold rounded-lg transition-all ${
-                        dayType === type ? "bg-white text-blue-600 shadow-sm" : "text-slate-500 hover:text-slate-700"
+                      className={`px-6 py-2 text-sm font-medium rounded-md transition-all ${
+                        dayType === type 
+                          ? "bg-white text-blue-600 shadow-sm" 
+                          : "text-slate-600 hover:text-slate-800"
                       }`}
                     >
                       {type}
@@ -182,51 +208,47 @@ export default function LeaveManagementSystem() {
             </div>
           </div>
 
-          {/* Submission Sidebar */}
-          <div className="bg-[#0ffffee p-8 md:p-10 rounded-[32px] text-white flex flex-col shadow-xl shadow-blue-900/10">
-            <h2 className="text-xl font-bold mb-2">Reason</h2>
-            <p className="text-slate-400 text-xs mb-6 font-medium italic">Why are you requesting time off?</p>
+          {/* Reason & Submit */}
+          <div className="bg-blue-100 rounded-2xl p-8 shadow-sm border border-blue-200">
+            <h3 className="text-lg font-semibold mb-2 text-slate-800">Reason</h3>
+            <p className="text-slate-600 text-sm mb-5">Why are you requesting time off?</p>
 
             <textarea
               value={reason}
               onChange={(e) => setReason(e.target.value)}
               placeholder="Briefly explain your request..."
-              className="flex-1 w-full 
-             bg-white 
-             text-black 
-             placeholder:text-slate-400
-             border border-white/10 
-             rounded-2xl p-5 text-sm resize-none 
-             focus:ring-2 focus:ring-blue-500/50 
-             outline-none mb-6 font-medium"
+              className="w-full h-32 bg-white text-slate-800 placeholder-slate-400 border border-blue-200 rounded-lg p-4 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent mb-5"
             />
 
             {error && (
-              <div className="bg-rose-500/10 text-rose-400 text-[11px] font-bold mb-6 p-4 rounded-xl border border-rose-500/20 text-center">
+              <div className="bg-red-100 border border-red-200 text-red-700 text-sm p-3 rounded-lg mb-5 text-center">
                 ⚠️ {error}
               </div>
             )}
 
             <button
               onClick={handleSubmit}
-              className="w-full bg-blue-600 hover:bg-blue-500 text-white py-4 rounded-2xl font-bold text-sm transition-all shadow-lg shadow-blue-600/20 active:scale-[0.98]"
+              className="w-full bg-blue-600 hover:bg-blue-500 text-white font-semibold py-3 rounded-lg transition-all active:scale-98 shadow-md"
             >
               Submit Application
             </button>
           </div>
         </div>
 
-        {/* History Section */}
-        <div className="bg-white rounded-[32px] border border-slate-100 shadow-sm overflow-hidden">
-          <div className="p-8 border-b border-slate-50 flex flex-col md:flex-row justify-between items-center gap-4">
-            <h2 className="text-xl font-bold text-slate-800">Leave History</h2>
-            <div className="flex bg-slate-100 p-1 rounded-xl">
+        {/* Leave History */}
+        <div className="bg-white rounded-2xl shadow-sm border border-blue-100/50 overflow-hidden">
+          <div className="p-6 border-b border-slate-100 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+            <h2 className="text-lg font-semibold text-slate-800">Your Leave History</h2>
+            
+            <div className="inline-flex bg-slate-100 rounded-lg p-1">
               {["All", "Approved", "Pending"].map((f) => (
                 <button
                   key={f}
                   onClick={() => setFilter(f)}
-                  className={`px-5 py-2 text-[11px] font-bold rounded-lg transition-all ${
-                    filter === f ? "bg-white text-slate-900 shadow-sm" : "text-slate-500 hover:text-slate-700"
+                  className={`px-4 py-1.5 text-sm font-medium rounded-md transition-all ${
+                    filter === f 
+                      ? "bg-white text-slate-800 shadow-sm" 
+                      : "text-slate-600 hover:text-slate-800"
                   }`}
                 >
                   {f}
@@ -236,32 +258,42 @@ export default function LeaveManagementSystem() {
           </div>
 
           <div className="overflow-x-auto">
-            <table className="w-full text-left">
+            <table className="w-full">
               <thead>
-                <tr className="bg-slate-50/50">
-                  <th className="px-10 py-5 text-[10px] font-bold text-slate-400 uppercase tracking-[0.15em]">Leave Type</th>
-                  <th className="px-10 py-5 text-[10px] font-bold text-slate-400 uppercase tracking-[0.15em]">Timeline</th>
-                  <th className="px-10 py-5 text-[10px] font-bold text-slate-400 uppercase tracking-[0.15em] text-center">Days</th>
-                  <th className="px-10 py-5 text-[10px] font-bold text-slate-400 uppercase tracking-[0.15em]">Status</th>
+                <tr className="bg-slate-50 border-b border-slate-100">
+                  <th className="px-6 py-4 text-left text-xs font-semibold text-slate-600 uppercase tracking-wide">Type</th>
+                  <th className="px-6 py-4 text-left text-xs font-semibold text-slate-600 uppercase tracking-wide">Dates</th>
+                  <th className="px-6 py-4 text-center text-xs font-semibold text-slate-600 uppercase tracking-wide">Days</th>
+                  <th className="px-6 py-4 text-left text-xs font-semibold text-slate-600 uppercase tracking-wide">Status</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-50">
-                {history.filter(h => filter === "All" || h.status === filter).map((h) => (
-                  <tr key={h.id} className="group hover:bg-slate-50/50 transition-colors">
-                    <td className="px-10 py-6 text-sm font-bold text-slate-700">{h.type}</td>
-                    <td className="px-10 py-6 text-sm text-slate-500 font-medium">{h.from} <span className="mx-2 text-slate-300">→</span> {h.to}</td>
-                    <td className="px-10 py-6 text-sm text-center font-black text-slate-700">{h.days}</td>
-                    <td className="px-10 py-6">
-                      <span className={`px-4 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-wider ${
-                        h.status === "Approved" ? "bg-emerald-50 text-emerald-600 border border-emerald-100" :
-                        h.status === "Pending" ? "bg-amber-50 text-amber-600 border border-amber-100" :
-                        "bg-rose-50 text-rose-600 border border-rose-100"
-                      }`}>
-                        {h.status}
-                      </span>
-                    </td>
-                  </tr>
-                ))}
+              <tbody className="divide-y divide-slate-100">
+                {history
+                  .filter(h => filter === "All" || h.status === filter)
+                  .map((h) => (
+                    <tr key={h.id} className="hover:bg-slate-50/50 transition-colors">
+                      <td className="px-6 py-4 text-sm font-medium text-slate-800">{h.type}</td>
+                      <td className="px-6 py-4 text-sm text-slate-600">
+                        {h.from} — {h.to}
+                      </td>
+                      <td className="px-6 py-4 text-center">
+                        <span className="inline-block bg-slate-100 text-slate-700 text-sm font-semibold px-3 py-1 rounded-full">
+                          {h.days}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4">
+                        <span className={`inline-block px-3 py-1 rounded-full text-xs font-medium ${
+                          h.status === "Approved" 
+                            ? "bg-green-100 text-green-700" 
+                            : h.status === "Pending" 
+                            ? "bg-amber-100 text-amber-700" 
+                            : "bg-red-100 text-red-700"
+                        }`}>
+                          {h.status}
+                        </span>
+                      </td>
+                    </tr>
+                  ))}
               </tbody>
             </table>
           </div>
@@ -270,4 +302,3 @@ export default function LeaveManagementSystem() {
     </div>
   );
 }
- 
