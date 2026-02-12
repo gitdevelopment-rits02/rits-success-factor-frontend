@@ -22,6 +22,11 @@ const ManagerLayout = () => {
   const dispatch = useDispatch();
   const navItems = [
     {
+    name: "Dashboard",
+    path: "/manager/dashboard",
+    icon: HiOutlineChartBar,
+    },
+    {
     name: "ClockMyTime",
     path: "/manager/clockmytime",
     icon: HiOutlineClipboardDocumentList,
@@ -43,11 +48,11 @@ const ManagerLayout = () => {
     path: "/manager/profile",
     icon: HiOutlineClock,
   },
-  {
-    name: "Notification",
-    path: "/manager/notification",
-    icon: HiOutlineClock,
-  },
+  // {
+  //   name: "Notification",
+  //   path: "/manager/notification",
+  //   icon: HiOutlineClock,
+  // },
   {
     name: "PolicyDocuments",
     path: "/manager/policydocuments",
@@ -59,11 +64,11 @@ const ManagerLayout = () => {
     path: "/manager/orgchart",
     icon: HiOutlineClipboardDocumentList,
   },
-  {
-    name: "Insurance",
-    path: "/manager/insurance",
-    icon: HiOutlineCalendarDays,
-  },
+  // {
+  //   name: "Insurance",
+  //   path: "/manager/insurance",
+  //   icon: HiOutlineCalendarDays,
+  // },
   {
     name: "LeaveApproval",
     path: "/manager/leaveapproval",
@@ -77,17 +82,13 @@ const ManagerLayout = () => {
   },
 
 
-  {
-    name: "timesheet",
-    path: "/manager/timesheet",
-    icon: HiOutlineUsers,
-  },
+  // {
+  //   name: "timesheet",
+  //   path: "/manager/timesheet",
+  //   icon: HiOutlineUsers,
+  // },
   
-  {
-    name: "Dashboard",
-    path: "/manager/dashboard",
-    icon: HiOutlineChartBar,
-  },
+  
   // {
   //   name: "Manage Leave",
   //   path: "/manager/manageleave",
@@ -99,11 +100,11 @@ const ManagerLayout = () => {
   //   icon: HiOutlineClock,
   // },
  
- {
-    name: "Policies",
-    path: "/manager/policies",
-    icon: HiOutlineClock,
-  },
+//  {
+//     name: "Policies",
+//     path: "/manager/policies",
+//     icon: HiOutlineClock,
+//   },
   {
     name: "FeedBackOfEmployee",
     path: "/manager/feedback",
