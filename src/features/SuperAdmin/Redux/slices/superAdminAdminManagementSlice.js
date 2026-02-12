@@ -70,5 +70,3 @@ const superAdminAdminManagementSlice = createSlice({
 });
  
 export default superAdminAdminManagementSlice.reducer;
- 
- 

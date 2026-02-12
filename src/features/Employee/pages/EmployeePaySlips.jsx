@@ -1,283 +1,199 @@
-import { useState, useMemo } from "react";
+import { useState, useEffect } from "react";
+import { FaCalendarAlt, FaRegCalendar } from "react-icons/fa";
 import { FaDownload, FaEye, FaListUl } from "react-icons/fa";
-import jsPDF from "jspdf";
-import autoTable from "jspdf-autotable";
-import { FaCalendarAlt } from "react-icons/fa";
 import bgWave from "../../../assets/background.png";
-import manpng from "../../../assets/man.png";
-import companyLogo from "../../../assets/companyLogo.png";;
+import { useDispatch, useSelector } from "react-redux";
+import { fetchMyPayslip, fetchMyPayslipHistory, fetchMyPayslipPdf } from "../Redux/thunks/EmployeePaySlipsThunk";
 
-/*  Payroll Engine  */
-const PF_BASE_LOW = 8000;
-const PF_BASE_HIGH = 15000;
 
-function calculatePayroll(ctc) {
-  const annualCTC = Number(ctc);
-  const isLowSlab = annualCTC <= 300000;
-  const pfBase = isLowSlab ? PF_BASE_LOW : PF_BASE_HIGH;
-
-  const employerPF = pfBase * 0.13;
-  const employeePF = pfBase * 0.12;
-
-  const grossAnnual = annualCTC - (employerPF * 12);
-
-  const basicRatio = isLowSlab ? 0.5 : 0.4;
-  const basicAnnual = grossAnnual * basicRatio;
-  const hraAnnual = basicAnnual * 0.5;
-  const conveyanceAnnual = 19200;
-
-  const specialAllowanceAnnual =
-    grossAnnual - (basicAnnual + hraAnnual + conveyanceAnnual);
-
-  const grossMonthly = grossAnnual / 12;
-
-  const professionalTax = 200;
-  const medicalInsurance = 500;
-
-  const netPay = grossMonthly - (employeePF + professionalTax + medicalInsurance);
-
-  return {
-    employerPF,
-    employeePF,
-    basic: basicAnnual / 12,
-    hra: hraAnnual / 12,
-    conveyance: conveyanceAnnual / 12,
-    specialAllowance: specialAllowanceAnnual / 12,
-    professionalTax,
-    medicalInsurance,
-    gross: grossMonthly,
-    netPay,
-  };
-}
-
-/* Data  */
-
-const employeeProfile = {
-  id: "EMP-003",
-  name: "Rahul Sharma",
-  designation: "Senior Software Engineer",
-  department: "Product Engineering",
-  salaryHistory: {
-    "2025-11": 600000,
-    "2025-12": 600000,
-    "2026-01": 800000,
-  },
-  defaultCTC: 800000,
+const monthNames = {
+  1: "January",
+  2: "February",
+  3: "March",
+  4: "April",
+  5: "May",
+  6: "June",
+  7: "July",
+  8: "August",
+  9: "September",
+  10: "October",
+  11: "November",
+  12: "December",
 };
 
-const monthMap = {
-  January: "01",
-  November: "11",
-  December: "12",
-  February: "02",
-  March : "03",
-
+const monthNumberMap = {
+  January: 1,
+  February: 2,
+  March: 3,
+  April: 4,
+  May: 5,
+  June: 6,
+  July: 7,
+  August: 8,
+  September: 9,
+  October: 10,
+  November: 11,
+  December: 12,
 };
-const loadImage = (src) => {
-  return new Promise((resolve, reject) => {
-    const img = new Image();
-    img.src = src;
-    img.onload = () => resolve(img);
-    img.onerror = reject;
-  });
-};
-
-function getCTCByDate(year, month) {
-  const key = `${year}-${monthMap[month]}`;
-  return employeeProfile.salaryHistory[key] || employeeProfile.defaultCTC;
-}
 
 /* Component  */
 export default function EmployeePayrollUI() {
-  const [selectedMonth] = useState("January");
-  const [selectedYear] = useState("2026");
-  const [showBreakdown, setShowBreakdown] = useState(false);
-  const [historyYear, setHistoryYear] = useState("All");
-  const [modalData, setModalData] = useState(null);
+const dispatch = useDispatch();
 
-  const currentCTC = useMemo(
-    () => getCTCByDate(selectedYear, selectedMonth),
-    [selectedMonth, selectedYear]
+const {
+  data: payslip,
+  loading,
+  error,
+  historyData,
+} = useSelector((state) => state.employee.paySlips);
+
+const [showBreakdown, setShowBreakdown] = useState(false);
+const today = new Date();
+const currentMonth = today.getMonth() + 1;   
+const currentYear = today.getFullYear();
+
+useEffect(() => {
+  dispatch(fetchMyPayslip({ 
+    month: currentMonth, 
+    year: currentYear 
+  }));
+
+
+
+dispatch(fetchMyPayslipHistory({ 
+  year: currentYear 
+}));
+
+}, [dispatch]);
+
+useEffect(() => {
+  console.log("HISTORY FROM REDUX:", historyData);
+}, [historyData]);
+
+
+const [historyYear, setHistoryYear] = useState("All");
+const [historyMonth, setHistoryMonth] = useState("All");
+
+ useEffect(() => {
+  dispatch(
+    fetchMyPayslipHistory({
+      year: historyYear === "All" ? currentYear : Number(historyYear),
+      month:
+        historyMonth === "All"
+          ? undefined
+          : monthNumberMap[historyMonth],   
+    })
   );
+}, [historyYear, historyMonth, dispatch]);
 
-  const structure = useMemo(
-    () => calculatePayroll(currentCTC),
-    [currentCTC]
-  );
 
-  const history = [
-    { month: "January", year: "2026", status: "Paid" },
-    { month: "December", year: "2025", status: "Paid" },
-    { month: "November", year: "2025", status: "Paid" },
-  ].map(h => {
-    const ctc = getCTCByDate(h.year, h.month);
-    const s = calculatePayroll(ctc);
-    return { ...h, gross: s.gross, net: s.netPay, struct: s };
-  });
+const [modalData, setModalData] = useState(null);
+const currentCTC = payslip?.totalCTC ?? 0;
 
-  const filteredHistory =
-    historyYear === "All"
-      ? history
-      : history.filter(h => h.year === historyYear);
+
+  const structure = payslip
+  ? {
+      basic: payslip.earnings.basic,
+      hra: payslip.earnings.hra,
+      conveyance: payslip.earnings.conveyance,
+      specialAllowance: payslip.earnings.specialAllowance,
+      gross: payslip.earnings.gross,
+
+      employeePF: payslip.deductions.providentFund,
+      professionalTax: payslip.deductions.professionalTax,
+      medicalInsurance: payslip.deductions.medicalInsurance,
+
+      totalDeductions: payslip.deductions.totalDeductions,
+      netPay: payslip.netPay,
+    }
+  : null;
+
+
+const history = Array.isArray(historyData) && historyData.length
+  ? historyData.map(item => {
+      const monthName =
+        item.month === 1 ? "January" :
+        item.month === 2 ? "February" :
+        item.month === 3 ? "March" :
+        item.month === 4 ? "April" :
+        item.month === 5 ? "May" :
+        item.month === 6 ? "June" :
+        item.month === 7 ? "July" :
+        item.month === 8 ? "August" :
+        item.month === 9 ? "September" :
+        item.month === 10 ? "October" :
+        item.month === 11 ? "November" :
+        item.month === 12 ? "December" :
+        String(item.month);
+
+  return {
+  monthNum: item.month,
+  month: monthName,
+  year: String(item.year),
+  status: item.status,
+  net: item.salary?.netPay ?? 0,
+  gross: item.salary?.gross ?? 0   
+};
+})
+: [];
+
+
 
   /* PDF  */
 const downloadPDF = async (data) => {
-const doc = new jsPDF();
-const logoImg = await loadImage(companyLogo);
-doc.addImage(logoImg, "PNG", 7, -3, 48, 34);
-doc.setFont("helvetica", "bold");
-doc.setFontSize(16);  
-doc.text("Revappayya IT Services Pvt Ltd", 64, 12);
+  try {
+    const pdfBlob = await dispatch(
+      fetchMyPayslipPdf({
+        month: data.monthNum,
+        year: Number(data.year),
+      })
+    ).unwrap();
 
-doc.setFont("helvetica", "normal");
-    doc.setFontSize(9);
-    doc.text("HO: Shree Shaila Nilaya, 13th Cross, 22nd Main Road,", 14, 22);
-    doc.text("Virat Nagar, Bommanahalli, Bangalore, KA 560068, India", 14, 27);
-    doc.text("RO: Unit no-2201A, 22nd floor, WTC Bangalore, Brigade Gateway, Bangalore - 560055", 14, 32);
-    doc.text("Email: support@revappayyaitservices.com | www.revappayyaitservices.com", 14, 37);
-    doc.line(14, 40, 196, 40);
-    doc.setFontSize(11);
-    doc.text(`Salary Slip for the month of ${data.month} ${data.year}`, 105, 48, { align: "center" });
+    const url = window.URL.createObjectURL(pdfBlob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `Payslip_${data.month}_${data.year}.pdf`;
 
-    doc.setFontSize(9);
-    autoTable(doc, {
-      startY: 52,
-      theme: "grid",
-      styles: { fontSize: 8 },
-      body: [
-        ["Name", employeeProfile.name, "Period", `${data.month} ${data.year}`],
-        ["Designation", employeeProfile.designation, "Employee ID", employeeProfile.id],
-        ["Department", employeeProfile.department, "Bank A/C", "XXXX1234"],
-        ["Payment Mode", "Bank Transfer", "No of Days", "30"],
-      ],
-    });
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
 
-    autoTable(doc, {
-      startY: doc.lastAutoTable.finalY + 5,
-      theme: "grid",
-      styles: { fontSize: 8 },
-      head: [["Earnings", "Amount (Rs)", "Deductions", "Amount (Rs)"]],
-      body: [
-        ["Basic", Math.round(data.struct.basic), "PF - Employee", Math.round(data.struct.employeePF)],
-        ["HRA", Math.round(data.struct.hra), "Professional Tax", 200],
-        ["Conveyance", Math.round(data.struct.conveyance), "Medical Insurance", 500],
-        ["Special Allowance", Math.round(data.struct.specialAllowance), "", ""],
-        ["Gross Salary", Math.round(data.gross), "Total Deductions", Math.round(data.struct.employeePF + 700)],
-      ],
-    });
-
-   const netY = doc.lastAutoTable.finalY + 10;
-
-doc.setFontSize(11);
-doc.text(
-  `Net Salary : Rs ${Math.round(data.net).toLocaleString()}`,
-  14,
-  netY
-);
-
-doc.setFontSize(11);
-doc.text(
-  `Total CTC (Per Year) : Rs ${Math.round(getCTCByDate(data.year, data.month)).toLocaleString()}`,
-  130,   
-  netY
-);
-    doc.setFontSize(7);
-    doc.text("This is a computer generated slip and does not require signature.", 14, doc.lastAutoTable.finalY + 20);
-    doc.text("This document contains confidential information. If you are not the intended recipient you are not authorised to use or disclose it.", 14, doc.lastAutoTable.finalY + 25);
-    doc.save(`Payslip_${data.month}_${data.year}.pdf`);
-  };
-
-  /* Year-wise PDF Download  */
-const downloadYearPDF = async (year) => {
-const doc = new jsPDF();
-const yearData =
-    year === "All"
-      ? history
-      : history.filter(h => h.year === year);
-const logoImg = await loadImage(companyLogo);
-yearData.forEach((data, index) => {
-    if (index !== 0) doc.addPage();   
-
-    /* HEADER */
-doc.addImage(logoImg, "PNG", 7, -3, 48, 34);
-doc.setFont("helvetica", "bold");
-doc.setFontSize(16);
-doc.text("Revappayya IT Services Pvt Ltd", 64, 12);
-
-// address 
-doc.setFont("helvetica", "normal");
-doc.setFontSize(9);
- doc.text("HO: Shree Shaila Nilaya, 13th Cross, 22nd Main Road,", 14, 22);
-    doc.text("Virat Nagar, Bommanahalli, Bangalore, KA 560068, India", 14, 27);
-    doc.text("RO: Unit no-2201A, 22nd floor, WTC Bangalore, Brigade Gateway, Bangalore - 560055", 14, 32);
-    doc.text("Email: support@revappayyaitservices.com | www.revappayyaitservices.com", 14, 37);
-    doc.line(14, 40, 196, 40);
-
-
-    /* TITLE  */
-    doc.setFontSize(11);
-    doc.text(`Salary Slip for the month of ${data.month} ${data.year}`, 105, 48, { align: "center" });
-
-    /*  EMPLOYEE INFO TABLE  */
-    doc.setFontSize(9);
-    autoTable(doc, {
-      startY: 52,
-      theme: "grid",
-      styles: { fontSize: 8 },
-      body: [
-        ["Name", employeeProfile.name, "Period", `${data.month} ${data.year}`],
-        ["Designation", employeeProfile.designation, "Employee ID", employeeProfile.id],
-        ["Department", employeeProfile.department, "Bank A/C", "XXXX1234"],
-        ["Payment Mode", "Bank Transfer", "No of Days", "30"],
-      ],
-    });
-
-    /*  SALARY TABLE */
-    autoTable(doc, {
-      startY: doc.lastAutoTable.finalY + 5,
-      theme: "grid",
-      styles: { fontSize: 8 },
-      head: [["Earnings", "Amount (Rs)", "Deductions", "Amount (Rs)"]],
-      body: [
-        ["Basic", Math.round(data.struct.basic), "PF - Employee", Math.round(data.struct.employeePF)],
-        ["HRA", Math.round(data.struct.hra), "Professional Tax", 200],
-        ["Conveyance", Math.round(data.struct.conveyance), "Medical Insurance", 500],
-        ["Special Allowance", Math.round(data.struct.specialAllowance), "", ""],
-        ["Gross Salary", Math.round(data.gross), "Total Deductions", Math.round(data.struct.employeePF + 700)],
-      ],
-    });
-
-    /*  NET + CTC  */
-    const netY = doc.lastAutoTable.finalY + 10;
-    doc.setFontSize(11);
-    doc.text(
-      `Net Salary : Rs ${Math.round(data.net).toLocaleString()}`,
-      14,
-      netY
-    );
-
-    doc.text(
-      `Total CTC (Per Year) : Rs ${Math.round(getCTCByDate(data.year, data.month)).toLocaleString()}`,
-      130,
-      netY
-    );
-
-    /*  FOOTER  */
-    doc.setFontSize(7);
-    doc.text(
-      "This is a computer generated slip and does not require signature.",
-      14,
-      netY + 12
-    );
-    doc.text(
-      "This document contains confidential information. If you are not the intended recipient you are not authorised to use or disclose it.",
-      14,
-      netY + 17
-    );
-  });
-
-  doc.save(`Payslips_${year === "All" ? "All_Years" : year}.pdf`);
+  } catch (err) {
+    console.error("PDF download failed:", err);
+    alert("Failed to download payslip");
+  }
 };
+
+
+
+if (loading && !payslip) {
+  return <div>Loading payslip...</div>;
+}
+
+if (error) {
+  return <div className="p-10 text-red-600">Error: {error}</div>;
+}
+if (!payslip || !structure) {
+  return <div className="p-10 text-center">Preparing payslip data...</div>;
+}
+
+const modalStructure = payslip
+  ? {
+      basic: payslip.earnings.basic,
+      hra: payslip.earnings.hra,
+      conveyance: payslip.earnings.conveyance,
+      specialAllowance: payslip.earnings.specialAllowance,
+
+      employeePF: payslip.deductions.providentFund,
+      professionalTax: payslip.deductions.professionalTax,
+      medicalInsurance: payslip.deductions.medicalInsurance,
+
+      netPay: payslip.netPay,
+      ctc: currentCTC,
+    }
+  : null;
+
+
   return (
      <div
       className="min-h-screen p-6 font-sans text-slate-800"
@@ -289,37 +205,50 @@ doc.setFontSize(9);
     >
       <div className="max-w-7xl mx-auto space-y-8">
 
-        {/* Header */}
-       <div className="bg-white rounded-3xl p-8 shadow-lg flex flex-col md:flex-row justify-between items-center gap-8">
-  <div className="flex items-center gap-6">
-    <img
-      src={manpng}
-      className="w-20 h-20 rounded-2xl ring-2 ring-indigo-300"
-    />
-    <div>
-      <h1 className="text-2xl font-semibold text-slate-800">{employeeProfile.name}</h1>
-      <p className="text-base text-slate-500">{employeeProfile.designation}</p>
-      <p className="text-sm text-slate-400">{employeeProfile.id}</p>
-    </div>
+
+
+<div className="bg-white rounded-3xl p-8 shadow-lg flex flex-col md:flex-row justify-between items-center gap-6">
+
+  <div className="flex flex-col justify-center">
+  {/*  Name */}
+  <h1 className="text-3xl font-bold text-slate-800">
+    {payslip.employee.employeeName}
+  </h1>
+
+  {/* Designation with label */}
+  <p className="text-sm text-slate-600 mt-1">
+    <span className="font-semibold">Designation :</span>{" "}
+    {payslip.employee.designation}
+  </p>
+
+  {/* Employee ID with label */}
+  <p className="text-sm text-slate-600">
+    <span className="font-semibold">Employee ID :</span>{" "}
+    {payslip.employee.employeeNo}
+  </p>
+</div>
+
+
+  {/* Right side payroll period */}
+  <div className="text-center md:text-right">
+    <p className="text-sm text-slate-400">Payroll Period</p>
+    <p className="text-2xl font-bold text-indigo-600">
+      {monthNames[payslip.payrollPeriod.month]} / {payslip.payrollPeriod.year}
+    </p>
   </div>
-          <div className="text-center md:text-right">
-            <p className="text-xs text-slate-400">Payroll Period</p>
-            <p className="text-2xl font-bold text-indigo-600">{selectedMonth} {selectedYear}</p>
-          </div>
-        </div>
+</div>
 
         {/* KPI */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-          <KPI className="bg-slate-50" title="Gross Salary" value={structure.gross} />
-          <KPI className="bg-slate-50" title="Deductions" value={structure.employeePF + 700} />
-          <KPI className="bg-slate-50" title="Net Pay" value={structure.netPay}  />
-          <KPI className="bg-slate-50" title="Total CTC" value={currentCTC} annual />
+        <KPI className="bg-slate-50" title="Gross Salary" value={structure.gross} />
+        <KPI className="bg-slate-50" title="Deductions" value={structure.totalDeductions} />
+        <KPI className="bg-slate-50" title="Net Pay" value={structure.netPay} />
+        <KPI className="bg-slate-50" title="Total CTC" value={currentCTC} annual />
         </div>
 
         {/* Salary Breakdown */}
         <div className="bg-white rounded-3xl p-6 shadow-lg">
           <h3 className="text-lg font-semibold text-slate-700 mb-6">Salary Breakdown</h3>
-
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             <div className="bg-slate-50 rounded-2xl p-4">
               <p className="text-xs uppercase tracking-widest text-slate-400 font-semibold mb-3">Earnings</p>
@@ -335,12 +264,13 @@ doc.setFontSize(9);
 
             <div className="bg-red-50/40 rounded-2xl p-4">
               <p className="text-xs uppercase tracking-widest text-slate-400 font-semibold mb-3">Deductions</p>
-              <Row label="Provident Fund" value={structure.employeePF} neg />
-              <Row label="Professional Tax" value={200} neg />
-              <Row label="Medical Insurance" value={500} neg />
+             <Row label="Provident Fund" value={structure.employeePF} neg />
+             <Row label="Professional Tax" value={structure.professionalTax} neg />
+             <Row label="Medical Insurance" value={structure.medicalInsurance} neg />
+
               <div className="border-t pt-3 mt-3 flex justify-between font-semibold text-red-600">
                 <span>Total Deductions</span>
-                <span>- ₹{Math.round(structure.employeePF + 700).toLocaleString()}</span>
+                <span> - ₹{Math.round(structure.totalDeductions).toLocaleString()}</span>
               </div>
             </div>
           </div>
@@ -351,78 +281,49 @@ doc.setFontSize(9);
           </div>
         </div>
 
-{/* Attendance Summary */}
-{/* <div className="bg-white rounded-3xl p-6 shadow-lg">
-  <h3 className="text-lg font-semibold text-slate-700 mb-6">
-    Attendance Summary
-  </h3>
 
-  <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
-    <div className="bg-slate-50 rounded-2xl p-4 text-center">
-      <p className="text-semibold text-slate-400">Working Days</p>
-      <p className="text-xl font-bold text-slate-800">30</p>
-    </div>
-
-    <div className="bg-green-50 rounded-2xl p-4 text-center">
-      <p className="text-semibold text-slate-400">Days Present</p>
-      <p className="text-xl font-bold text-green-600">28</p>
-    </div>
-
-    <div className="bg-yellow-50 rounded-2xl p-4 text-center">
-      <p className="text-semibold text-slate-400">Leaves Taken</p>
-      <p className="text-xl font-bold text-yellow-600">2</p>
-    </div>
-
-    <div className="bg-red-50 rounded-2xl p-4 text-center">
-      <p className="text-semibold text-slate-400">Leave Without Pay</p>
-      <p className="text-xl font-bold text-red-600">0</p>
-    </div>
-
-    <div className="bg-indigo-50 rounded-2xl p-4 text-center">
-      <p className="text-semibold text-slate-400">Overtime Hours</p>
-      <p className="text-xl font-bold text-indigo-600">12</p>
-    </div>
-  </div> */}
-{/* </div> */}
 
         {/* History */}
         <div className="bg-white rounded-3xl p-6 shadow-lg">
-   <div className="flex items-center mb-4">
-  <h3 className="text-lg font-semibold flex items-center gap-2 text-slate-700">
-    <FaListUl className="text-indigo-500" /> Payment History
-  </h3>
+       <div className="flex items-center mb-4">
+       <h3 className="text-lg font-semibold flex items-center gap-2 text-slate-700">
+      <FaListUl className="text-indigo-500" /> Payment History
+      </h3>
 
 
   <div className="ml-auto flex items-center gap-6">
-    {/* Year dropdown */}
-    <div className="relative">
-      <FaCalendarAlt className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm pointer-events-none" />
-      <select
-        value={historyYear}
-        onChange={(e)=>setHistoryYear(e.target.value)}
-        className="pl-9 pr-4 py-2.5 rounded-xl border border-gray-200 bg-white shadow-sm text-[13px] font-medium outline-none focus:ring-2 focus:ring-blue-200 focus:border-blue-400 transition-all"
-      >
-        <option value="All">All Years</option>
-        {[...new Set(history.map(h=>h.year))].map(y=> (
-          <option key={y} value={y}>{y}</option>
-        ))}
-      </select>
-    </div>
+<div className="ml-auto flex items-center gap-4">
+  {/* YEAR DROPDOWN */}
+  <div className="relative">
+    <FaCalendarAlt className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm pointer-events-none" />
+    <select
+      value={historyYear}
+      onChange={(e) => setHistoryYear(e.target.value)}
+      className="pl-9 pr-4 py-2.5 rounded-xl border border-gray-200 bg-white shadow-sm text-[13px] font-medium outline-none focus:ring-2 focus:ring-blue-200 focus:border-blue-400 transition-all">
+      <option value="All">All Years</option>
+      {[...new Set(history.map(h => h.year))].map(y => (
+        <option key={y} value={y}>{y}</option>
+      ))}
+    </select>
+  </div>
 
-    {/* Download button */}
-    <button
-      onClick={()=>downloadYearPDF(historyYear)}
-      className="flex items-center gap-2 text-indigo-600 hover:text-indigo-800 transition"
-      title={`Download ${historyYear} payslips`}
-    >
-      <FaDownload className="text-xl" />
-      <span className="text-sm font-medium">
-        {historyYear === "All" ? "Download All" : `Download ${historyYear}`}
-      </span>
-    </button>
-
+  {/* MONTH DROPDOWN */}
+  <div className="relative">
+    <FaRegCalendar className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm pointer-events-none" />
+    <select
+      value={historyMonth}
+      onChange={(e) => setHistoryMonth(e.target.value)}
+      className="pl-9 pr-4 py-2.5 rounded-xl border border-gray-200 bg-white shadow-sm text-[13px] font-medium outline-none focus:ring-2 focus:ring-blue-200 focus:border-blue-400 transition-all" >
+      <option value="All">Months</option>
+      {[...new Set(history.map(h => h.month))].map(m => (
+        <option key={m} value={m}>{m}</option>
+      ))}
+    </select>
   </div>
 </div>
+</div>
+</div>
+
   {/* Desktop Table */}
 <div className="hidden md:block overflow-x-auto">
   <table className="w-full text-sm table-fixed border-separate border-spacing-y-2">
@@ -435,13 +336,12 @@ doc.setFontSize(9);
         <th className="text-center px-4 w-[15%]">Download</th>
       </tr>
     </thead>
-
     <tbody>
-      {filteredHistory.map((h,i)=> (
+     {history.map((h,i)=> (
         <tr
           key={i}
           className="bg-slate-50 rounded-xl shadow-sm hover:shadow-md transition">
-          
+
           <td className="px-4 py-3 text-center rounded-l-xl">
             <div className="font-medium">{h.month}</div>
             <div className="text-xs text-slate-400">{h.year}</div>
@@ -457,7 +357,13 @@ doc.setFontSize(9);
 
           <td className="px-4 py-3 text-center">
             <button
-              onClick={()=>{setModalData(h);setShowBreakdown(true);}}
+             onClick={async () => {
+            await dispatch(
+            fetchMyPayslip({ month: h.monthNum, year: Number(h.year) })
+            );
+          setModalData(h);
+          setShowBreakdown(true);
+        }}
               className="text-indigo-600 hover:scale-110 transition">
               <FaEye />
             </button>
@@ -478,11 +384,10 @@ doc.setFontSize(9);
 
 {/* Mobile Cards */}
 <div className="md:hidden space-y-4">
-  {filteredHistory.map((h, i) => (
+  {history.map((h,i)=> (
     <div
       key={i}
-      className="bg-white rounded-2xl p-4 shadow-md border border-slate-100"
-    >
+      className="bg-white rounded-2xl p-4 shadow-md border border-slate-100">
       <div className="flex justify-between items-center mb-2">
         <div>
           <p className="font-semibold text-slate-800">{h.month}</p>
@@ -500,23 +405,27 @@ doc.setFontSize(9);
 
       <div className="flex justify-between items-center pt-2 border-t">
         <button
-          onClick={()=>{setModalData(h);setShowBreakdown(true);}}
-          className="flex items-center gap-2 text-indigo-600 text-sm font-medium"
-        >
+          onClick={async () => {
+  await dispatch(
+    fetchMyPayslip({ month: h.monthNum, year: Number(h.year) })
+  );
+  setModalData(h);
+  setShowBreakdown(true);
+}}
+          className="flex items-center gap-2 text-indigo-600 text-sm font-medium">
           <FaEye /> View
         </button>
 
         <button
           onClick={()=>downloadPDF(h)}
-          className="flex items-center gap-2 text-slate-600 text-sm font-medium"
-        >
+          className="flex items-center gap-2 text-slate-600 text-sm font-medium">
           <FaDownload /> Download
         </button>
       </div>
     </div>
   ))}
 </div>
- </div>
+</div>
         {/* Modal */}
         {showBreakdown && modalData && (
           <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50">
@@ -529,27 +438,26 @@ doc.setFontSize(9);
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 text-sm">
                 <div className="bg-slate-50 rounded-xl p-3">
                   <h4 className="font-medium mb-2">Earnings</h4>
-                  <ModalRow label="Basic" value={modalData.struct.basic} />
-                  <ModalRow label="HRA" value={modalData.struct.hra} />
-                  <ModalRow label="Conveyance" value={modalData.struct.conveyance} />
-                  <ModalRow label="Special Allowance" value={modalData.struct.specialAllowance} />
+                 <ModalRow label="Basic" value={modalStructure.basic} />
+                 <ModalRow label="HRA" value={modalStructure.hra} />
+                 <ModalRow label="Conveyance" value={modalStructure.conveyance} />
+                 <ModalRow label="Special Allowance" value={modalStructure.specialAllowance} />
                 </div>
                 <div className="bg-red-50/40 rounded-xl p-3">
                   <h4 className="font-medium mb-2">Deductions</h4>
-                  <ModalRow label="PF" value={modalData.struct.employeePF} red />
-                  <ModalRow label="Prof. Tax" value={200} red />
-                  <ModalRow label="Insurance" value={500} red />
+                  <ModalRow label="PF" value={modalStructure.employeePF} red />
+                  <ModalRow label="Prof. Tax" value={modalStructure.professionalTax} red />
+                  <ModalRow label="Insurance" value={modalStructure.medicalInsurance} red />
                 </div>
               </div>
-
    <div className="mt-6 flex items-center justify-between gap-6">
-  <div className="flex items-center gap-10">
+   <div className="flex items-center gap-10">
 
     {/* Monthly net pay */}
     <div>
       <p className="text-xs text-slate-400">Net Pay (Monthly)</p>
       <p className="text-xl font-bold text-indigo-600">
-        ₹{Math.round(modalData.net).toLocaleString()}
+        ₹{Math.round(modalStructure.netPay).toLocaleString()}
       </p>
     </div>
 
@@ -557,24 +465,21 @@ doc.setFontSize(9);
     <div>
       <p className="text-xs text-slate-400">CTC (Per Year)</p>
       <p className="text-xl font-bold text-indigo-600">
-        ₹{Math.round(getCTCByDate(modalData.year, modalData.month)).toLocaleString()}
+       ₹{Math.round(payslip.totalCTC).toLocaleString()}
       </p>
     </div>
-
   </div>
 
   {/*  Download */}
   <button
     onClick={()=>downloadPDF(modalData)}
-    className="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-3 rounded-xl flex items-center gap-2 shadow-md"
-  >
+    className="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-3 rounded-xl flex items-center gap-2 shadow-md">
     <FaDownload /> Download
   </button>
 </div>
 </div>
- </div>
+</div>
         )}
-
       </div>
     </div>
   );
@@ -619,3 +524,4 @@ function ModalRow({ label, value, red }) {
 
 
 
+ 
