@@ -3,20 +3,41 @@ import {
   FaUser,
   FaClock,
   FaCheckCircle,
-  FaTimesCircle,
-  FaPlus,
   FaEdit,
   FaBriefcase,
+  FaTrash,
+  FaHistory,
+  FaPlus,
 } from "react-icons/fa";
 
 const initialData = {
   manager: "Eshwar P",
   projectName: "Website Redesign",
   employees: [
-    { name: "Nisha P", role: "UI/UX Designer", tasks: [] },
-    { name: "Ashwini K", role: "Frontend Developer", tasks: [] },
-    { name: "Siddarth R", role: "Backend Developer", tasks: [] },
-    { name: "Ajay", role: "UI/UX Designer", tasks: [] },
+    { 
+      name: "Nisha P", 
+      role: "UI/UX Designer", 
+      tasks: [],
+      history: []
+    },
+    { 
+      name: "Ashwini K", 
+      role: "Frontend Developer", 
+      tasks: [],
+      history: []
+    },
+    { 
+      name: "Siddarth R", 
+      role: "Backend Developer", 
+      tasks: [],
+      history: []
+    },
+    { 
+      name: "Ajay", 
+      role: "UI/UX Designer", 
+      tasks: [],
+      history: []
+    },
   ],
 };
 
@@ -25,8 +46,10 @@ export default function Manager() {
   const [selectedEmployee, setSelectedEmployee] = useState(0);
   const [taskTitle, setTaskTitle] = useState("");
   const [taskTime, setTaskTime] = useState("");
-  const [editIndex, setEditIndex] = useState(null);
-  const [editMode, setEditMode] = useState(false);
+  const [editingIndex, setEditingIndex] = useState(null);
+  const [showPopup, setShowPopup] = useState(false);
+  const [taskToComplete, setTaskToComplete] = useState(null);
+  const [showHistory, setShowHistory] = useState(false);
 
   const today = new Date().toLocaleDateString("en-US", {
     weekday: "short",
@@ -35,20 +58,22 @@ export default function Manager() {
     year: "numeric",
   });
 
-  const resetForm = () => {
+  const currentEmployee = employees[selectedEmployee];
+
+  function resetForm() {
     setTaskTitle("");
     setTaskTime("");
-    setEditIndex(null);
-  };
+    setEditingIndex(null);
+  }
 
-  const addOrUpdateTask = () => {
-    if (!taskTitle || !taskTime) return;
+  function handleSubmit() {
+    if (!taskTitle.trim() || !taskTime.trim()) return;
 
     const updated = [...employees];
 
-    if (editMode && editIndex !== null) {
-      updated[selectedEmployee].tasks[editIndex] = {
-        ...updated[selectedEmployee].tasks[editIndex],
+    if (editingIndex !== null) {
+      updated[selectedEmployee].tasks[editingIndex] = {
+        ...updated[selectedEmployee].tasks[editingIndex],
         title: taskTitle,
         time: taskTime,
       };
@@ -56,191 +81,337 @@ export default function Manager() {
       updated[selectedEmployee].tasks.push({
         title: taskTitle,
         time: taskTime,
-        status: "incomplete",
+        createdAt: new Date().toISOString(),
       });
     }
 
     setEmployees(updated);
     resetForm();
-  };
+  }
 
-  const selectTaskForEdit = (index) => {
-    if (!editMode) return;
-    const task = employees[selectedEmployee].tasks[index];
+  function editTask(index) {
+    const task = currentEmployee.tasks[index];
     setTaskTitle(task.title);
     setTaskTime(task.time);
-    setEditIndex(index);
-  };
+    setEditingIndex(index);
+  }
 
-  const toggleStatus = (index, status) => {
+  function deleteTask(index) {
     const updated = [...employees];
-    updated[selectedEmployee].tasks[index].status = status;
+    updated[selectedEmployee].tasks.splice(index, 1);
     setEmployees(updated);
-  };
+    if (editingIndex === index) {
+      resetForm();
+    }
+  }
+
+  function openCompletePopup(index) {
+    setTaskToComplete(index);
+    setShowPopup(true);
+  }
+
+  function handleStoreInHistory() {
+    if (taskToComplete === null) return;
+
+    const updated = [...employees];
+    const task = updated[selectedEmployee].tasks[taskToComplete];
+    
+    updated[selectedEmployee].history.unshift({
+      ...task,
+      completedAt: new Date().toISOString(),
+    });
+    
+    updated[selectedEmployee].tasks.splice(taskToComplete, 1);
+    setEmployees(updated);
+    closePopup();
+  }
+
+  function handleDiscard() {
+    if (taskToComplete === null) return;
+
+    const updated = [...employees];
+    updated[selectedEmployee].tasks.splice(taskToComplete, 1);
+    setEmployees(updated);
+    closePopup();
+  }
+
+  function closePopup() {
+    setShowPopup(false);
+    setTaskToComplete(null);
+  }
+
+  function switchEmployee(index) {
+    setSelectedEmployee(index);
+    resetForm();
+    setShowHistory(false);
+  }
 
   return (
-    <div className="min-h-screen bg-blue-50 p-4 sm:p-6">
-      {/* HEADER */}
-      <div className="bg-white rounded-2xl p-5 sm:p-8 mb-6 shadow flex flex-col sm:flex-row gap-4 sm:items-center sm:justify-between">
-        <div className="flex items-center gap-4">
-          <div className="bg-blue-100 p-4 rounded-xl">
-            <FaBriefcase className="text-blue-700 text-3xl" />
-          </div>
-          <div>
-            <h1 className="text-xl sm:text-3xl font-bold text-gray-800">
-              Manager Task & Project Tracking
-            </h1>
-            <p className="text-sm text-gray-600">
-              Manager: {initialData.manager}
-            </p>
-          </div>
-        </div>
-        <p className="text-sm text-gray-500">{today}</p>
-      </div>
-
-      {/* MAIN GRID */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* EMPLOYEES */}
-        <div className="bg-white rounded-2xl p-4 shadow">
-          <h2 className="text-lg font-semibold mb-4">Employees</h2>
-
-          {employees.map((emp, i) => (
-            <button
-              key={i}
-              onClick={() => {
-                setSelectedEmployee(i);
-                resetForm();
-                setEditMode(false);
-              }}
-              className={`w-full flex items-center gap-3 p-3 rounded-xl mb-2 text-left transition ${
-                selectedEmployee === i
-                  ? "bg-blue-100 border border-blue-300"
-                  : "hover:bg-blue-50"
-              }`}
-            >
-              <div className="bg-blue-600 text-white p-2 rounded-lg">
-                <FaUser />
+    <div className="min-h-screen bg-blue-50 p-6">
+      <div className="max-w-7xl mx-auto">
+        {/* Header */}
+        <div className="bg-white rounded-lg p-6 mb-6 shadow-sm">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-4">
+              <div className="bg-blue-500 p-3 rounded-lg">
+                <FaBriefcase className="text-white text-2xl" />
               </div>
               <div>
-                <p className="font-semibold">{emp.name}</p>
-                <p className="text-xs text-gray-500">{emp.role}</p>
+                <h1 className="text-2xl font-semibold text-gray-800">
+                  Task Manager
+                </h1>
+                <p className="text-sm text-gray-500 mt-1">
+                  Manager: {initialData.manager}
+                </p>
               </div>
-            </button>
-          ))}
+            </div>
+            <p className="text-sm text-gray-500">{today}</p>
+          </div>
         </div>
 
-        {/* TASK ASSIGNMENT */}
-        <div className="lg:col-span-2 bg-white rounded-2xl p-4 sm:p-6 shadow">
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
-            <div>
-              <h2 className="text-lg font-bold">Task Assignment</h2>
-              <p className="text-sm text-gray-500">
-                {employees[selectedEmployee].name}
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+          {/* Employee List */}
+          <div className="bg-white rounded-lg p-5 shadow-sm">
+            <h2 className="font-semibold text-gray-700 mb-4">Team</h2>
+
+            <div className="space-y-2">
+              {employees.map((emp, i) => (
+                <button
+                  key={i}
+                  onClick={() => switchEmployee(i)}
+                  className={`w-full flex items-center gap-3 p-3 rounded-lg text-left transition ${
+                    selectedEmployee === i
+                      ? "bg-blue-500 text-white"
+                      : "hover:bg-gray-50"
+                  }`}
+                >
+                  <div className={`p-2 rounded-lg ${
+                    selectedEmployee === i ? "bg-white bg-opacity-20" : "bg-blue-100"
+                  }`}>
+                    <FaUser className={selectedEmployee === i ? "text-white text-sm" : "text-blue-500 text-sm"} />
+                  </div>
+                  <div>
+                    <p className={`font-medium text-sm ${selectedEmployee === i ? "text-white" : "text-gray-800"}`}>
+                      {emp.name}
+                    </p>
+                    <p className={`text-xs ${selectedEmployee === i ? "text-blue-100" : "text-gray-500"}`}>
+                      {emp.role}
+                    </p>
+                  </div>
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Main Content */}
+          <div className="lg:col-span-3 space-y-6">
+            {/* Task Form */}
+            <div className="bg-white rounded-lg p-6 shadow-sm">
+              <div className="mb-4">
+                <h2 className="font-semibold text-gray-800">
+                  {editingIndex !== null ? "Edit Task" : "New Task"}
+                </h2>
+                <p className="text-sm text-gray-500 mt-1">
+                  For: {currentEmployee.name}
+                </p>
+              </div>
+
+              <div className="flex gap-3">
+                <input
+                  value={taskTitle}
+                  onChange={(e) => setTaskTitle(e.target.value)}
+                  placeholder="Task description"
+                  className="flex-1 border border-gray-300 rounded-lg px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent"
+                />
+                <input
+                  value={taskTime}
+                  onChange={(e) => setTaskTime(e.target.value)}
+                  placeholder="Hours"
+                  className="w-28 border border-gray-300 rounded-lg px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent"
+                />
+                <button
+                  onClick={handleSubmit}
+                  className="bg-blue-500 hover:bg-blue-600 text-white px-5 py-2 rounded-lg text-sm font-medium flex items-center gap-2"
+                >
+                  {editingIndex !== null ? (
+                    <>
+                      <FaEdit className="text-xs" /> Update
+                    </>
+                  ) : (
+                    <>
+                      <FaPlus className="text-xs" /> Add
+                    </>
+                  )}
+                </button>
+              </div>
+
+              {editingIndex !== null && (
+                <button
+                  onClick={resetForm}
+                  className="mt-3 text-sm text-gray-600 hover:text-gray-800"
+                >
+                  Cancel
+                </button>
+              )}
+            </div>
+
+            {/* Active Tasks */}
+            <div className="bg-white rounded-lg p-6 shadow-sm">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="font-semibold text-gray-800">Current Tasks</h3>
+                <button
+                  onClick={() => setShowHistory(!showHistory)}
+                  className="text-sm text-blue-500 hover:text-blue-600 flex items-center gap-2"
+                >
+                  <FaHistory className="text-xs" />
+                  {showHistory ? "Hide" : "View"} History
+                </button>
+              </div>
+
+              {currentEmployee.tasks.length === 0 ? (
+                <div className="text-center py-12 text-gray-400">
+                  <p className="text-sm">No tasks assigned</p>
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  {currentEmployee.tasks.map((task, i) => (
+                    <div
+                      key={i}
+                      className={`border rounded-lg p-4 ${
+                        editingIndex === i
+                          ? "border-blue-400 bg-blue-50"
+                          : "border-gray-200 hover:border-gray-300"
+                      }`}
+                    >
+                      <div className="flex items-start justify-between gap-4">
+                        <div className="flex-1">
+                          <h4 className="font-medium text-gray-800 mb-1">
+                            {task.title}
+                          </h4>
+                          <div className="flex items-center gap-2 text-xs text-gray-500">
+                            <FaClock className="text-xs" />
+                            <span>{task.time}</span>
+                          </div>
+                        </div>
+
+                        <div className="flex items-center gap-2">
+                          <button
+                            onClick={() => openCompletePopup(i)}
+                            className="p-2 text-green-600 hover:bg-green-50 rounded transition"
+                            title="Complete"
+                          >
+                            <FaCheckCircle />
+                          </button>
+                          
+                          <button
+                            onClick={() => editTask(i)}
+                            className="p-2 text-blue-600 hover:bg-blue-50 rounded transition"
+                            title="Edit"
+                          >
+                            <FaEdit />
+                          </button>
+                          
+                          <button
+                            onClick={() => deleteTask(i)}
+                            className="p-2 text-red-500 hover:bg-red-50 rounded transition"
+                            title="Delete"
+                          >
+                            <FaTrash />
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* History */}
+            {showHistory && (
+              <div className="bg-white rounded-lg p-6 shadow-sm">
+                <h3 className="font-semibold text-gray-800 mb-4">Task History</h3>
+
+                {currentEmployee.history.length === 0 ? (
+                  <p className="text-center py-8 text-sm text-gray-400">
+                    No completed tasks
+                  </p>
+                ) : (
+                  <div className="space-y-3">
+                    {currentEmployee.history.map((task, i) => (
+                      <div
+                        key={i}
+                        className="border border-gray-200 rounded-lg p-4 bg-gray-50"
+                      >
+                        <div className="flex items-center justify-between">
+                          <div>
+                            <h4 className="font-medium text-gray-700 mb-1">
+                              {task.title}
+                            </h4>
+                            <div className="flex items-center gap-3 text-xs text-gray-500">
+                              <div className="flex items-center gap-1">
+                                <FaClock className="text-xs" />
+                                <span>{task.time}</span>
+                              </div>
+                              {task.completedAt && (
+                                <span>
+                                  Completed {new Date(task.completedAt).toLocaleDateString()}
+                                </span>
+                              )}
+                            </div>
+                          </div>
+                          <span className="text-xs bg-green-100 text-green-700 px-3 py-1 rounded-full font-medium">
+                            Done
+                          </span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+
+      {/* Completion Popup */}
+      {showPopup && (
+        <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center p-4 z-50">
+          <div className="bg-white rounded-lg p-6 max-w-sm w-full shadow-xl">
+            <div className="text-center mb-6">
+              <div className="w-14 h-14 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-3">
+                <FaCheckCircle className="text-green-600 text-2xl" />
+              </div>
+              <h3 className="font-semibold text-gray-800 text-lg mb-2">
+                Task Completed
+              </h3>
+              <p className="text-sm text-gray-600">
+                Would you like to save this to history or remove it?
               </p>
             </div>
 
-            <button
-              onClick={() => {
-                setEditMode((prev) => !prev);
-                resetForm();
-              }}
-              className={`flex items-center justify-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold ${
-                editMode
-                  ? "bg-blue-100 text-blue-700"
-                  : "bg-gray-100 text-gray-600"
-              }`}
-            >
-              <FaEdit />
-              {editMode ? "Editing" : "Edit Tasks"}
-            </button>
-          </div>
-
-          {/* FORM */}
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-6">
-            <input
-              value={taskTitle}
-              onChange={(e) => setTaskTitle(e.target.value)}
-              placeholder="Task Title"
-              className="border rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-400 outline-none"
-            />
-            <input
-              value={taskTime}
-              onChange={(e) => setTaskTime(e.target.value)}
-              placeholder="Hours"
-              className="border rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-400 outline-none"
-            />
-            <button
-              onClick={addOrUpdateTask}
-              className="bg-blue-600 hover:bg-blue-700 text-white rounded-lg flex items-center justify-center gap-2 py-2"
-            >
-              <FaPlus />
-              {editMode ? "Update" : "Assign"}
-            </button>
-          </div>
-
-          {/* TASK LIST */}
-          {employees[selectedEmployee].tasks.length === 0 && (
-            <p className="text-gray-400 text-sm">No tasks assigned yet.</p>
-          )}
-
-          {employees[selectedEmployee].tasks.map((task, i) => (
-            <div
-              key={i}
-              onClick={() => editMode && selectTaskForEdit(i)}
-              className={`border rounded-xl p-4 mb-3 transition ${
-                editIndex === i
-                  ? "border-blue-400 bg-blue-50"
-                  : "hover:bg-blue-50"
-              }`}
-            >
-              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-                <div>
-                  <h3 className="font-semibold">{task.title}</h3>
-                  <p className="text-xs text-gray-500 flex items-center gap-1">
-                    <FaClock /> {task.time}
-                  </p>
-                </div>
-
-                <div className="flex items-center gap-3">
-                  <span
-                    className={`text-xs font-semibold px-3 py-1 rounded-full ${
-                      task.status === "complete"
-                        ? "bg-green-100 text-green-700"
-                        : "bg-red-100 text-red-600"
-                    }`}
-                  >
-                    {task.status}
-                  </span>
-
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      toggleStatus(i, "complete");
-                    }}
-                    disabled={task.status === "complete"}
-                    className="text-green-600 disabled:opacity-30"
-                  >
-                    <FaCheckCircle />
-                  </button>
-
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      toggleStatus(i, "incomplete");
-                    }}
-                    disabled={task.status === "incomplete"}
-                    className="text-red-600 disabled:opacity-30"
-                  >
-                    <FaTimesCircle />
-                  </button>
-                </div>
-              </div>
+            <div className="space-y-2">
+              <button
+                onClick={handleStoreInHistory}
+                className="w-full bg-green-500 hover:bg-green-600 text-white py-3 rounded-lg font-medium transition"
+              >
+                Store in History
+              </button>
+              <button
+                onClick={handleDiscard}
+                className="w-full bg-orange-500 hover:bg-orange-600 text-white py-3 rounded-lg font-medium transition"
+              >
+                Discard Task
+              </button>
+              <button
+                onClick={closePopup}
+                className="w-full bg-gray-200 hover:bg-gray-300 text-gray-700 py-3 rounded-lg font-medium transition"
+              >
+                Cancel
+              </button>
             </div>
-          ))}
+          </div>
         </div>
-      </div>
+      )}
     </div>
   );
 }
-
- 

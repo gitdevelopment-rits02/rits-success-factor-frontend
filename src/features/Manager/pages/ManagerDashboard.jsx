@@ -26,7 +26,7 @@ import {
     LuIdCard as IdCard
 } from "react-icons/lu";
 
-const EmployeeDashboard = () => {
+const EmployeeLearning = () => {
     // State Management
     const [checkedIn, setCheckedIn] = useState(true);
     const [currentView, setCurrentView] = useState('dashboard');
@@ -155,118 +155,6 @@ const EmployeeDashboard = () => {
             thought: "Warmest birthday wishes to our QA champion! Enjoy your special day.",
             date: "Feb 10",
             read: true
-        }
-    ];
-
-    // Team Members Status
-    const teamMembers = [
-        {
-            id: 1,
-            name: "Akshay Thalkari",
-            department: "Software Development",
-            position: "Senior Developer",
-            avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=akshay",
-            status: "online",
-            lastSeen: "Active now"
-        },
-        {
-            id: 2,
-            name: "Priya Sharma",
-            department: "Marketing",
-            position: "Marketing Manager",
-            avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=priya",
-            status: "online",
-            lastSeen: "Active now"
-        },
-        {
-            id: 3,
-            name: "Rahul Verma",
-            department: "Sales",
-            position: "Sales Executive",
-            avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=rahul",
-            status: "online",
-            lastSeen: "Active now"
-        },
-        {
-            id: 4,
-            name: "Rajesh Kumar",
-            department: "Finance",
-            position: "Financial Analyst",
-            avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=rajesh",
-            status: "offline",
-            lastSeen: "2 hours ago"
-        },
-        {
-            id: 5,
-            name: "Meera Nair",
-            department: "Design",
-            position: "UI/UX Designer",
-            avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=meera",
-            status: "online",
-            lastSeen: "Active now"
-        },
-        {
-            id: 6,
-            name: "Anjali Gupta",
-            department: "HR Operations",
-            position: "HR Manager",
-            avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=anjali",
-            status: "offline",
-            lastSeen: "1 day ago"
-        },
-        {
-            id: 7,
-            name: "Suresh Raina",
-            department: "Engineering",
-            position: "Tech Lead",
-            avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=suresh",
-            status: "online",
-            lastSeen: "Active now"
-        },
-        {
-            id: 8,
-            name: "Vikram Seth",
-            department: "Product",
-            position: "Product Manager",
-            avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=vikram",
-            status: "offline",
-            lastSeen: "30 mins ago"
-        },
-        {
-            id: 9,
-            name: "Sneha Reddy",
-            department: "QA",
-            position: "QA Engineer",
-            avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=sneha",
-            status: "online",
-            lastSeen: "Active now"
-        },
-        {
-            id: 10,
-            name: "Ramesh Kumar",
-            department: "Management",
-            position: "Team Manager",
-            avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=ramesh",
-            status: "offline",
-            lastSeen: "5 hours ago"
-        },
-        {
-            id: 10,
-            name: "Ramesh Kumar",
-            department: "Management",
-            position: "Team Manager",
-            avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=ramesh",
-            status: "offline",
-            lastSeen: "5 hours ago"
-        },
-        {
-            id: 10,
-            name: "Ramesh Kumar",
-            department: "Management",
-            position: "Team Manager",
-            avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=ramesh",
-            status: "offline",
-            lastSeen: "5 hours ago"
         }
     ];
 
@@ -713,257 +601,99 @@ const EmployeeDashboard = () => {
     // Render Dashboard
     const renderDashboard = () => (
         <>
-            {/* Today's Work Status */}
-            <div className="bg-white rounded-2xl border border-gray-100 p-4 mb-4 shadow-sm hover:shadow-md transition-shadow duration-300">
-                <div className="flex items-center justify-between mb-5">
-                    <div>
-                        <h2 className="text-base font-bold text-gray-900 flex items-center gap-2">
-                            <div className="w-1 h-4 bg-blue-600 rounded-full"></div>
-                            Today's Work Status
-                        </h2>
-                        <p className="text-xs text-gray-500 mt-1 font-medium">Your daily attendance performance</p>
-                    </div>
-                    <div className={`flex items-center gap-2 px-3 py-1.5 rounded-xl text-xs font-bold uppercase tracking-wider ${checkedIn ? 'bg-green-50 text-green-700 border border-green-100' : 'bg-amber-50 text-amber-700 border border-amber-100'}`}>
-                        <span className={`w-2 h-2 rounded-full ${checkedIn ? 'bg-green-500 animate-pulse' : 'bg-amber-500'}`}></span>
-                        {checkedIn ? 'Active Now' : 'Signed Out'}
-                    </div>
-                </div>
-
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-                    {/* Check-in Time */}
-                    <div className="bg-gradient-to-br from-white to-blue-50/30 rounded-xl p-3 border border-gray-100 hover:border-blue-200 hover:scale-[1.02] transition-all duration-300 shadow-sm group">
-                        <div className="flex items-center justify-between mb-2">
-                            <div className="p-2 bg-blue-100/50 rounded-lg group-hover:bg-blue-600 group-hover:text-white transition-colors duration-300">
-                                <Clock className="w-4 h-4 text-blue-600 group-hover:text-white" />
-                            </div>
-                            <span className="text-[10px] font-bold text-blue-600 bg-blue-50 px-2 py-0.5 rounded-md">MORNING</span>
-                        </div>
-                        <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Check-in</p>
-                        <p className="text-xl font-extrabold text-gray-800">09:15 <span className="text-xs font-medium text-gray-400 uppercase">am</span></p>
-                        <div className="mt-2 flex items-center gap-1.5">
-                            <div className="w-1.5 h-1.5 bg-green-500 rounded-full"></div>
-                            <span className="text-[10px] font-semibold text-green-600">On time today</span>
-                        </div>
-                    </div>
-
-                    {/* Working Hours */}
-                    <div className="bg-gradient-to-br from-white to-purple-50/30 rounded-xl p-3 border border-gray-100 hover:border-purple-200 hover:scale-[1.02] transition-all duration-300 shadow-sm group">
-                        <div className="flex items-center justify-between mb-2">
-                            <div className="p-2 bg-purple-100/50 rounded-lg group-hover:bg-purple-600 group-hover:text-white transition-colors duration-300">
-                                <Clock className="w-4 h-4 text-purple-600 group-hover:text-white" />
-                            </div>
-                            <span className="text-[10px] font-bold text-purple-600 bg-purple-50 px-2 py-0.5 rounded-md">LOGGED</span>
-                        </div>
-                        <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Work Duration</p>
-                        <p className="text-xl font-extrabold text-gray-800">8h <span className="text-lg text-gray-400">45m</span></p>
-                        <div className="mt-2 h-1 w-full bg-gray-100 rounded-full overflow-hidden">
-                            <div className="h-full bg-purple-500 w-[85%] rounded-full shadow-[0_0_8px_rgba(168,85,247,0.4)]"></div>
-                        </div>
-                    </div>
-
-                    {/* Location */}
-                    <div className="bg-gradient-to-br from-white to-emerald-50/30 rounded-xl p-3 border border-gray-100 hover:border-emerald-200 hover:scale-[1.02] transition-all duration-300 shadow-sm group">
-                        <div className="flex items-center justify-between mb-2">
-                            <div className="p-2 bg-emerald-100/50 rounded-lg group-hover:bg-emerald-600 group-hover:text-white transition-colors duration-300">
-                                <MapPin className="w-4 h-4 text-emerald-600 group-hover:text-white" />
-                            </div>
-                            <span className="text-[10px] font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-md">VERIFIED</span>
-                        </div>
-                        <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Location</p>
-                        <p className="text-xl font-extrabold text-gray-800">HQ Office</p>
-                        <p className="text-[10px] font-medium text-gray-500 mt-1">Bangalore Tech Park</p>
-                    </div>
-                </div>
-            </div>
-
-            {/* Quick Actions */}
-            <div className="bg-white rounded-2xl border border-gray-100 p-4 mb-4 shadow-sm hover:shadow-md transition-shadow duration-300">
-                <div className="mb-5">
-                    <h2 className="text-base font-bold text-gray-900 flex items-center gap-2">
-                        <div className="w-1 h-4 bg-indigo-600 rounded-full"></div>
-                        Quick Actions
-                    </h2>
-                    <p className="text-xs text-gray-500 mt-1 font-medium">Access your productivity tools instantly</p>
-                </div>
-
-                <div className="grid grid-cols-3 sm:grid-cols-5 lg:grid-cols-9 gap-3">
-                    {quickActions.map((action) => (
-                        <button
-                            key={action.id}
-                            onClick={() => handleQuickAction(action.name)}
-                            className="group flex flex-col items-center justify-center p-3 rounded-2xl border border-gray-50 hover:border-indigo-100 hover:bg-gradient-to-b hover:from-white hover:to-indigo-50/20 hover:-translate-y-1 hover:shadow-lg hover:shadow-indigo-100/50 transition-all duration-300"
-                        >
-                            <div className="relative p-3 rounded-2xl bg-gray-50 group-hover:bg-white group-hover:scale-110 transition-all duration-300 shadow-sm border border-transparent group-hover:border-indigo-100">
-                                <action.icon className="w-5 h-5 text-gray-600 group-hover:text-indigo-600 transition-colors" />
-                                <div className="absolute -top-1 -right-1 w-2 h-2 bg-indigo-500 rounded-full opacity-0 group-hover:opacity-100 animate-pulse transition-opacity"></div>
-                            </div>
-                            <span className="font-bold text-gray-700 text-[10px] mt-2.5 text-center leading-tight tracking-tight group-hover:text-indigo-700 transition-colors uppercase italic">
-                                {action.name}
-                            </span>
-                        </button>
-                    ))}
-                </div>
-            </div>
+            
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-4 items-start">
-                {/* Left Column - Calendar & Team Status */}
-                <div className="space-y-4">
-                    {/* Attendance Calendar */}
-                    <div className="bg-white rounded-2xl border border-gray-100 p-4 relative shadow-sm hover:shadow-md transition-shadow duration-300">
-                        <div className="flex justify-between items-center mb-5">
-                            <div>
-                                <h2 className="text-base font-bold text-gray-900 flex items-center gap-2">
-                                    <div className="w-1 h-4 bg-emerald-600 rounded-full"></div>
-                                    Attendance Calendar
-                                </h2>
-                                <p className="text-xs text-gray-500 mt-1 font-medium italic">{getMonthYearString(currentMonth)}</p>
-                            </div>
-                            <button
-                                onClick={handleCalendarIconClick}
-                                className="p-2 bg-emerald-50 text-emerald-600 rounded-xl hover:bg-emerald-600 hover:text-white transition-all duration-300 border border-emerald-100 shadow-sm"
-                            >
-                                <Calendar className="w-4 h-4" />
-                            </button>
+                {/* Attendance Calendar */}
+                <div className="bg-white rounded-2xl border border-gray-100 p-4 relative shadow-sm hover:shadow-md transition-shadow duration-300 self-start">
+                    <div className="flex justify-between items-center mb-5">
+                        <div>
+                            <h2 className="text-base font-bold text-gray-900 flex items-center gap-2">
+                                <div className="w-1 h-4 bg-emerald-600 rounded-full"></div>
+                                Attendance Calendar
+                            </h2>
+                            <p className="text-xs text-gray-500 mt-1 font-medium italic">{getMonthYearString(currentMonth)}</p>
                         </div>
-
-                        {showYearMonthPicker && <YearMonthPicker />}
-
-                        <div className="flex items-center justify-between mb-4 bg-gray-50/50 p-2 rounded-xl border border-gray-100">
-                            <button
-                                onClick={() => navigateMonth(-1)}
-                                className="p-1.5 bg-white hover:bg-emerald-50 text-gray-400 hover:text-emerald-600 rounded-lg transition-all duration-300 border border-gray-100 shadow-sm"
-                            >
-                                <ChevronLeft className="w-4 h-4" />
-                            </button>
-
-                            <span className="font-extrabold text-gray-700 text-xs tracking-widest uppercase">
-                                {currentMonth.toLocaleDateString('en-US', { month: 'short', year: 'numeric' })}
-                            </span>
-
-                            <button
-                                onClick={() => navigateMonth(1)}
-                                className="p-1.5 bg-white hover:bg-emerald-50 text-gray-400 hover:text-emerald-600 rounded-lg transition-all duration-300 border border-gray-100 shadow-sm"
-                            >
-                                <ChevronRight className="w-4 h-4" />
-                            </button>
-                        </div>
-
-                        <div className="grid grid-cols-7 gap-1.5 mb-4">
-                            {calendarDays.map(day => (
-                                <div key={day} className="text-center font-bold text-gray-400 text-[10px] py-2 uppercase tracking-tighter">
-                                    {day}
-                                </div>
-                            ))}
-
-                            {calendarData.map((day, index) => (
-                                <button
-                                    key={index}
-                                    onClick={() => handleDateClick(day)}
-                                    className={`
-                                        p-1.5 rounded-xl text-xs transition-all duration-300
-                                        ${day.currentMonth ? day.color : 'bg-gray-50/50 text-gray-300 border-transparent'}
-                                        ${day.currentMonth ? 'hover:scale-105 hover:shadow-sm cursor-pointer border' : 'cursor-default opacity-40'}
-                                        flex flex-col items-center justify-center min-h-[3rem] relative overflow-hidden group
-                                    `}
-                                >
-                                    <span className={`text-[11px] font-bold ${day.textColor} ${day.type === 'today' ? 'scale-110' : ''}`}>
-                                        {day.date}
-                                    </span>
-                                    {day.currentMonth && (
-                                        <div className="mt-1 transition-transform group-hover:scale-125">
-                                            {getStatusIcon(day.type)}
-                                        </div>
-                                    )}
-                                    {day.type === 'today' && (
-                                        <div className="absolute top-1 right-1 w-1 h-1 bg-blue-600 rounded-full"></div>
-                                    )}
-                                </button>
-                            ))}
-                        </div>
-
-                        {/* Calendar Legend */}
-                        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-4 border-t border-gray-50">
-                            <div className="flex items-center gap-2 bg-green-50/50 px-2 py-1.5 rounded-lg border border-green-100">
-                                <div className="w-1.5 h-1.5 rounded-full bg-green-500 shadow-[0_0_5px_rgba(34,197,94,0.5)]"></div>
-                                <span className="text-[10px] font-bold text-green-700 uppercase tracking-tighter">Present</span>
-                            </div>
-                            <div className="flex items-center gap-2 bg-gray-50 px-2 py-1.5 rounded-lg border border-gray-200">
-                                <div className="w-1.5 h-1.5 rounded-full bg-gray-400"></div>
-                                <span className="text-[10px] font-bold text-gray-600 uppercase tracking-tighter">Absent</span>
-                            </div>
-                            <div className="flex items-center gap-2 bg-yellow-50/50 px-2 py-1.5 rounded-lg border border-yellow-100">
-                                <div className="w-1.5 h-1.5 rounded-full bg-yellow-500 shadow-[0_0_5px_rgba(234,179,8,0.5)]"></div>
-                                <span className="text-[10px] font-bold text-yellow-700 uppercase tracking-tighter">Late</span>
-                            </div>
-                            <div className="flex items-center gap-2 bg-red-50/50 px-2 py-1.5 rounded-lg border border-red-100">
-                                <div className="w-1.5 h-1.5 rounded-full bg-red-500 shadow-[0_0_5px_rgba(239,68,68,0.5)]"></div>
-                                <span className="text-[10px] font-bold text-red-700 uppercase tracking-tighter">Holiday</span>
-                            </div>
-                        </div>
+                        <button
+                            onClick={handleCalendarIconClick}
+                            className="p-2 bg-emerald-50 text-emerald-600 rounded-xl hover:bg-emerald-600 hover:text-white transition-all duration-300 border border-emerald-100 shadow-sm"
+                        >
+                            <Calendar className="w-4 h-4" />
+                        </button>
                     </div>
 
-                    {/* Team Status - Online/Offline Members */}
-                    <div className="bg-white rounded-2xl border border-gray-100 p-4 shadow-sm hover:shadow-md transition-shadow duration-300">
-                        <div className="flex items-center justify-between mb-4">
-                            <div>
-                                <h2 className="text-base font-bold text-gray-900 flex items-center gap-2">
-                                    <div className="w-1 h-4 bg-indigo-600 rounded-full"></div>
-                                    Team Status
-                                </h2>
-                                <p className="text-xs text-gray-500 mt-1 font-medium italic">Real-time availability</p>
-                            </div>
+                    {showYearMonthPicker && <YearMonthPicker />}
 
-                            {/* Online/Offline Count Badges */}
-                            <div className="flex items-center gap-2">
-                                <div className="flex items-center gap-1.5 px-2.5 py-1.5 bg-emerald-50 rounded-lg border border-emerald-100">
-                                    <div className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></div>
-                                    <span className="text-[10px] font-bold text-emerald-700 uppercase">Online</span>
-                                    <span className="ml-1 px-1.5 py-0.5 bg-emerald-600 text-white text-[10px] font-bold rounded-full">
-                                        {teamMembers.filter(m => m.status === 'online').length}
-                                    </span>
-                                </div>
-                                <div className="flex items-center gap-1.5 px-2.5 py-1.5 bg-gray-50 rounded-lg border border-gray-200">
-                                    <div className="w-2 h-2 bg-gray-400 rounded-full"></div>
-                                    <span className="text-[10px] font-bold text-gray-600 uppercase">Offline</span>
-                                    <span className="ml-1 px-1.5 py-0.5 bg-gray-600 text-white text-[10px] font-bold rounded-full">
-                                        {teamMembers.filter(m => m.status === 'offline').length}
-                                    </span>
-                                </div>
+                    <div className="flex items-center justify-between mb-4 bg-gray-50/50 p-2 rounded-xl border border-gray-100">
+                        <button
+                            onClick={() => navigateMonth(-1)}
+                            className="p-1.5 bg-white hover:bg-emerald-50 text-gray-400 hover:text-emerald-600 rounded-lg transition-all duration-300 border border-gray-100 shadow-sm"
+                        >
+                            <ChevronLeft className="w-4 h-4" />
+                        </button>
+
+                        <span className="font-extrabold text-gray-700 text-xs tracking-widest uppercase">
+                            {currentMonth.toLocaleDateString('en-US', { month: 'short', year: 'numeric' })}
+                        </span>
+
+                        <button
+                            onClick={() => navigateMonth(1)}
+                            className="p-1.5 bg-white hover:bg-emerald-50 text-gray-400 hover:text-emerald-600 rounded-lg transition-all duration-300 border border-gray-100 shadow-sm"
+                        >
+                            <ChevronRight className="w-4 h-4" />
+                        </button>
+                    </div>
+
+                    <div className="grid grid-cols-7 gap-1.5 mb-4">
+                        {calendarDays.map(day => (
+                            <div key={day} className="text-center font-bold text-gray-400 text-[10px] py-2 uppercase tracking-tighter">
+                                {day}
                             </div>
+                        ))}
+
+                        {calendarData.map((day, index) => (
+                            <button
+                                key={index}
+                                onClick={() => handleDateClick(day)}
+                                className={`
+                                    p-1.5 rounded-xl text-xs transition-all duration-300
+                                    ${day.currentMonth ? day.color : 'bg-gray-50/50 text-gray-300 border-transparent'}
+                                    ${day.currentMonth ? 'hover:scale-105 hover:shadow-sm cursor-pointer border' : 'cursor-default opacity-40'}
+                                    flex flex-col items-center justify-center min-h-[3rem] relative overflow-hidden group
+                                `}
+                            >
+                                <span className={`text-[11px] font-bold ${day.textColor} ${day.type === 'today' ? 'scale-110' : ''}`}>
+                                    {day.date}
+                                </span>
+                                {day.currentMonth && (
+                                    <div className="mt-1 transition-transform group-hover:scale-125">
+                                        {getStatusIcon(day.type)}
+                                    </div>
+                                )}
+                                {day.type === 'today' && (
+                                    <div className="absolute top-1 right-1 w-1 h-1 bg-blue-600 rounded-full"></div>
+                                )}
+                            </button>
+                        ))}
+                    </div>
+
+                    {/* Calendar Legend */}
+                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-4 border-t border-gray-50">
+                        <div className="flex items-center gap-2 bg-green-50/50 px-2 py-1.5 rounded-lg border border-green-100">
+                            <div className="w-1.5 h-1.5 rounded-full bg-green-500 shadow-[0_0_5px_rgba(34,197,94,0.5)]"></div>
+                            <span className="text-[10px] font-bold text-green-700 uppercase tracking-tighter">Present</span>
                         </div>
-
-                        <div className="grid grid-cols-2 gap-2 max-h-[280px] overflow-y-auto pr-1 custom-scrollbar">
-                            {teamMembers.map((member, index) => (
-                                <div
-                                    key={index}
-                                    className={`group relative flex items-center p-2 bg-white border rounded-lg transition-all duration-300 ${member.status === 'online'
-                                        ? 'border-emerald-100 hover:border-emerald-200 hover:bg-emerald-50/30'
-                                        : 'border-gray-100 hover:border-gray-200 hover:bg-gray-50/30'
-                                        }`}
-                                >
-                                    <div className="relative flex-shrink-0">
-                                        <div className="w-8 h-8 rounded-full overflow-hidden border-2 border-white shadow-sm ring-1 ring-gray-100">
-                                            <img
-                                                src={member.avatar}
-                                                alt={member.name}
-                                                className="w-full h-full object-cover"
-                                            />
-                                        </div>
-                                        <div className={`absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 rounded-full border-2 border-white shadow-sm ${member.status === 'online' ? 'bg-emerald-500' : 'bg-gray-400'
-                                            }`}>
-                                            {member.status === 'online' && (
-                                                <div className="w-full h-full rounded-full bg-emerald-500 animate-ping opacity-75"></div>
-                                            )}
-                                        </div>
-                                    </div>
-                                    <div className="ml-2 flex-1 min-w-0">
-                                        <h3 className="text-xs font-bold text-gray-900 truncate tracking-tight leading-tight">{member.name}</h3>
-                                        <p className="text-[9px] text-gray-400 font-bold uppercase tracking-wider">
-                                            {member.lastSeen}
-                                        </p>
-                                    </div>
-                                </div>
-                            ))}
+                        <div className="flex items-center gap-2 bg-gray-50 px-2 py-1.5 rounded-lg border border-gray-200">
+                            <div className="w-1.5 h-1.5 rounded-full bg-gray-400"></div>
+                            <span className="text-[10px] font-bold text-gray-600 uppercase tracking-tighter">Absent</span>
+                        </div>
+                        <div className="flex items-center gap-2 bg-yellow-50/50 px-2 py-1.5 rounded-lg border border-yellow-100">
+                            <div className="w-1.5 h-1.5 rounded-full bg-yellow-500 shadow-[0_0_5px_rgba(234,179,8,0.5)]"></div>
+                            <span className="text-[10px] font-bold text-yellow-700 uppercase tracking-tighter">Late</span>
+                        </div>
+                        <div className="flex items-center gap-2 bg-red-50/50 px-2 py-1.5 rounded-lg border border-red-100">
+                            <div className="w-1.5 h-1.5 rounded-full bg-red-500 shadow-[0_0_5px_rgba(239,68,68,0.5)]"></div>
+                            <span className="text-[10px] font-bold text-red-700 uppercase tracking-tighter">Holiday</span>
                         </div>
                     </div>
                 </div>
@@ -1085,8 +815,8 @@ const EmployeeDashboard = () => {
             </div>
 
             {/* Work Anniversaries & Birthdays Row */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-4">
-                {/* Work Anniversaries */}
+            {/* <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-4">
+                
                 <div className="bg-white rounded-2xl border border-gray-100 p-5 shadow-sm hover:shadow-md transition-all duration-300">
                     <div className="flex items-center justify-between mb-6">
                         <div>
@@ -1099,9 +829,9 @@ const EmployeeDashboard = () => {
                         <div className="p-2.5 bg-indigo-50 text-indigo-600 rounded-xl border border-indigo-100/50">
                             <PartyPopper className="w-4 h-4" />
                         </div>
-                    </div>
+                    </div> */}
 
-                    <div className="space-y-4">
+                    {/* <div className="space-y-4">
                         {workAnniversaries.map((anniversary, index) => (
                             <div key={index} className="group relative flex items-center p-3 bg-white border border-gray-100 rounded-2xl hover:border-indigo-200 hover:bg-indigo-50/30 transition-all duration-300">
                                 <div className="relative flex-shrink-0">
@@ -1115,8 +845,8 @@ const EmployeeDashboard = () => {
                                     <div className="absolute -bottom-0.5 -right-0.5 w-4 h-4 bg-indigo-600 rounded-full flex items-center justify-center border-2 border-white shadow-sm">
                                         <Award className="w-2 h-2 text-white" />
                                     </div>
-                                </div>
-                                <div className="ml-4 flex-1 min-w-0">
+                                </div> */}
+                                {/* <div className="ml-4 flex-1 min-w-0">
                                     <div className="flex items-center justify-between mb-0.5">
                                         <h3 className="text-xs font-bold text-gray-900 truncate tracking-tight">{anniversary.name}</h3>
                                         <span className="text-[10px] font-bold text-indigo-600 bg-indigo-100/50 px-2 py-0.5 rounded-full border border-indigo-100/30">
@@ -1129,14 +859,14 @@ const EmployeeDashboard = () => {
                                 <ChevronRight className="w-3.5 h-3.5 text-gray-300 group-hover:text-indigo-400 ml-2 transition-colors" />
                             </div>
                         ))}
-                    </div>
+                    </div> */}
 
-                    <button className="w-full mt-5 py-2.5 text-center text-indigo-600 text-[11px] font-bold uppercase tracking-widest hover:bg-indigo-50 rounded-xl transition-all duration-300 border border-indigo-100/50 active:scale-[0.98]">
+                    {/* <button className="w-full mt-5 py-2.5 text-center text-indigo-600 text-[11px] font-bold uppercase tracking-widest hover:bg-indigo-50 rounded-xl transition-all duration-300 border border-indigo-100/50 active:scale-[0.98]">
                         Full Milestones List
                     </button>
                 </div>
 
-                {/* Birthdays */}
+              
                 <div className="bg-white rounded-2xl border border-gray-100 p-5 shadow-sm hover:shadow-md transition-all duration-300">
                     <div className="flex items-center justify-between mb-6">
                         <div>
@@ -1149,9 +879,9 @@ const EmployeeDashboard = () => {
                         <div className="p-2.5 bg-indigo-50 text-indigo-600 rounded-xl border border-indigo-100/50">
                             <Cake className="w-4 h-4" />
                         </div>
-                    </div>
+                    </div> */}
 
-                    <div className="space-y-4">
+                    {/* <div className="space-y-4">
                         {birthdays.map((birthday, index) => (
                             <div key={index} className="group relative flex items-center p-3 bg-white border border-gray-100 rounded-2xl hover:border-indigo-200 hover:bg-indigo-50/30 transition-all duration-300">
                                 <div className="relative flex-shrink-0">
@@ -1178,8 +908,8 @@ const EmployeeDashboard = () => {
                                         <MessageSquare className="w-2.5 h-2.5" />
                                         Wish Joy
                                     </button>
-                                </div>
-                            </div>
+                                </div> */}
+                            {/* </div>
                         ))}
                     </div>
 
@@ -1187,7 +917,7 @@ const EmployeeDashboard = () => {
                         View Birthday Calendar
                     </button>
                 </div>
-            </div>
+            </div> */}
 
             {/* Announcements Row */}
             <div className="bg-white rounded-2xl border border-gray-100 p-4 shadow-sm hover:shadow-md transition-all duration-300">
@@ -1301,4 +1031,6 @@ const EmployeeDashboard = () => {
     );
 };
 
-export default EmployeeDashboard;
+export default EmployeeLearning;
+
+
