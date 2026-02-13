@@ -8,7 +8,7 @@ const superAdminOrgChartThunk = createAsyncThunk(
       const response =
         await superAdminOrgChartApi.getAllOrgChart();
 
-      // ✅ Return ONLY employee array
+      //  Return ONLY employee array
       return response.data.data;
 
     } catch (error) {

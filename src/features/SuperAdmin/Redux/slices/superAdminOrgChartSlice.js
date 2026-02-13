@@ -22,13 +22,13 @@ const superAdminOrgChartSlice = createSlice({
         state.error = null;
       })
 
-      // Success ✅
+      // Success 
       .addCase(superAdminOrgChartThunk.fulfilled, (state, action) => {
         state.loading = false;
 
         console.log("REDUX DATA:", action.payload);
 
-        // ✅ IMPORTANT FIX
+        //  IMPORTANT FIX
         state.data = action.payload;
       })
 
