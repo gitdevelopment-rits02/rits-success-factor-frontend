@@ -352,7 +352,7 @@ doc.setFontSize(9);
         </div>
 
 {/* Attendance Summary */}
-<div className="bg-white rounded-3xl p-6 shadow-lg">
+{/* <div className="bg-white rounded-3xl p-6 shadow-lg">
   <h3 className="text-lg font-semibold text-slate-700 mb-6">
     Attendance Summary
   </h3>
@@ -382,8 +382,8 @@ doc.setFontSize(9);
       <p className="text-semibold text-slate-400">Overtime Hours</p>
       <p className="text-xl font-bold text-indigo-600">12</p>
     </div>
-  </div>
-</div>
+  </div> */}
+{/* </div> */}
 
         {/* History */}
         <div className="bg-white rounded-3xl p-6 shadow-lg">

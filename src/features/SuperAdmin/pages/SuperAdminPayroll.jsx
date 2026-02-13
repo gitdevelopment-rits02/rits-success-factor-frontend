@@ -3,9 +3,12 @@ import { FaBuilding, FaCalendarAlt, FaSearch, FaLayerGroup } from "react-icons/f
 import { FaEye } from "react-icons/fa";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchPayrollListThunk,  fetchPayrollBreakdownThunk,  fetchPayslipPdfThunk, fetchPayrollReportThunk  } from "../Redux/thunks/superAdminPayrollThunk";
+import SuperAdminPayrollSkeleton from "../SuperAdminSkeleton/SuperAdminPayrollSkeleton";
 
 export default function SuperAdminPayroll() {
   const dispatch = useDispatch();
+
+  const [pageLoading, setPageLoading] = useState(true);
 
   /*  Redux selectors  */
 const payrollList = useSelector(
@@ -28,6 +31,13 @@ useEffect(() => {
   }
 }, [loading, payrollList]);
 
+useEffect(() => {
+  const timer = setTimeout(() => {
+    setPageLoading(false);
+  }, 1500);
+
+  return () => clearTimeout(timer);
+}, []);
 
 
 
@@ -179,7 +189,7 @@ useEffect(() => {
   /*  PDF FUNCTIONS   */
   const generateIndividualPayslip = async (emp) => {
   try {
-    
+
     const result = await dispatch(fetchPayslipPdfThunk(emp.payrollId));
 
     if (fetchPayslipPdfThunk.rejected.match(result)) {
@@ -187,7 +197,7 @@ useEffect(() => {
       return;
     }
 
-    
+
     const pdfBlob = result.payload.pdfBlob;
 
     //  Convert to downloadable file
@@ -241,11 +251,14 @@ const handleDownloadReport = async () => {
 };
 
 
+if (pageLoading) {
+  return <SuperAdminPayrollSkeleton />;
+}
 
   return (
     <div className="min-h-screen w-full p-8 bg-gradient-to-br from-slate-100 via-blue-50 to-indigo-100">
 
-      
+
 
       {/*  Header  */}
       <div className="bg-white/90 backdrop-blur-xl rounded-[28px] p-7 shadow-[0_20px_50px_rgba(0,0,0,0.08)] relative border border-blue-100">
@@ -423,7 +436,7 @@ const handleDownloadReport = async () => {
             </td>
           </tr>
 
-         
+
 
           {/* Breakdown row when data is available */}
           {expandedId === emp.id && structure && (
