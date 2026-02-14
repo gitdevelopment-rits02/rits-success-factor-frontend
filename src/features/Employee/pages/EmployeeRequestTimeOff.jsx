@@ -128,9 +128,9 @@ export default function LeaveManagementSystem() {
           
           {/* Request Form */}
           <div className="lg:col-span-2 bg-white rounded-2xl p-8 shadow-sm border border-blue-100/50">
-            <h2 className="text-lg font-semibold text-slate-800 mb-6">New Leave Request</h2>
+            <h2 className="text-lg font-bold text-slate-800 mb-6">New Leave Request</h2>
 
-            <div className="space-y-6">
+            <div className="space-y-8">
               
               {/* Leave Type & Days Display */}
               <div className="grid md:grid-cols-5 gap-5">
