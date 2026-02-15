@@ -671,20 +671,20 @@ export default function SuperAdminPersonalTimeSheet() {
                 : `Bulk Approve (${selectedRows.length})`}
             </button>
           )}
-          <button
+          {/* <button
             onClick={exportPDF}
             className="px-4 py-2 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-all flex items-center gap-2"
           >
             <FaFilePdf />
             PDF
-          </button>
-          <button
+          </button> */}
+          {/* <button
             onClick={exportExcel}
             className="px-4 py-2 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-all flex items-center gap-2"
           >
             <FaFileExcel />
             Excel
-          </button>
+          </button> */}
         </div>
 
         {/* filters */}
