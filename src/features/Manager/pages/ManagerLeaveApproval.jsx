@@ -1,397 +1,240 @@
 import React, { useMemo, useState } from "react";
 import {
   FaClipboardList,
-  FaCalendarTimes,
+  FaCalendarDay,
   FaCheckCircle,
-  FaCheck,
-  FaTimes,
   FaTimesCircle,
-  FaEllipsisV
+  FaEllipsisV,
+  FaFilter,
+  FaUserSlash,
+  FaChevronLeft,
+  FaChevronRight,
+  FaTrashRestore
 } from "react-icons/fa";
 
-/* ------------------ DATA (Unchanged) ------------------ */
+/* ------------------ MOCK DATA ------------------ */
 const employees = [
   { id: "EMP001", name: "Chaitanya", avatar: "https://i.pravatar.cc/40?img=32" },
   { id: "EMP002", name: "Aishwarya Patil", avatar: "https://i.pravatar.cc/40?img=45" },
   { id: "EMP003", name: "Umashankar", avatar: "https://i.pravatar.cc/40?img=12" },
   { id: "EMP004", name: "Mahallapa", avatar: "https://i.pravatar.cc/40?img=8" },
   { id: "EMP005", name: "Rohit Sharma", avatar: "https://i.pravatar.cc/40?img=59" },
+  { id: "EMP006", name: "Virat K", avatar: "https://i.pravatar.cc/40?img=11" },
+  { id: "EMP007", name: "Hardik P", avatar: "https://i.pravatar.cc/40?img=14" },
 ];
 
 const initialLeaves = [
   { id: 1, empId: "EMP001", type: "Sick", start: "2026-01-21", end: "2026-01-22", reason: "Fever", status: "Pending", rejectReason: "" },
   { id: 2, empId: "EMP002", type: "Casual", start: "2026-01-21", end: "2026-01-21", reason: "Personal work", status: "Pending", rejectReason: "" },
   { id: 3, empId: "EMP003", type: "Paid", start: "2026-01-21", end: "2026-01-25", reason: "Vacation", status: "Approved", rejectReason: "" },
-  { id: 4, empId: "EMP004", type: "Sick", start: "2026-01-21", end: "2026-01-21", reason: "Cold", status: "Rejected", rejectReason: "" },
-  { id: 5, empId: "EMP005", type: "Paid", start: "2026-01-21", end: "2026-01-21", reason: "Family event", status: "Pending", rejectReason: "" },
+  { id: 4, empId: "EMP004", type: "Sick", start: "2026-01-20", end: "2026-01-21", reason: "Cold", status: "Rejected", rejectReason: "No medical certificate" },
+  { id: 5, empId: "EMP005", type: "Paid", start: "2026-01-23", end: "2026-01-24", reason: "Family event", status: "Pending", rejectReason: "" },
+  { id: 6, empId: "EMP006", type: "Casual", start: "2026-01-25", end: "2026-01-26", reason: "Trip", status: "Approved", rejectReason: "" },
 ];
 
-const TODAY = "2026-01-21";
+const REAL_TODAY = "2026-01-21";
 
-/* ------------------ HELPERS (Unchanged) ------------------ */
-const statusStyles = {
-  Pending: "bg-yellow-100 text-yellow-700",
-  Approved: "bg-green-100 text-green-700",
-  Rejected: "bg-red-100 text-red-700",
-};
-
-const typeStyles = {
-  Sick: "bg-orange-100 text-orange-700",
-  Casual: "bg-blue-100 text-blue-700",
-  Paid: "bg-green-100 text-green-700",
-};
-
-/* ------------------ COMPONENT ------------------ */
-export default function SuperAdminLeaveRequests() {
+export default function SuperAdminLeavePortal() {
   const [leaves, setLeaves] = useState(initialLeaves);
-  const [tab, setTab] = useState("All");
-  const [openMenuId, setOpenMenuId] = useState(null);
-  const filteredLeaves = useMemo(() => {
-    if (tab === "Today") {
-      return leaves.filter(l => l.start <= TODAY && l.end >= TODAY);
-    }
-    return leaves;
-  }, [leaves, tab]);
+  const [statusFilter, setStatusFilter] = useState("All");
+  const [dateFilter, setDateFilter] = useState(""); // Default empty as requested
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 5;
 
-  const todaysLeaves = useMemo(
-    () => leaves.filter(l => l.start <= TODAY && l.end >= TODAY),
-    [leaves]
-  );
+  /* 1. TOP PANEL: Strictly for Today (ignores all filters) */
+  const absenteesToday = useMemo(() => {
+    return leaves.filter(l => l.start <= REAL_TODAY && l.end >= REAL_TODAY && l.status === "Approved");
+  }, [leaves]);
 
-  const pendingCount = leaves.filter(l => l.status === "Pending").length;
-  const approvedThisMonth = leaves.filter(l => l.status === "Approved").length;
-  const rejectedThisMonth = leaves.filter(l => l.status === "Rejected").length;
-  const approve = id => {
-    setLeaves(prev =>
-      prev.map(l => (l.id === id ? { ...l, status: "Approved" } : l))
-    );
-  };
+  /* 2. TABLE LOGIC: Combined Status + Optional Date Filter */
+  const filteredData = useMemo(() => {
+    return leaves.filter(l => {
+      const matchStatus = statusFilter === "All" || l.status === statusFilter;
+      const matchDate = dateFilter === "" || (l.start <= dateFilter && l.end >= dateFilter);
+      return matchStatus && matchDate;
+    });
+  }, [leaves, statusFilter, dateFilter]);
 
-  const undoToPending = id => {
-    setLeaves(prev =>
-      prev.map(l =>
-        l.id === id
-          ? { ...l, status: "Pending", rejectReason: "" }
-          : l
-      )
-    );
-  };
+  // Pagination Logic
+  const totalPages = Math.ceil(filteredData.length / itemsPerPage);
+  const paginatedData = filteredData.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
 
-  const reject = id => {
-    const reason = prompt("Enter rejection reason");
-
-    if (!reason) return;
-
-    setLeaves(prev =>
-      prev.map(l =>
-        l.id === id
-          ? { ...l, status: "Rejected", rejectReason: reason }
-          : l
-      )
-    );
+  const handleApprove = id => setLeaves(prev => prev.map(l => l.id === id ? { ...l, status: "Approved" } : l));
+  const handleReject = id => {
+    const msg = prompt("Reason for rejection?");
+    if (msg) setLeaves(prev => prev.map(l => l.id === id ? { ...l, status: "Rejected", rejectReason: msg } : l));
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 p-4 md:p-8">
-      {/* Header - Made responsive with flex-col on mobile */}
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
-        <h1 className="text-2xl md:text-3xl font-bold text-slate-800">
-          Super Admin Leave Requests
-        </h1>
-        <span className="px-4 py-2 rounded-full bg-blue-600 text-white text-sm">
-          Super Admin
-        </span>
-      </div>
+    <div className="min-h-screen bg-[#f3f7fa] p-4 md:p-10 text-slate-800 font-sans">
+      <div className="max-w-6xl mx-auto">
+        
+        {/* Header */}
+        <div className="mb-8 flex justify-between items-end">
+          <div>
+            <h1 className="text-3xl font-black text-blue-900 tracking-tight">Leave Control Center</h1>
+            <p className="text-slate-500 font-medium">Super Admin Dashboard</p>
+          </div>
+        </div>
 
-      {/* Tabs - Added flex-wrap for small screens */}
-      <div className="flex flex-wrap gap-3 mb-6">
-        {["All", "Today", "This Week"].map(t => (
-          <button
-            key={t}
-            onClick={() => setTab(t)}
-            className={`px-5 py-2 rounded-lg text-sm font-medium transition
-              ${tab === t
-                ? "bg-blue-600 text-white"
-                : "bg-white text-slate-600 border"
-              }`}
-          >
-            {t}
-          </button>
-        ))}
-      </div>
+        {/* 4 Cards Summary */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+          <StatBox title="Pending" val={leaves.filter(l => l.status === "Pending").length} color="amber" />
+          <StatBox title="On Leave Today" val={absenteesToday.length} color="blue" />
+          <StatBox title="Approved" val={leaves.filter(l => l.status === "Approved").length} color="emerald" />
+          <StatBox title="Rejected" val={leaves.filter(l => l.status === "Rejected").length} color="rose" />
+        </div>
 
-      {/* Summary Cards - Adjusted grid breakpoints */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-
-        <SummaryCard
-          title="Pending Requests"
-          value={pendingCount}
-          icon={<FaClipboardList />}
-          iconBg="bg-yellow-100"
-          iconColor="text-yellow-600"
-        />
-
-        <SummaryCard
-          title="People on Leave Today"
-          value={todaysLeaves.length}
-          icon={<FaCalendarTimes />}
-          iconBg="bg-blue-100"
-          iconColor="text-blue-600"
-        />
-
-        <SummaryCard
-          title="Approved This Month"
-          value={approvedThisMonth}
-          icon={<FaCheckCircle />}
-          iconBg="bg-green-100"
-          iconColor="text-green-600"
-        />
-        <SummaryCard
-          title="Rejected This Month"
-          value={rejectedThisMonth}
-          icon={<FaTimesCircle />}
-          iconBg="bg-red-100"
-          iconColor="text-red-600"
-        />
-      </div>
-      {/* Mobile View (Cards) */}
-      <div className="block md:hidden space-y-4">
-        {filteredLeaves.map(l => {
-          const emp = employees.find(e => e.id === l.empId);
-          return (
-            <div key={l.id} className="bg-white rounded-xl p-4 shadow border space-y-2">
-              <div className="flex items-center gap-3">
-                <img src={emp.avatar} className="w-10 h-10 rounded-full" />
-                <div>
-                  <p className="font-semibold">{emp.name}</p>
-                  <p className="text-xs text-slate-500">
-                    {l.start} → {l.end}
-                  </p>
+        {/* Today's Absentees (Locked Section) */}
+        <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-200 mb-8">
+          <h2 className="text-lg font-bold text-blue-900 mb-4 flex items-center gap-2">
+            <FaUserSlash className="text-blue-500"/> People On Leave Today (15/2/26)
+          </h2>
+          <div className="flex flex-wrap gap-3">
+            {absenteesToday.length > 0 ? absenteesToday.map(l => {
+              const emp = employees.find(e => e.id === l.empId);
+              return (
+                <div key={l.id} className="flex items-center gap-3 px-4 py-2 bg-blue-50 rounded-full border border-blue-100">
+                  <img src={emp.avatar} className="w-6 h-6 rounded-full" alt="" />
+                  <span className="text-sm font-bold text-blue-800">{emp.name}</span>
                 </div>
-              </div>
+              );
+            }) : <p className="text-slate-400 text-sm italic">No confirmed absences for today.</p>}
+          </div>
+        </div>
 
-              <div className="flex justify-between items-center">
-                <span className={`px-3 py-1 text-xs rounded-full ${typeStyles[l.type]}`}>
-                  {l.type}
-                </span>
-
-                <div className="flex flex-col items-end gap-1">
-                  <span className={`px-3 py-1 rounded-full text-xs ${statusStyles[l.status]}`}>
-                    {l.status}
-                  </span>
-
-                  {l.status === "Rejected" && l.rejectReason && (
-                    <span className="text-xs text-red-600 max-w-[180px] text-right">
-                      Reason: {l.rejectReason}
-                    </span>
-                  )}
-                </div>
-
-              </div>
-
-              <p className="text-sm text-slate-600 truncate">{l.reason}</p>
-
-              {l.status === "Pending" ? (
+        {/* Leave Table Section */}
+        <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+          
+          {/* Controls Header */}
+          <div className="p-6 border-b border-slate-100 flex flex-col lg:flex-row justify-between items-center gap-6 bg-slate-50/50">
+            
+            {/* Status Tabs */}
+            <div className="flex bg-white p-1 rounded-xl border shadow-sm">
+              {["All", "Pending", "Approved", "Rejected"].map(s => (
                 <button
-                  onClick={() => approve(l.id)}
-                  className="w-full mt-2 bg-blue-600 text-white py-2 rounded-lg text-sm"
+                  key={s}
+                  onClick={() => { setStatusFilter(s); setCurrentPage(1); }}
+                  className={`px-5 py-2 rounded-lg text-xs font-black uppercase tracking-wider transition-all ${statusFilter === s ? 'bg-blue-600 text-white shadow-md' : 'text-slate-400 hover:text-slate-600'}`}
                 >
-                  Approve
+                  {s}
                 </button>
-              ) : (
-                <button
-                  onClick={() => changeStatus(l.id)}
-                  className="w-full mt-2 border py-2 rounded-lg text-sm"
-                >
-                  Change
-                </button>
-              )}
+              ))}
             </div>
-          );
-        })}
-      </div>
 
-      {/* Table Wrapper - Added overflow-x-auto for mobile scrolling */}
-      <div className="bg-white rounded-xl shadow-sm overflow-hidden block">
-        <div className="overflow-x-auto">
-          <table className="w-full text-left min-w-[700px]">
-            <thead className="bg-slate-100 text-slate-600 text-sm">
-              <tr>
-                <th className="px-6 py-4">Employee</th>
-                <th className="px-6 py-4">Dates</th>
-                <th className="px-6 py-4">Type</th>
-                <th className="px-6 py-4">Reason</th>
-                <th className="px-6 py-4">Status</th>
-                <th className="px-14 py-4 text-right">Action</th>
-              </tr>
-            </thead>
-            <tbody>
-              {filteredLeaves.map(l => {
-                const emp = employees.find(e => e.id === l.empId);
-                return (
-                  <React.Fragment key={l.id}>
-                    <tr className="border-t hover:bg-slate-50">
+            {/* Date Filter */}
+            <div className="flex items-center gap-3">
+              <div className="relative">
+                <input 
+                  type="date" 
+                  value={dateFilter}
+                  onChange={(e) => { setDateFilter(e.target.value); setCurrentPage(1); }}
+                  className="bg-white border rounded-xl px-4 py-2.5 text-sm font-bold text-slate-600 focus:ring-2 ring-blue-500/20 outline-none transition-all shadow-sm"
+                />
+                {dateFilter && (
+                  <button 
+                    onClick={() => setDateFilter("")}
+                    className="absolute -right-2 -top-2 bg-rose-500 text-white p-1 rounded-full hover:scale-110 transition-transform"
+                    title="Clear Date"
+                  >
+                    <FaTrashRestore size={10}/>
+                  </button>
+                )}
+              </div>
+            </div>
+          </div>
 
-                      <td className="px-3 py-4 flex items-center gap-3">
-                        <img src={emp.avatar} alt="" className="w-9 h-9 rounded-full" />
-                        <span className="font-medium">{emp.name}</span>
+          {/* Table */}
+          <div className="overflow-x-auto">
+            <table className="w-full text-left border-collapse">
+              <thead className="bg-slate-50/50">
+                <tr className="text-slate-400 text-[10px] font-black uppercase tracking-[0.15em]">
+                  <th className="px-6 py-4">Employee</th>
+                  <th className="px-6 py-4">Duration</th>
+                  <th className="px-6 py-4">Type</th>
+                  <th className="px-6 py-4">Status</th>
+                  <th className="px-6 py-4 text-right">Action</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-100">
+                {paginatedData.map(l => {
+                  const emp = employees.find(e => e.id === l.empId);
+                  return (
+                    <tr key={l.id} className="hover:bg-slate-50/50 transition-all">
+                      <td className="px-6 py-5">
+                        <div className="flex items-center gap-3">
+                          <img src={emp.avatar} className="w-8 h-8 rounded-full border border-slate-200" alt="" />
+                          <span className="font-bold text-slate-700">{emp.name}</span>
+                        </div>
                       </td>
-                      <td className="px-6 py-4 text-sm text-slate-600 whitespace-nowrap">
-                        {l.start} → {l.end}
+                      <td className="px-6 py-5 text-sm font-bold text-slate-500">
+                        {l.start} <span className="text-slate-300 mx-1">→</span> {l.end}
                       </td>
-                      <td className="px-4 py-4">
-                        <span className={`px-3 py-1 rounded-full text-xs font-medium ${typeStyles[l.type]}`}>
-                          {l.type}
-                        </span>
-                      </td>
-                      <td className="px-6 py-4 max-w-[150px] truncate">
-                        {l.reason}
-                      </td>
-                      <td className="px-4 py-4">
-                        <span className={`px-3 py-1 rounded-full text-xs font-medium ${statusStyles[l.status]}`}>
+                      <td className="px-6 py-5 text-xs font-bold uppercase text-blue-600">{l.type}</td>
+                      <td className="px-6 py-5">
+                        <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase ${l.status === 'Approved' ? 'bg-emerald-100 text-emerald-700' : l.status === 'Rejected' ? 'bg-rose-100 text-rose-700' : 'bg-amber-100 text-amber-700'}`}>
                           {l.status}
                         </span>
                       </td>
-                      <td className="px-6 py-4 text-right relative">
-                        <div className="flex justify-end gap-3">
-                          {/* Approved button */}
-                          {/* Approve */}
-                          <button
-                            onClick={() => approve(l.id)}
-                            title="Approve"
-                            className="text-green-600 hover:text-green-800"
-                          >
-                            <FaCheckCircle size={18} />
-                          </button>
-
-                          {/* Reject */}
-                          <button
-                            onClick={() => reject(l.id)}
-                            title="Reject"
-                            className="text-red-600 hover:text-red-800"
-                          >
-                            <FaTimesCircle size={18} />
-                          </button>
-
-                          {/* 3 dots */}
-                          <button
-                            onClick={() =>
-                              setOpenMenuId(openMenuId === l.id ? null : l.id)
-                            }
-                            title="More"
-                            className="text-slate-500 hover:text-slate-700"
-                          >
-                            <FaEllipsisV size={16} />
-                          </button>
-                        </div>
-
-                        {/* 3 dots dropdown */}
-                        {openMenuId === l.id && (
-                          <div className="absolute right-6 mt-2 w-32 bg-white border rounded-lg shadow-lg z-20">
-                            {l.status !== "Pending" && (
-                              <button
-                                onClick={() => {
-                                  undoToPending(l.id);
-                                  setOpenMenuId(null);
-                                }}
-                                className="w-full px-4 py-2 text-left text-sm hover:bg-slate-100"
-                              >
-                                Undo
-                              </button>
-                            )}
+                      <td className="px-6 py-5 text-right">
+                        {l.status === "Pending" ? (
+                          <div className="flex justify-end gap-2">
+                            <button onClick={() => handleApprove(l.id)} className="p-2 text-emerald-600 hover:bg-emerald-50 rounded-lg"><FaCheckCircle/></button>
+                            <button onClick={() => handleReject(l.id)} className="p-2 text-rose-600 hover:bg-rose-50 rounded-lg"><FaTimesCircle/></button>
                           </div>
+                        ) : (
+                          <button className="text-slate-300"><FaEllipsisV/></button>
                         )}
-
                       </td>
-
                     </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
 
-                    {l.status === "Rejected" && l.rejectReason && (
-                      <tr className="bg-red-50">
-                        <td colSpan="6" className="px-6 py-3 text-sm text-red-700">
-                          <strong>Rejection Reason:</strong> {l.rejectReason}
-                        </td>
-                      </tr>
-                    )}
-
-                  </React.Fragment>
-                );
-
-              })}
-            </tbody>
-          </table>
-        </div>
-      </div>
-
-      {/* Today Panel */}
-      <div className="bg-white rounded-xl p-6 shadow">
-        {/* HEADER — KEEP THIS */}
-        <div className="flex items-center justify-between mb-3">
-          <h3 className="font-semibold text-slate-800">
-            {todaysLeaves.length} People on Leave Today
-          </h3>
-        </div>
-
-        {/* CARDS — UPDATED */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-          {todaysLeaves.map(l => {
-            const emp = employees.find(e => e.id === l.empId);
-            return (
-              <div
-                key={l.id}
-                className="flex justify-between items-center border rounded-lg p-4"
+          {/* Pagination Footer */}
+          <div className="p-6 bg-slate-50/50 border-t flex justify-between items-center">
+            <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">
+              Showing {paginatedData.length} of {filteredData.length} requests
+            </p>
+            <div className="flex gap-2">
+              <button 
+                disabled={currentPage === 1}
+                onClick={() => setCurrentPage(p => p - 1)}
+                className="p-2 bg-white border rounded-lg shadow-sm disabled:opacity-30 hover:bg-blue-50 text-blue-600 transition-all"
               >
-                <div className="flex items-center gap-3">
-                  <img src={emp.avatar} className="w-8 h-8 rounded-full" alt="" />
-                  <div>
-                    <p className="font-medium text-sm md:text-base">{emp.name}</p>
-                    <p className="text-xs text-slate-500">
-                      {l.type} • Full Day
-                    </p>
-                  </div>
-                </div>
-
-                <div className="flex flex-col items-end gap-1">
-                  <span
-                    className={`px-3 py-1 rounded-full text-xs ${statusStyles[l.status]}`}
-                  >
-                    {l.status}
-                  </span>
-
-                  {l.status === "Rejected" && l.rejectReason && (
-                    <span className="text-xs text-red-600 max-w-[160px] text-right">
-                      Reason: {l.rejectReason}
-                    </span>
-                  )}
-                </div>
+                <FaChevronLeft size={14}/>
+              </button>
+              <div className="flex items-center px-4 text-sm font-bold text-blue-900 bg-white border rounded-lg">
+                {currentPage} / {totalPages || 1}
               </div>
-            );
-          })}
+              <button 
+                disabled={currentPage === totalPages || totalPages === 0}
+                onClick={() => setCurrentPage(p => p + 1)}
+                className="p-2 bg-white border rounded-lg shadow-sm disabled:opacity-30 hover:bg-blue-50 text-blue-600 transition-all"
+              >
+                <FaChevronRight size={14}/>
+              </button>
+            </div>
+          </div>
         </div>
       </div>
-
     </div>
-
   );
 }
 
-function SummaryCard({ title, value, icon, iconBg, iconColor }) {
+function StatBox({ title, val, color }) {
+  const styles = {
+    amber: "border-amber-100 text-amber-600",
+    blue: "border-blue-100 text-blue-600",
+    emerald: "border-emerald-100 text-emerald-600",
+    rose: "border-rose-100 text-rose-600",
+  };
   return (
-    <div className="bg-white rounded-xl p-6 shadow-sm flex items-center justify-between border">
-      <div>
-        <p className="text-xs uppercase tracking-wide text-slate-400 mb-1">
-          {title}
-        </p>
-        <p className="text-3xl font-bold text-slate-800">
-          {String(value).padStart(2, "0")}
-        </p>
-      </div>
-
-      <div
-        className={`w-12 h-12 rounded-xl flex items-center justify-center ${iconBg}`}
-      >
-        <span className={`text-xl ${iconColor}`}>{icon}</span>
-      </div>
+    <div className={`bg-white p-5 rounded-2xl border-b-4 ${styles[color]} shadow-sm`}>
+      <p className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 mb-1">{title}</p>
+      <p className="text-2xl font-black text-slate-800">{String(val).padStart(2, '0')}</p>
     </div>
   );
-}  
+}
