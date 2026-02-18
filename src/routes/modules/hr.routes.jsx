@@ -14,7 +14,7 @@ import HrTimeSheet from "../../features/Hr/pages/HrTimeSheet";
 
 import HrOrgChart from "../../features/Hr/pages/HrOrgChart";
 import HrOffBoarding from "../../features/Hr/pages/HrOffBoarding";
-
+import HrLeaveApproval from "../../features/Hr/pages/HrLeaveApproval";
 
 import { elements } from "chart.js";
 const hrRoutes = [
@@ -22,6 +22,10 @@ const hrRoutes = [
    {
         path: ROUTES.HR.DASHBOARD,
         element: <HrDashboard />,
+    },
+    {
+        path:ROUTES.HR.LEAVEAPPROVAL,
+        element: <HrLeaveApproval/>
     },
     {
         path:ROUTES.HR.CLOCKMYTIME,

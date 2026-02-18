@@ -98,6 +98,7 @@ export const ROUTES = {
     TIMESHEET:"/hr/timesheet",
     ORGCHART:"/hr/orgchart",
     OFFBOARDING:"/hr/offboarding",
+    LEAVEAPPROVAL:"/hr/leaveapproval"
 
 
   },

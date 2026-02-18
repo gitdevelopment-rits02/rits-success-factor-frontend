@@ -37,12 +37,12 @@ const HrLayout = () => {
         path: "/hr/dashboard",
         icon: MdDashboard,
     },
-    {
-        name:"ClockMyTime",
-        path:"/hr/clockmytime",
-        icon:FiClock
+    // {
+    //     name:"ClockMyTime",
+    //     path:"/hr/clockmytime",
+    //     icon:FiClock
 
-    },
+    // },
     // {
     //     name:"Insurance",
     //     path:"/hr/insurance",
@@ -59,10 +59,15 @@ const HrLayout = () => {
         icon:FiUserPlus
     },
     {
-        name:"Payslips",
-        path:"/hr/payslips",
-        icon:HiOutlineDocumentText
+        name:"Leave Approval",
+        path:"/hr/leaveapproval",
+        icon:FiUserPlus
     },
+    // {
+    //     name:"Payslips",
+    //     path:"/hr/payslips",
+    //     icon:HiOutlineDocumentText
+    // },
     {
         name:"PolicyAndInsuranceCreation",
         path:"/hr/policyandinsurancecreation",
@@ -73,21 +78,21 @@ const HrLayout = () => {
     //     path:"/hr/policydocuments",
     //     icon:FiShield
     // },
-    {
-        name:"Request Time Off",
-        path:"/hr/requesttimeoff",
-        icon:FiCalendar
-    },
-    {
-        name:"Salary Creation",
-        path:"/hr/salarycreation",
-        icon:FiDollarSign
-    },
     // {
-    //     name:"TimeSheet",
-    //     path:"/hr/timesheet",
-    //     icon:FiClock
+    //     name:"Request Time Off",
+    //     path:"/hr/requesttimeoff",
+    //     icon:FiCalendar
     // },
+    // {
+    //     name:"Salary Creation",
+    //     path:"/hr/salarycreation",
+    //     icon:FiDollarSign
+    // },
+    {
+        name:"TimeSheet",
+        path:"/hr/timesheet",
+        icon:FiClock
+    },
     {
         name:"Organization Chart",
         path:"/hr/orgchart",
