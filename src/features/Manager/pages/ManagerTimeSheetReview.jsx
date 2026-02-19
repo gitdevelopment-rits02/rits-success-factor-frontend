@@ -1,4 +1,8 @@
 import { useState, useEffect, useMemo } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import managerTimeSheetReviewThunk from "../Redux/thunks/ManagerTimeSheetReviewThunk";
 import {
   FaSearch,
   FaCheckCircle,
@@ -11,359 +15,77 @@ import {
   FaFilePdf,
   FaFileExcel,
   FaUser,
-  FaEllipsisV,
 } from "react-icons/fa";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
-import * as XLSX from "xlsx";
+
+const {
+  fetchManagerDashboard,
+  approveTimeSheet,
+  rejectTimeSheet,
+  bulkApproveTimeSheet,
+  downloadExcel,
+  downloadPdf,
+} = managerTimeSheetReviewThunk;
+
+
+
 
 export default function SuperAdminPersonalTimeSheet() {
   const [filter, setFilter] = useState("Today");
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("All");
+  const [localRecords, setLocalRecords] = useState([]);
+
+  const dispatch = useDispatch();
+
+  const { data, loading, error } = useSelector(
+    (state) => state.manager?.timeSheetReview || {
+      data: [],
+      loading: false,
+      error: null,
+    }
+
+  );
+  console.log("Dashboard API Data:", data);
+
   const [bulkApproved, setBulkApproved] = useState(false);
   const [selectedRows, setSelectedRows] = useState([]);
-  const [openAction, setOpenAction] = useState(null);
   const [now, setNow] = useState(new Date());
-
   useEffect(() => {
+    dispatch(fetchManagerDashboard());
+
     const timer = setInterval(() => {
       setNow(new Date());
     }, 60000);
+
     return () => clearInterval(timer);
-  }, []);
+  }, [dispatch]);
 
-  const [records, setRecords] = useState([
-    // TODAY - Feb 12, 2026
-    {
-      name: "John Doe",
-      role: "Sales (ID: 1023)",
-      department: "Sales",
-      location: "Office",
-      date: "2026-02-12",
-      clockIn: "09:05",
-      clockOut: "17:30",
-      status: "Late",
-    },
-    {
-      name: "Jane Smith",
-      role: "Sales (ID: 1024)",
-      department: "Sales",
-      location: "Remote",
-      date: "2026-02-12",
-      clockIn: "09:00",
-      clockOut: "17:15",
-      status: "On Time",
-    },
-    {
-      name: "Mike Brown",
-      role: "HR (ID: 1025)",
-      department: "HR",
-      location: "Office",
-      date: "2026-02-12",
-      clockIn: "--",
-      clockOut: "--",
-      status: "Absent",
-    },
-    {
-      name: "Anna Lee",
-      role: "IT (ID: 1026)",
-      department: "IT",
-      location: "On-Site",
-      date: "2026-02-12",
-      clockIn: "08:45",
-      clockOut: "19:35",
-      status: "On Time",
-    },
-    {
-      name: "David Clark",
-      role: "IT (ID: 1027)",
-      department: "IT",
-      location: "Remote",
-      date: "2026-02-12",
-      clockIn: "09:00",
-      clockOut: "18:00",
-      status: "On Time",
-    },
-    {
-      name: "Sophia Wilson",
-      role: "HR (ID: 1028)",
-      department: "HR",
-      location: "Office",
-      date: "2026-02-12",
-      clockIn: "09:10",
-      clockOut: "17:10",
-      status: "Late",
-    },
+  const apiRecords = useMemo(() => {
+    return data?.data?.table || [];
+  }, [data]);
+  useEffect(() => {
+    setLocalRecords(apiRecords);
+  }, [apiRecords]);
 
-    // THIS WEEK - Feb 9-15, 2026
-    {
-      name: "Robert King",
-      role: "Finance (ID: 1029)",
-      department: "Finance",
-      location: "Office",
-      date: "2026-02-09",
-      clockIn: "09:00",
-      clockOut: "17:30",
-      status: "On Time",
-    },
-    {
-      name: "Emily Davis",
-      role: "Marketing (ID: 1030)",
-      department: "Marketing",
-      location: "Remote",
-      date: "2026-02-09",
-      clockIn: "09:15",
-      clockOut: "16:45",
-      status: "Late",
-    },
-    {
-      name: "John Doe",
-      role: "Sales (ID: 1023)",
-      department: "Sales",
-      location: "Office",
-      date: "2026-02-10",
-      clockIn: "09:00",
-      clockOut: "17:00",
-      status: "On Time",
-    },
-    {
-      name: "Jane Smith",
-      role: "Sales (ID: 1024)",
-      department: "Sales",
-      location: "Remote",
-      date: "2026-02-10",
-      clockIn: "08:55",
-      clockOut: "17:20",
-      status: "On Time",
-    },
-    {
-      name: "Mike Brown",
-      role: "HR (ID: 1025)",
-      department: "HR",
-      location: "Office",
-      date: "2026-02-10",
-      clockIn: "09:05",
-      clockOut: "17:05",
-      status: "Late",
-    },
-    {
-      name: "Anna Lee",
-      role: "IT (ID: 1026)",
-      department: "IT",
-      location: "On-Site",
-      date: "2026-02-11",
-      clockIn: "08:50",
-      clockOut: "18:00",
-      status: "On Time",
-    },
-    {
-      name: "David Clark",
-      role: "IT (ID: 1027)",
-      department: "IT",
-      location: "Remote",
-      date: "2026-02-11",
-      clockIn: "09:00",
-      clockOut: "17:30",
-      status: "On Time",
-    },
-    {
-      name: "Sophia Wilson",
-      role: "HR (ID: 1028)",
-      department: "HR",
-      location: "Office",
-      date: "2026-02-11",
-      clockIn: "09:20",
-      clockOut: "17:00",
-      status: "Late",
-    },
-    {
-      name: "Robert King",
-      role: "Finance (ID: 1029)",
-      department: "Finance",
-      location: "Office",
-      date: "2026-02-11",
-      clockIn: "--",
-      clockOut: "--",
-      status: "Absent",
-    },
 
-    // THIS MONTH - February 2026
-    {
-      name: "Emily Davis",
-      role: "Marketing (ID: 1030)",
-      department: "Marketing",
-      location: "Remote",
-      date: "2026-02-01",
-      clockIn: "09:00",
-      clockOut: "17:00",
-      status: "Approved",
-    },
-    {
-      name: "John Doe",
-      role: "Sales (ID: 1023)",
-      department: "Sales",
-      location: "Office",
-      date: "2026-02-01",
-      clockIn: "09:10",
-      clockOut: "17:30",
-      status: "Pending",
-    },
-    {
-      name: "Jane Smith",
-      role: "Sales (ID: 1024)",
-      department: "Sales",
-      location: "Remote",
-      date: "2026-02-02",
-      clockIn: "09:00",
-      clockOut: "18:00",
-      status: "Approved",
-    },
-    {
-      name: "Mike Brown",
-      role: "HR (ID: 1025)",
-      department: "HR",
-      location: "Office",
-      date: "2026-02-02",
-      clockIn: "09:00",
-      clockOut: "17:00",
-      status: "Approved",
-    },
-    {
-      name: "Anna Lee",
-      role: "IT (ID: 1026)",
-      department: "IT",
-      location: "On-Site",
-      date: "2026-02-03",
-      clockIn: "08:45",
-      clockOut: "19:00",
-      status: "Pending",
-    },
-    {
-      name: "David Clark",
-      role: "IT (ID: 1027)",
-      department: "IT",
-      location: "Remote",
-      date: "2026-02-03",
-      clockIn: "09:00",
-      clockOut: "17:30",
-      status: "Approved",
-    },
-    {
-      name: "Sophia Wilson",
-      role: "HR (ID: 1028)",
-      department: "HR",
-      location: "Office",
-      date: "2026-02-04",
-      clockIn: "09:15",
-      clockOut: "17:00",
-      status: "Pending",
-    },
-    {
-      name: "Robert King",
-      role: "Finance (ID: 1029)",
-      department: "Finance",
-      location: "Office",
-      date: "2026-02-04",
-      clockIn: "09:00",
-      clockOut: "17:30",
-      status: "Approved",
-    },
-    {
-      name: "Emily Davis",
-      role: "Marketing (ID: 1030)",
-      department: "Marketing",
-      location: "Remote",
-      date: "2026-02-05",
-      clockIn: "09:05",
-      clockOut: "17:00",
-      status: "Pending",
-    },
-    {
-      name: "John Doe",
-      role: "Sales (ID: 1023)",
-      department: "Sales",
-      location: "Office",
-      date: "2026-02-05",
-      clockIn: "09:00",
-      clockOut: "17:00",
-      status: "Approved",
-    },
-    {
-      name: "Jane Smith",
-      role: "Sales (ID: 1024)",
-      department: "Sales",
-      location: "Remote",
-      date: "2026-02-06",
-      clockIn: "--",
-      clockOut: "--",
-      status: "Absent",
-    },
-    {
-      name: "Mike Brown",
-      role: "HR (ID: 1025)",
-      department: "HR",
-      location: "Office",
-      date: "2026-02-06",
-      clockIn: "09:00",
-      clockOut: "17:00",
-      status: "Approved",
-    },
-    {
-      name: "Anna Lee",
-      role: "IT (ID: 1026)",
-      department: "IT",
-      location: "On-Site",
-      date: "2026-02-07",
-      clockIn: "08:50",
-      clockOut: "18:30",
-      status: "Pending",
-    },
-    {
-      name: "David Clark",
-      role: "IT (ID: 1027)",
-      department: "IT",
-      location: "Remote",
-      date: "2026-02-07",
-      clockIn: "09:00",
-      clockOut: "17:00",
-      status: "Approved",
-    },
-    {
-      name: "Sophia Wilson",
-      role: "HR (ID: 1028)",
-      department: "HR",
-      location: "Office",
-      date: "2026-02-08",
-      clockIn: "09:10",
-      clockOut: "17:10",
-      status: "Pending",
-    },
-  ]);
 
-  const calcHours = (inTime, outTime, date) => {
-    if (inTime === "--") return 0;
-    const [ih, im] = inTime.split(":").map(Number);
-    const start = new Date(date);
-    start.setHours(ih, im, 0, 0);
-    let end;
-    if (outTime === "--" || new Date(date).toDateString() === now.toDateString()) {
-      end = now;
-    } else {
-      const [oh, om] = outTime.split(":").map(Number);
-      end = new Date(date);
-      end.setHours(oh, om, 0, 0);
-    }
-    const workedMs = end - start;
-    const workedHrs = workedMs / (1000 * 60 * 60);
-    return Math.max(workedHrs, 0);
+
+  const formatTime = (iso) => {
+    if (!iso) return "--";
+    return new Date(iso).toLocaleTimeString([], {
+      hour: "2-digit",
+      minute: "2-digit",
+    });
   };
 
   const getTotalHoursFromRecords = (records) => {
     return records
-      .reduce((sum, r) => sum + calcHours(r.clockIn, r.clockOut, r.date), 0)
+      .reduce((sum, r) => sum + (r.totalHours || 0), 0)
       .toFixed(2);
   };
+
 
   const matchDateFilter = (dateStr) => {
     const d = new Date(dateStr);
@@ -386,15 +108,21 @@ export default function SuperAdminPersonalTimeSheet() {
   };
 
   const filteredRecords = useMemo(() => {
-    return records.filter((r) => {
-      const matchSearch = `${r.name} ${r.role} ${r.department}`
+    return localRecords.filter((r) => {
+
+      const matchSearch = `${r.employee?.employeeName || ""} ${r.employee?.workDetails?.department || ""
+        }`
         .toLowerCase()
         .includes(search.toLowerCase());
-      const matchStatus = statusFilter === "All" || r.status === statusFilter;
+
+      const matchStatus =
+        statusFilter === "All" || r.approvalStatus === statusFilter;
+
       const matchDate = matchDateFilter(r.date);
       return matchSearch && matchStatus && matchDate;
     });
-  }, [records, search, statusFilter, filter]);
+  }, [localRecords, search, statusFilter, filter]);
+
 
   const stats = useMemo(() => {
     let totalHours = 0;
@@ -403,11 +131,16 @@ export default function SuperAdminPersonalTimeSheet() {
     let pending = 0;
 
     filteredRecords.forEach((r) => {
-      const hrs = calcHours(r.clockIn, r.clockOut, r.date);
+      const hrs = r.totalHours || 0;
+
       totalHours += hrs;
+
       if (hrs > 8) overtime += hrs - 8;
-      if (["Late", "Absent"].includes(r.status)) discrepancies++;
-      if (r.status === "Pending") pending++;
+
+      if (["Late", "Absent"].includes(r.attendanceStatus)) discrepancies++;
+
+      if (r.approvalStatus === "Pending") pending++;
+
     });
 
     return [
@@ -446,39 +179,124 @@ export default function SuperAdminPersonalTimeSheet() {
     ];
   }, [filteredRecords]);
 
-  const updateStatus = (index, status) => {
-    const updated = [...records];
-    const recordToUpdate = filteredRecords[index];
-    const actualIndex = records.findIndex(
-      (r) =>
-        r.name === recordToUpdate.name &&
-        r.date === recordToUpdate.date &&
-        r.role === recordToUpdate.role
-    );
-    updated[actualIndex].status = status;
-    setRecords(updated);
+  const updateStatus = async (index, newStatus) => {
+    try {
+      const record = filteredRecords[index];
+
+      if (!record?._id) return;
+
+      if (newStatus === "Approved") {
+        await dispatch(approveTimeSheet(record._id)).unwrap();
+
+        toast.success("Timesheet Approved Successfully ");
+      }
+
+      if (newStatus === "Rejected") {
+        await dispatch(rejectTimeSheet(record._id)).unwrap();
+
+        toast.error("Timesheet Rejected ");
+      }
+
+      dispatch(fetchManagerDashboard());
+
+    } catch (err) {
+      console.error("Update failed", err);
+
+      toast.error("Action Failed. Try Again ");
+    }
   };
 
-  const bulkApprove = () => {
+
+
+
+  const bulkApprove = async () => {
     if (!isMonthlyView || selectedRows.length === 0) return;
-    const updatedRecords = [...records];
-    selectedRows.forEach((idx) => {
-      const recordToUpdate = filteredRecords[idx];
-      const actualIndex = records.findIndex(
-        (r) =>
-          r.name === recordToUpdate.name &&
-          r.date === recordToUpdate.date &&
-          r.role === recordToUpdate.role
-      );
-      if (updatedRecords[actualIndex].status !== "Absent") {
-        updatedRecords[actualIndex].status = "Approved";
+
+    try {
+      // ✅ Only Pending / Rejected IDs
+      const ids = selectedRows
+        .map((i) => filteredRecords[i])
+        .filter(
+          (r) =>
+            r?.approvalStatus === "Pending" ||
+            r?.approvalStatus === "Rejected"
+        )
+        .map((r) => r._id);
+
+      // ❌ If nothing valid
+      if (ids.length === 0) {
+        toast.info("No Pending or Rejected records to approve ");
+        return;
       }
-    });
-    setRecords(updatedRecords);
-    setSelectedRows([]);
-    setBulkApproved(true);
-    setTimeout(() => setBulkApproved(false), 2000);
+
+      await dispatch(bulkApproveTimeSheet(ids)).unwrap();
+
+      toast.success("Bulk Approved Successfully ");
+
+      dispatch(fetchManagerDashboard());
+
+      setSelectedRows([]);
+      setBulkApproved(true);
+
+      setTimeout(() => setBulkApproved(false), 2000);
+
+    } catch (err) {
+      console.error("Bulk approve failed:", err);
+
+      toast.error("Bulk Approve Failed ");
+    }
   };
+
+
+  const handleDownloadExcel = async () => {
+    try {
+      const res = await dispatch(downloadExcel()).unwrap();
+
+      const blob = new Blob([res], {
+        type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+      });
+
+      const url = window.URL.createObjectURL(blob);
+
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = "manager_timesheet.xlsx";
+
+      document.body.appendChild(link);
+      link.click();
+
+      link.remove();
+      window.URL.revokeObjectURL(url);
+
+    } catch (err) {
+      console.error("Download failed:", err);
+    }
+  };
+  const handleDownloadPdf = async () => {
+    try {
+      const res = await dispatch(downloadPdf()).unwrap();
+
+      const blob = new Blob([res], {
+        type: "application/pdf",
+      });
+
+      const url = window.URL.createObjectURL(blob);
+
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = "manager_timesheet.pdf";
+
+      document.body.appendChild(link);
+      link.click();
+
+      link.remove();
+      window.URL.revokeObjectURL(url);
+
+    } catch (err) {
+      console.error("PDF download failed:", err);
+    }
+  };
+
 
   const exportExcel = () => {
     const worksheetData = filteredRecords.map((r) => ({
@@ -488,8 +306,10 @@ export default function SuperAdminPersonalTimeSheet() {
       Date: r.date,
       "Clock In": r.clockIn,
       "Clock Out": r.clockOut,
-      "Total Hours": calcHours(r.clockIn, r.clockOut, r.date).toFixed(2),
-      Status: r.status,
+      "Total Hours": r.totalHours?.toFixed(2) || "0.00",
+
+      Status: r.approvalStatus
+      ,
     }));
     const worksheet = XLSX.utils.json_to_sheet(worksheetData);
     const workbook = XLSX.utils.book_new();
@@ -499,7 +319,8 @@ export default function SuperAdminPersonalTimeSheet() {
 
   const exportSinglePDF = (r) => {
     const doc = new jsPDF();
-    const employeeMonthRecords = records.filter(
+    const employeeMonthRecords = localRecords.filter(
+
       (rec) =>
         rec.role === r.role &&
         new Date(rec.date).getMonth() === new Date().getMonth() &&
@@ -525,7 +346,8 @@ export default function SuperAdminPersonalTimeSheet() {
         rec.date,
         rec.clockIn,
         rec.clockOut,
-        calcHours(rec.clockIn, rec.clockOut, rec.date).toFixed(2),
+        rec.totalHours?.toFixed(2) || "0.00",
+
         rec.status,
       ]),
       styles: { fontSize: 9 },
@@ -551,8 +373,10 @@ export default function SuperAdminPersonalTimeSheet() {
         Date: r.date,
         "Clock In": r.clockIn,
         "Clock Out": r.clockOut,
-        "Total Hours": calcHours(r.clockIn, r.clockOut, r.date).toFixed(2),
-        Status: r.status,
+        "Total Hours": r.totalHours?.toFixed(2) || "0.00",
+
+        Status: r.approvalStatus,
+
       },
     ]);
     const workbook = XLSX.utils.book_new();
@@ -565,9 +389,9 @@ export default function SuperAdminPersonalTimeSheet() {
     const monthName =
       filter === "This Month"
         ? new Date().toLocaleString("default", {
-            month: "long",
-            year: "numeric",
-          })
+          month: "long",
+          year: "numeric",
+        })
         : filter;
     const totalMonthHours = getTotalHoursFromRecords(filteredRecords);
 
@@ -602,8 +426,9 @@ export default function SuperAdminPersonalTimeSheet() {
         r.date,
         r.clockIn,
         r.clockOut,
-        calcHours(r.clockIn, r.clockOut, r.date).toFixed(2),
-        r.status,
+        r.totalHours?.toFixed(2) || "0.00",
+
+        r.approvalStatus,
       ]),
       styles: { fontSize: 9 },
       headStyles: { fillColor: [59, 130, 246] },
@@ -632,7 +457,23 @@ export default function SuperAdminPersonalTimeSheet() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-blue-50 p-6">
+      <ToastContainer position="top-right" autoClose={2000} />
       <div className="max-w-7xl mx-auto space-y-6">
+        {loading && (
+          <p className="text-center text-blue-600 font-medium">
+            Loading timesheet...
+          </p>
+        )}
+
+        {error && (
+          <p className="text-center text-red-600 font-medium">
+            {typeof error === "string"
+              ? error
+              : error?.message || "Something went wrong"}
+          </p>
+        )}
+
+
         {/* header section */}
         <div className="bg-white rounded-xl shadow-sm p-6 border border-blue-100">
           <div className="flex justify-between items-center">
@@ -652,18 +493,17 @@ export default function SuperAdminPersonalTimeSheet() {
             </div>
           </div>
         </div>
-
         {/* action buttons */}
         <div className="bg-white rounded-xl shadow-sm p-4 border border-blue-100 flex gap-3 items-center flex-wrap">
+
           {isMonthlyView && (
             <button
               onClick={bulkApprove}
               disabled={selectedRows.length === 0}
-              className={`px-4 py-2 rounded-lg font-medium transition-all flex items-center gap-2 ${
-                selectedRows.length > 0
-                  ? "bg-blue-600 text-white hover:bg-blue-700"
-                  : "bg-gray-300 text-gray-500 cursor-not-allowed"
-              }`}
+              className={`px-4 py-2 rounded-lg font-medium transition-all flex items-center gap-2 ${selectedRows.length > 0
+                ? "bg-blue-600 text-white hover:bg-blue-700"
+                : "bg-gray-300 text-gray-500 cursor-not-allowed"
+                }`}
             >
               <FaCheckCircle />
               {bulkApproved
@@ -671,21 +511,30 @@ export default function SuperAdminPersonalTimeSheet() {
                 : `Bulk Approve (${selectedRows.length})`}
             </button>
           )}
-          <button
-            onClick={exportPDF}
-            className="px-4 py-2 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-all flex items-center gap-2"
-          >
-            <FaFilePdf />
-            PDF
-          </button>
-          <button
-            onClick={exportExcel}
-            className="px-4 py-2 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-all flex items-center gap-2"
-          >
-            <FaFileExcel />
-            Excel
-          </button>
+
+          {/* ✅ Show PDF & Excel ONLY for This Month */}
+          {isMonthlyView && (
+            <>
+              <button
+                onClick={handleDownloadPdf}
+                className="px-4 py-2 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-all flex items-center gap-2"
+              >
+                <FaFilePdf />
+                PDF
+              </button>
+
+              <button
+                onClick={handleDownloadExcel}
+                className="px-4 py-2 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-all flex items-center gap-2"
+              >
+                <FaFileExcel />
+                Excel
+              </button>
+            </>
+          )}
+
         </div>
+
 
         {/* filters */}
         <div className="bg-white rounded-xl shadow-sm p-4 border border-blue-100 space-y-4">
@@ -694,11 +543,10 @@ export default function SuperAdminPersonalTimeSheet() {
               <button
                 key={f}
                 onClick={() => setFilter(f)}
-                className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
-                  filter === f
-                    ? "bg-blue-600 text-white"
-                    : "bg-blue-50 text-blue-700 hover:bg-blue-100"
-                }`}
+                className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${filter === f
+                  ? "bg-blue-600 text-white"
+                  : "bg-blue-50 text-blue-700 hover:bg-blue-100"
+                  }`}
               >
                 {f}
               </button>
@@ -807,130 +655,106 @@ export default function SuperAdminPersonalTimeSheet() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-blue-100">
-                {filteredRecords.map((r, i) => (
-                  <tr
-                    key={i}
-                    className="hover:bg-blue-50 transition-colors"
-                  >
-                    {isMonthlyView && (
+                {Array.isArray(filteredRecords) &&
+                  filteredRecords.map((r, i) => (
+
+                    <tr
+                      key={i}
+                      className="hover:bg-blue-50 transition-colors"
+                    >
+                      {isMonthlyView && (
+                        <td className="px-4 py-3">
+                          <input
+                            type="checkbox"
+                            disabled={r.approvalStatus === "Approved"}
+                            checked={selectedRows.includes(i)}
+                            onChange={(e) =>
+                              setSelectedRows((prev) =>
+                                prev.includes(i)
+                                  ? prev.filter((id) => id !== i)
+                                  : [...prev, i]
+                              )
+                            }
+                            className="w-4 h-4 disabled:cursor-not-allowed disabled:opacity-50"
+                          />
+
+                        </td>
+                      )}
                       <td className="px-4 py-3">
-                        <input
-                          type="checkbox"
-                          checked={selectedRows.includes(i)}
-                          onChange={(e) =>
-                            setSelectedRows((prev) =>
-                              prev.includes(i)
-                                ? prev.filter((id) => id !== i)
-                                : [...prev, i]
-                            )
-                          }
-                          className="w-4 h-4"
-                        />
-                      </td>
-                    )}
-                    <td className="px-4 py-3">
-                      <div>
-                        <div className="font-medium text-gray-800">
-                          {r.name}
-                        </div>
-                        <div className="text-xs text-gray-500">{r.role}</div>
-                      </div>
-                    </td>
-                    <td className="px-4 py-3 text-sm text-gray-700">
-                      {r.department}
-                    </td>
-                    <td className="px-4 py-3 text-sm text-gray-700">
-                      {r.date}
-                    </td>
-                    {showTimeColumns && (
-                      <>
-                        <td className="px-4 py-3 text-sm text-gray-700">
-                          {r.clockIn}
-                        </td>
-                        <td className="px-4 py-3 text-sm text-gray-700">
-                          {r.clockOut}
-                        </td>
-                      </>
-                    )}
-                    <td className="px-4 py-3 text-sm font-medium text-gray-800">
-                      {r.clockIn === "--"
-                        ? "--"
-                        : calcHours(r.clockIn, r.clockOut, r.date).toFixed(2)}
-                    </td>
-                    <td className="px-4 py-3">
-                      <span
-                        className={`px-3 py-1 rounded-full text-xs font-medium ${
-                          statusStyle[r.status]
-                        }`}
-                      >
-                        {r.status}
-                      </span>
-                    </td>
-                    <td className="px-4 py-3">
-                      <div className="flex gap-2 items-center relative">
-                        <button
-                          onClick={() => isMonthlyView && updateStatus(i, "Approved")}
-                          disabled={!isMonthlyView}
-                          className={`p-1.5 rounded ${
-                            isMonthlyView
-                              ? "text-green-600 hover:bg-green-50"
-                              : "text-gray-300 cursor-not-allowed"
-                          }`}
-                        >
-                          <FaCheckCircle size={18} />
-                        </button>
-                        <button
-                          onClick={() => isMonthlyView && updateStatus(i, "Pending")}
-                          disabled={!isMonthlyView}
-                          className={`p-1.5 rounded ${
-                            isMonthlyView
-                              ? "text-orange-600 hover:bg-orange-50"
-                              : "text-gray-300 cursor-not-allowed"
-                          }`}
-                        >
-                          <FaTimesCircle size={18} />
-                        </button>
-                        <button
-                          onClick={() =>
-                            isMonthlyView && setOpenAction(openAction === i ? null : i)
-                          }
-                          disabled={!isMonthlyView}
-                          className={`p-1.5 rounded ${
-                            isMonthlyView
-                              ? "text-blue-600 hover:bg-blue-50"
-                              : "text-gray-300 cursor-not-allowed"
-                          }`}
-                        >
-                          <FaEllipsisV size={18} />
-                        </button>
-                        {openAction === i && isMonthlyView && (
-                          <div className="absolute right-0 top-8 bg-white border border-blue-200 rounded-lg shadow-lg z-10 min-w-[120px]">
-                            <button
-                              onClick={() => {
-                                exportSinglePDF(r);
-                                setOpenAction(null);
-                              }}
-                              className="w-full px-3 py-2 text-left text-sm hover:bg-blue-50 flex items-center gap-2"
-                            >
-                              <FaFilePdf className="text-blue-600" />
-                              PDF
-                            </button>
-                            <button
-                              onClick={() => {
-                                exportSingleExcel(r);
-                                setOpenAction(null);
-                              }}
-                              className="w-full px-3 py-2 text-left text-sm hover:bg-blue-50 border-t border-blue-100 flex items-center gap-2"
-                            >
-                              <FaFileExcel className="text-blue-600" />
-                              Excel
-                            </button>
+                        <div>
+                          <div className="font-medium text-gray-800">
+                            {r.employee?.employeeName}
+
                           </div>
-                        )}
-                      </div>
-                    </td>
-                  </tr>
-                ))}
+                          <div className="text-xs text-gray-500">
+                            {r.employee?.role}
+                          </div>
+
+                        </div>
+                      </td>
+                      <td className="px-4 py-3 text-sm text-gray-700">
+                        {r.employee?.workDetails?.department}
+
+                      </td>
+                      <td className="px-4 py-3 text-sm text-gray-700">
+                        {r.date}
+                      </td>
+                      {showTimeColumns && (
+                        <>
+                          <td className="px-4 py-3 text-sm text-gray-700">
+                            {formatTime(r.clockIn)}
+
+                          </td>
+                          <td className="px-4 py-3 text-sm text-gray-700">
+                            {formatTime(r.clockOut)}
+
+                          </td>
+                        </>
+                      )}
+                      <td className="px-4 py-3 text-sm font-medium text-gray-800">
+                        {r.totalHours?.toFixed(2) || "0.00"}
+                      </td>
+
+                      <td className="px-4 py-3">
+                        <span
+                          className={`px-3 py-1 rounded-full text-xs font-medium ${statusStyle[r.approvalStatus]
+                            }`}
+                        >
+                          {r.approvalStatus}
+                        </span>
+                      </td>
+                      <td className="px-4 py-3">
+                        <div className="flex gap-2 items-center relative">
+                          <button
+                            onClick={() => isMonthlyView && updateStatus(i, "Approved")}
+                            disabled={
+                              !isMonthlyView || r.approvalStatus === "Approved"
+                            }
+                            className={`p-1.5 rounded ${isMonthlyView && r.approvalStatus !== "Approved"
+                                ? "text-green-600 hover:bg-green-50"
+                                : "text-gray-300 cursor-not-allowed"
+                              }`}
+                          >
+                            <FaCheckCircle size={18} />
+                          </button>
+                          <button
+                            onClick={() => isMonthlyView && updateStatus(i, "Rejected")}
+                            disabled={
+                              !isMonthlyView || r.approvalStatus === "Rejected"
+                            }
+                            className={`p-1.5 rounded ${isMonthlyView && r.approvalStatus !== "Rejected"
+                                ? "text-orange-600 hover:bg-orange-50"
+                                : "text-gray-300 cursor-not-allowed"
+                              }`}
+                          >
+                            <FaTimesCircle size={18} />
+                          </button>
+
+
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
                 {filteredRecords.length === 0 && (
                   <tr>
                     <td
