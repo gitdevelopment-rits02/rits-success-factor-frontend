@@ -1,4 +1,15 @@
-import React, { useMemo, useState } from "react";
+
+import { useDispatch, useSelector } from "react-redux";
+import {
+  fetchLeaveSummary,
+  fetchLeaveList,
+  updateLeaveStatus,
+} from "../Redux/thunks/ManagerLeaveApprovalThunk";
+import ManagerLeaveApprovalSkeleton from "./ManagerLeaveApprovalSkeleton";
+
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import React, { useMemo, useState, useEffect } from "react";
 import {
   FaClipboardList,
   FaCalendarTimes,
@@ -9,26 +20,10 @@ import {
   FaEllipsisV
 } from "react-icons/fa";
 
-/* ------------------ DATA (Unchanged) ------------------ */
-const employees = [
-  { id: "EMP001", name: "Chaitanya", avatar: "https://i.pravatar.cc/40?img=32" },
-  { id: "EMP002", name: "Aishwarya Patil", avatar: "https://i.pravatar.cc/40?img=45" },
-  { id: "EMP003", name: "Umashankar", avatar: "https://i.pravatar.cc/40?img=12" },
-  { id: "EMP004", name: "Mahallapa", avatar: "https://i.pravatar.cc/40?img=8" },
-  { id: "EMP005", name: "Rohit Sharma", avatar: "https://i.pravatar.cc/40?img=59" },
-];
-
-const initialLeaves = [
-  { id: 1, empId: "EMP001", type: "Sick", start: "2026-01-21", end: "2026-01-22", reason: "Fever", status: "Pending", rejectReason: "" },
-  { id: 2, empId: "EMP002", type: "Casual", start: "2026-01-21", end: "2026-01-21", reason: "Personal work", status: "Pending", rejectReason: "" },
-  { id: 3, empId: "EMP003", type: "Paid", start: "2026-01-21", end: "2026-01-25", reason: "Vacation", status: "Approved", rejectReason: "" },
-  { id: 4, empId: "EMP004", type: "Sick", start: "2026-01-21", end: "2026-01-21", reason: "Cold", status: "Rejected", rejectReason: "" },
-  { id: 5, empId: "EMP005", type: "Paid", start: "2026-01-21", end: "2026-01-21", reason: "Family event", status: "Pending", rejectReason: "" },
-];
-
+//DATA (Unchanged)
 const TODAY = "2026-01-21";
 
-/* ------------------ HELPERS (Unchanged) ------------------ */
+//HELPERS (Unchanged)
 const statusStyles = {
   Pending: "bg-yellow-100 text-yellow-700",
   Approved: "bg-green-100 text-green-700",
@@ -43,56 +38,131 @@ const typeStyles = {
 
 /* ------------------ COMPONENT ------------------ */
 export default function SuperAdminLeaveRequests() {
-  const [leaves, setLeaves] = useState(initialLeaves);
+
+  const [rejectingId, setRejectingId] = useState(null);
+const [rejectionReason, setRejectionReason] = useState("");
+
+
+  const dispatch = useDispatch();
+
+const { summary, leaveList, loading, error } = useSelector(
+  (state) => state.manager.leaveApproval
+);
+
+console.log("leaveList from redux:", leaveList);
+
+
+
   const [tab, setTab] = useState("All");
   const [openMenuId, setOpenMenuId] = useState(null);
+  useEffect(() => {
+    dispatch(fetchLeaveSummary());
+    dispatch(fetchLeaveList(tab === "All" ? "" : tab));
+
+  }, [dispatch, tab]);
+
   const filteredLeaves = useMemo(() => {
-    if (tab === "Today") {
-      return leaves.filter(l => l.start <= TODAY && l.end >= TODAY);
-    }
-    return leaves;
-  }, [leaves, tab]);
+  const list = Array.isArray(leaveList) ? leaveList : [];
 
-  const todaysLeaves = useMemo(
-    () => leaves.filter(l => l.start <= TODAY && l.end >= TODAY),
-    [leaves]
-  );
+  if (tab === "Today") {
+    return list.filter(l => {
+  const start = new Date(l.startDate);
+  const end = new Date(l.endDate);
+  const today = new Date();
 
-  const pendingCount = leaves.filter(l => l.status === "Pending").length;
-  const approvedThisMonth = leaves.filter(l => l.status === "Approved").length;
-  const rejectedThisMonth = leaves.filter(l => l.status === "Rejected").length;
-  const approve = id => {
-    setLeaves(prev =>
-      prev.map(l => (l.id === id ? { ...l, status: "Approved" } : l))
-    );
-  };
+  return start <= today && end >= today;
+});
 
-  const undoToPending = id => {
-    setLeaves(prev =>
-      prev.map(l =>
-        l.id === id
-          ? { ...l, status: "Pending", rejectReason: "" }
-          : l
-      )
-    );
-  };
+  }
 
-  const reject = id => {
-    const reason = prompt("Enter rejection reason");
+  return list;
+}, [leaveList, tab]);
 
-    if (!reason) return;
 
-    setLeaves(prev =>
-      prev.map(l =>
-        l.id === id
-          ? { ...l, status: "Rejected", rejectReason: reason }
-          : l
-      )
-    );
-  };
+
+  const todaysLeaves = useMemo(() => {
+const list = Array.isArray(leaveList) ? leaveList : [];
+
+  return list.filter(l => {
+  const start = new Date(l.startDate);
+  const end = new Date(l.endDate);
+  const today = new Date();
+
+  return start <= today && end >= today;
+});
+
+}, [leaveList]);
+
+
+
+  const pendingCount = summary?.pending || 0;
+const approvedThisMonth = summary?.approved || 0;
+const rejectedThisMonth = summary?.rejected || 0;
+const onLeaveToday = summary?.onLeaveToday || 0;
+
+
+  const approve = (id) => {
+  dispatch(updateLeaveStatus({ leaveId: id, action: "approve" }))
+    .unwrap()
+    .then(() => {
+      toast.success("Leave Approved Successfully ");
+      dispatch(fetchLeaveList(tab === "All" ? "" : tab));
+      dispatch(fetchLeaveSummary());
+    })
+    .catch(() => {
+      toast.error("Failed to approve leave ");
+    });
+};
+
+
+  const undoToPending = (id) => {
+    dispatch(updateLeaveStatus({ leaveId: id, action: "undo" }))
+
+    .unwrap()
+    .then(() => {
+      toast.info("Leave moved back to Pending ");
+      dispatch(fetchLeaveList(tab === "All" ? "" : tab));
+      dispatch(fetchLeaveSummary());
+    })
+    .catch(() => {
+      toast.error("Failed to update leave ");
+    });
+};
+
+
+const reject = () => {
+  if (!rejectionReason.trim()) {
+    toast.error("Please enter rejection reason");
+    return;
+  }
+
+  dispatch(updateLeaveStatus({
+    leaveId: rejectingId,
+    action: "reject",
+    reason: rejectionReason
+  }))
+    .unwrap()
+    .then(() => {
+      toast.success("Leave Rejected Successfully");
+      setRejectingId(null);
+      setRejectionReason("");
+      dispatch(fetchLeaveList(tab === "All" ? "" : tab));
+      dispatch(fetchLeaveSummary());
+    })
+    .catch(() => {
+      toast.error("Failed to reject leave");
+    });
+};
+
 
   return (
-    <div className="min-h-screen bg-slate-50 p-4 md:p-8">
+
+    <div className="relative min-h-screen bg-slate-50 p-4 md:p-8">
+      {loading && (
+  <div className="absolute inset-0 z-50">
+    <ManagerLeaveApprovalSkeleton />
+  </div>
+)}
       {/* Header - Made responsive with flex-col on mobile */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
         <h1 className="text-2xl md:text-3xl font-bold text-slate-800">
@@ -133,7 +203,7 @@ export default function SuperAdminLeaveRequests() {
 
         <SummaryCard
           title="People on Leave Today"
-          value={todaysLeaves.length}
+          value={onLeaveToday}
           icon={<FaCalendarTimes />}
           iconBg="bg-blue-100"
           iconColor="text-blue-600"
@@ -157,22 +227,29 @@ export default function SuperAdminLeaveRequests() {
       {/* Mobile View (Cards) */}
       <div className="block md:hidden space-y-4">
         {filteredLeaves.map(l => {
-          const emp = employees.find(e => e.id === l.empId);
+          // const emp = employees.find(e => e.id === l.empId);
           return (
-            <div key={l.id} className="bg-white rounded-xl p-4 shadow border space-y-2">
+            <div key={l._id} className="bg-white rounded-xl p-4 shadow border space-y-2">
               <div className="flex items-center gap-3">
-                <img src={emp.avatar} className="w-10 h-10 rounded-full" />
+                {/* <img src={emp.avatar} className="w-10 h-10 rounded-full" /> */}
                 <div>
-                  <p className="font-semibold">{emp.name}</p>
+                  {/* <p className="font-semibold">{emp.name}</p> */}
+                  <p className="font-semibold">
+  {l.employeeId?.employeeName}
+</p>
+
                   <p className="text-xs text-slate-500">
-                    {l.start} → {l.end}
+                    {new Date(l.startDate).toLocaleDateString()} → 
+{new Date(l.endDate).toLocaleDateString()}
+
                   </p>
                 </div>
               </div>
 
               <div className="flex justify-between items-center">
-                <span className={`px-3 py-1 text-xs rounded-full ${typeStyles[l.type]}`}>
-                  {l.type}
+                <span className={`px-3 py-1 text-xs rounded-full ${typeStyles[l.leaveType?.split(" ")[0]]}`}>
+                 {l.leaveType}
+
                 </span>
 
                 <div className="flex flex-col items-end gap-1">
@@ -180,9 +257,9 @@ export default function SuperAdminLeaveRequests() {
                     {l.status}
                   </span>
 
-                  {l.status === "Rejected" && l.rejectReason && (
+                  {l.status === "Rejected" && l.rejectionReason && (
                     <span className="text-xs text-red-600 max-w-[180px] text-right">
-                      Reason: {l.rejectReason}
+                      Reason: {l.rejectionReason}
                     </span>
                   )}
                 </div>
@@ -193,14 +270,15 @@ export default function SuperAdminLeaveRequests() {
 
               {l.status === "Pending" ? (
                 <button
-                  onClick={() => approve(l.id)}
+                  onClick={() => approve(l._id)}
                   className="w-full mt-2 bg-blue-600 text-white py-2 rounded-lg text-sm"
                 >
                   Approve
                 </button>
               ) : (
                 <button
-                  onClick={() => changeStatus(l.id)}
+                  onClick={() => undoToPending(l._id)}
+
                   className="w-full mt-2 border py-2 rounded-lg text-sm"
                 >
                   Change
@@ -227,21 +305,27 @@ export default function SuperAdminLeaveRequests() {
             </thead>
             <tbody>
               {filteredLeaves.map(l => {
-                const emp = employees.find(e => e.id === l.empId);
+                // const emp = employees.find(e => e.id === l.empId);
                 return (
-                  <React.Fragment key={l.id}>
+                  <React.Fragment key={l._id}>
                     <tr className="border-t hover:bg-slate-50">
 
                       <td className="px-3 py-4 flex items-center gap-3">
-                        <img src={emp.avatar} alt="" className="w-9 h-9 rounded-full" />
-                        <span className="font-medium">{emp.name}</span>
+                        {/* <img src={emp.avatar} alt="" className="w-9 h-9 rounded-full" /> */}
+                        <span className="font-medium">
+                            {l.employeeId?.employeeName}
+                        </span>
+
                       </td>
                       <td className="px-6 py-4 text-sm text-slate-600 whitespace-nowrap">
-                        {l.start} → {l.end}
+                       {new Date(l.startDate).toLocaleDateString()} → 
+                        {new Date(l.endDate).toLocaleDateString()}
+
                       </td>
                       <td className="px-4 py-4">
-                        <span className={`px-3 py-1 rounded-full text-xs font-medium ${typeStyles[l.type]}`}>
-                          {l.type}
+                        <span className={`px-3 py-1 rounded-full text-xs font-medium ${typeStyles[l.leaveType?.split(" ")[0]]}`}>
+                          {l.leaveType}
+
                         </span>
                       </td>
                       <td className="px-6 py-4 max-w-[150px] truncate">
@@ -257,7 +341,7 @@ export default function SuperAdminLeaveRequests() {
                           {/* Approved button */}
                           {/* Approve */}
                           <button
-                            onClick={() => approve(l.id)}
+                            onClick={() => approve(l._id)}
                             title="Approve"
                             className="text-green-600 hover:text-green-800"
                           >
@@ -266,7 +350,11 @@ export default function SuperAdminLeaveRequests() {
 
                           {/* Reject */}
                           <button
-                            onClick={() => reject(l.id)}
+                            onClick={() => {
+                            setRejectingId(l._id);
+                            setRejectionReason("");
+                          }}
+
                             title="Reject"
                             className="text-red-600 hover:text-red-800"
                           >
@@ -276,7 +364,7 @@ export default function SuperAdminLeaveRequests() {
                           {/* 3 dots */}
                           <button
                             onClick={() =>
-                              setOpenMenuId(openMenuId === l.id ? null : l.id)
+                              setOpenMenuId(openMenuId === l._id ? null : l._id)
                             }
                             title="More"
                             className="text-slate-500 hover:text-slate-700"
@@ -286,12 +374,12 @@ export default function SuperAdminLeaveRequests() {
                         </div>
 
                         {/* 3 dots dropdown */}
-                        {openMenuId === l.id && (
+                        {openMenuId === l._id && (
                           <div className="absolute right-6 mt-2 w-32 bg-white border rounded-lg shadow-lg z-20">
                             {l.status !== "Pending" && (
                               <button
                                 onClick={() => {
-                                  undoToPending(l.id);
+                                  undoToPending(l._id);
                                   setOpenMenuId(null);
                                 }}
                                 className="w-full px-4 py-2 text-left text-sm hover:bg-slate-100"
@@ -306,10 +394,10 @@ export default function SuperAdminLeaveRequests() {
 
                     </tr>
 
-                    {l.status === "Rejected" && l.rejectReason && (
+                    {l.status === "Rejected" && l.rejectionReason && (
                       <tr className="bg-red-50">
                         <td colSpan="6" className="px-6 py-3 text-sm text-red-700">
-                          <strong>Rejection Reason:</strong> {l.rejectReason}
+                          <strong>Rejection Reason:</strong> {l.rejectionReason}
                         </td>
                       </tr>
                     )}
@@ -335,18 +423,19 @@ export default function SuperAdminLeaveRequests() {
         {/* CARDS — UPDATED */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
           {todaysLeaves.map(l => {
-            const emp = employees.find(e => e.id === l.empId);
             return (
               <div
-                key={l.id}
+                key={l._id}
                 className="flex justify-between items-center border rounded-lg p-4"
               >
                 <div className="flex items-center gap-3">
-                  <img src={emp.avatar} className="w-8 h-8 rounded-full" alt="" />
                   <div>
-                    <p className="font-medium text-sm md:text-base">{emp.name}</p>
+                    <p className="font-medium text-sm md:text-base">
+                      {l.employeeId?.employeeName}
+                    </p>
+
                     <p className="text-xs text-slate-500">
-                      {l.type} • Full Day
+                      {l.leaveType} • Full Day
                     </p>
                   </div>
                 </div>
@@ -358,9 +447,9 @@ export default function SuperAdminLeaveRequests() {
                     {l.status}
                   </span>
 
-                  {l.status === "Rejected" && l.rejectReason && (
+                  {l.status === "Rejected" && l.rejectionReason && (
                     <span className="text-xs text-red-600 max-w-[160px] text-right">
-                      Reason: {l.rejectReason}
+                      Reason: {l.rejectionReason}
                     </span>
                   )}
                 </div>
@@ -369,7 +458,48 @@ export default function SuperAdminLeaveRequests() {
           })}
         </div>
       </div>
+      {/* Reject Modal */}
+{rejectingId && (
+  <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
+    <div className="bg-white rounded-xl p-6 w-[400px] shadow-lg">
+      <h3 className="text-lg font-semibold mb-4">Reject Leave</h3>
 
+      <textarea
+        value={rejectionReason}
+        onChange={(e) => setRejectionReason(e.target.value)}
+        placeholder="Enter rejection reason..."
+        className="w-full border rounded-lg p-3 mb-4"
+        rows={3}
+      />
+
+      <div className="flex justify-end gap-3">
+        <button
+          onClick={() => setRejectingId(null)}
+          className="px-4 py-2 border rounded-lg"
+        >
+          Cancel
+        </button>
+
+        <button
+          onClick={reject}
+          className="px-4 py-2 bg-red-600 text-white rounded-lg"
+        >
+          Reject
+        </button>
+      </div>
+    </div>
+  </div>
+)}
+
+          <ToastContainer
+        position="top-right"
+        autoClose={2000}
+        hideProgressBar={false}
+        newestOnTop
+        closeOnClick
+        pauseOnHover
+        theme="colored"
+      />
     </div>
 
   );
@@ -388,10 +518,12 @@ function SummaryCard({ title, value, icon, iconBg, iconColor }) {
       </div>
 
       <div
-        className={`w-12 h-12 rounded-xl flex items-center justify-center ${iconBg}`}
-      >
+        className={`w-12 h-12 rounded-xl flex items-center justify-center ${iconBg}`} >
         <span className={`text-xl ${iconColor}`}>{icon}</span>
       </div>
-    </div>
+      </div>
+
+
+
   );
 }  
