@@ -2,12 +2,17 @@
 import axiosInstance from "../axiosInstance";
 
 const superAdminAdminManagementApi = {
-  // GET ALL ADMINS
-  getAdmins: () => {
-    return axiosInstance.get("/superadmin/system/admins", {
-      params: { _t: Date.now() }, // cache buster
-    });
-  },
+ // GET ALL ADMINS
+getAdmins: (page = 1, limit = 10) => {
+  return axiosInstance.get("/superadmin/system/admins", {
+    params: {
+      page,
+      limit,
+      _t: Date.now(), 
+    },
+  });
+},
+
 
   // GET ADMIN BY ID
   getAdminById: (id) => {
