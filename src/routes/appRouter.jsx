@@ -101,6 +101,7 @@
 // }
 
 import { Routes, Route } from "react-router-dom";
+import LandingRedirect from "./guards/LandingRedirect";
 import authRoutes from "./modules/auth.routes";
 import { superAdminRoutes } from "./modules/superadmin.routes";
 import { employeeRoutes } from "./modules/employee.routes";
@@ -125,6 +126,7 @@ export default function AppRouter() {
       {authRoutes.map((r) => (
         <Route key={r.path} path={r.path} element={r.element} />
       ))}
+      <Route path="/redirect" element={<LandingRedirect />} />
 
       {/* Chief Routes */}
       <Route path="/chief" element={<ChiefLayout />}>
