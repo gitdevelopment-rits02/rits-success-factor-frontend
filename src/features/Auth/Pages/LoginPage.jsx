@@ -67,7 +67,7 @@ function Login() {
     );
 
     if (loginThunk.fulfilled.match(result)) {
-      navigate("/superadmin/dashboard");
+      navigate("/redirect");
     }
 
 
