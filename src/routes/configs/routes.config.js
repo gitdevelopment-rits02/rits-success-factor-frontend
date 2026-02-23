@@ -12,7 +12,10 @@ export const ROUTES = {
     ABOUT:"/aboutus",
     DUMMY:"/dummy",
     FORGOTPASSWORDOTPVERIFY:"/forgotpasswordotpverify",
-    ABOUTUS:"/aboutus"
+    ABOUTUS:"/aboutus",
+    POLICYPAGE:"/privacypolicy",
+    NOTFOUND:"/notfound"
+
   },
 
   SUPERADMIN: {
