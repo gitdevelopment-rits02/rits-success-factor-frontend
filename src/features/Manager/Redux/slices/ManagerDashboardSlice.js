@@ -1,6 +1,6 @@
 import { createSlice } from "@reduxjs/toolkit";
+//import managerDashboardThunk from "../thunks/ManagerDashboardThunk";
 import managerDashboardThunk from "../thunks/ManagerDashboardThunk";
-
 const initialState = {
     // Dashboard
     getDashboardDataLoading: false,
