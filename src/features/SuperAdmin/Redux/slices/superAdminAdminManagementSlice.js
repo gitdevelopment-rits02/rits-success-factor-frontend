@@ -4,6 +4,10 @@ import superAdminAdminManagementThunk from "../thunks/superAdminAdminManagementT
 const initialState = {
   loading: false,
   data: [],
+  total: 0,
+  totalPages: 1,
+  page: 1,
+  limit: 10,
   error: null,
 };
  
@@ -19,14 +23,21 @@ const superAdminAdminManagementSlice = createSlice({
         state.error = null;
       })
      
-      .addCase(
+   .addCase(
   superAdminAdminManagementThunk.getAdmins.fulfilled,
   (state, action) => {
     state.loading = false;
-    state.data = action.payload;
+
+    state.data = action.payload.admins;
+    state.total = action.payload.total;
+    state.totalPages = action.payload.totalPages;
+    state.page = action.payload.page;
+    state.limit = action.payload.limit;
+
     state.error = null;
   }
 )
+
  
 .addCase(
   superAdminAdminManagementThunk.getAdmins.rejected,
@@ -41,6 +52,7 @@ const superAdminAdminManagementSlice = createSlice({
         superAdminAdminManagementThunk.createAdmin.fulfilled,
         (state, action) => {
           state.data.unshift(action.payload);
+          state.total += 1;
         }
       )
  
@@ -64,6 +76,7 @@ const superAdminAdminManagementSlice = createSlice({
           state.data = state.data.filter(
             (admin) => admin._id !== action.payload
           );
+          state.total -= 1;
         }
       );
   },
