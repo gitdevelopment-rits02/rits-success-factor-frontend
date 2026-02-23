@@ -18,31 +18,40 @@ const superAdminAdminManagementThunk = {
  
   // GET ADMINS
  
-  getAdmins: createAsyncThunk(
+getAdmins: createAsyncThunk(
   "superAdminAdminManagement/getAdmins",
-  async (_, { rejectWithValue }) => {
+  async ({ page = 1, limit = 10 } = {}, { rejectWithValue }) => {
     try {
       const token = localStorage.getItem("token");
       if (!token) {
         return rejectWithValue("Authentication token missing");
       }
- 
-      const res = await superAdminAdminManagementApi.getAdmins();
- 
-      const admins = Array.isArray(res?.data?.data?.admins)
-        ? res.data.data.admins
-        : [];
- 
-      return admins.map(normalizeAdmin);
+
+      const res = await superAdminAdminManagementApi.getAdmins(page, limit);
+
+      const apiData = res?.data?.data;
+
+      if (!apiData) {
+        return rejectWithValue("Invalid admin response");
+      }
+
+      return {
+        admins: (apiData.admins || []).map(normalizeAdmin),
+        total: apiData.total || 0,
+        totalPages: apiData.totalPages || 1,
+        page: apiData.page || 1,
+        limit: apiData.limit || 10,
+      };
     } catch (err) {
       return rejectWithValue(
         err.response?.data?.message ||
-        err.message ||
-        "Unable to load admins"
+          err.message ||
+          "Unable to load admins"
       );
     }
   }
 ),
+
  
 // GET ADMIN BY ID
 getAdminById: createAsyncThunk(
