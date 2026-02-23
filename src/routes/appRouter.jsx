@@ -112,6 +112,7 @@ import ManagerLayout from "../layouts/managerLayout";
 import EmployeeLayout from "../layouts/employeeLayout";
 import HrLayout from "../layouts/hrLayout";
 import ChiefLayout from "../layouts/ChiefLayout";
+import NotFound from "../features/Auth/Pages/NotFound";
 import { chiefRoutes } from "./modules/chief.routes";
 
 export default function AppRouter() {
@@ -178,6 +179,7 @@ export default function AppRouter() {
           />
         ))}
       </Route>
+      <Route path="*" element={<NotFound />} />
     </Routes>
   );
 }

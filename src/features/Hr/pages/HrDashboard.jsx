@@ -1,804 +1,345 @@
-// import React, { useState, useMemo } from "react";
-// import {
-//   FiUsers,
-//   FiHome,
-//   FiXCircle,
-//   FiClock,
-//   FiCheckCircle,
-//   FiAlertTriangle,
-//   FiSearch,
-//   FiFilter
-// } from "react-icons/fi";
+import { useState } from "react";
+import { FiUsers, FiUserPlus, FiTrendingDown, FiBriefcase, FiBell, FiSearch, FiHome, FiCalendar, FiFileText, FiBarChart2, FiSettings, FiLogOut, FiChevronRight, FiClock, FiCheckCircle, FiAlertCircle, FiMenu, FiX, FiArrowUpRight, FiArrowDownRight, FiMapPin, FiFilter } from "react-icons/fi";
+import { FaAward, FaBirthdayCake } from "react-icons/fa";
+import {
+  BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
+  PieChart, Pie, Cell,
+} from "recharts";
 
-// // --- Extended Dummy Data ---
-// const INITIAL_DATA = [
-//   { id: 1, name: "John Smith", dept: "Sales", time: "9:05 AM", status: "In Office", color: "text-blue-600" },
-//   { id: 2, name: "Emily Davis", dept: "Marketing", time: "—", status: "WFH", color: "text-cyan-500" },
-//   { id: 3, name: "Michael Lee", dept: "HR", time: "—", status: "Absent", color: "text-slate-400" },
-//   { id: 4, name: "Sarah Johnson", dept: "IT", time: "8:55 AM", status: "In Office", color: "text-blue-600" },
-//   { id: 5, name: "David Chen", dept: "IT", time: "9:15 AM", status: "In Office", color: "text-blue-600" },
-//   { id: 6, name: "Angela Moss", dept: "Finance", time: "—", status: "On Leave", color: "text-indigo-400" },
-//   { id: 7, name: "Chris Evans", dept: "Sales", time: "—", status: "WFH", color: "text-cyan-500" },
-//   { id: 8, name: "Jessica Alba", dept: "Marketing", time: "9:02 AM", status: "In Office", color: "text-blue-600" },
-//   { id: 9, name: "Robert Fox", dept: "Finance", time: "—", status: "Absent", color: "text-slate-400" },
-//   { id: 10, name: "Linda Blair", dept: "IT", time: "8:30 AM", status: "In Office", color: "text-blue-600" },
-// ];
-
-// export default function Dashboard() {
-//   const [searchTerm, setSearchTerm] = useState("");
-//   const [selectedDept, setSelectedDept] = useState("All");
-//   const [selectedStatus, setSelectedStatus] = useState("All");
-
-//   // --- Logic: Filtering ---
-//   const filteredEmployees = useMemo(() => {
-//     return INITIAL_DATA.filter((emp) => {
-//       const matchesSearch = emp.name.toLowerCase().includes(searchTerm.toLowerCase());
-//       const matchesDept = selectedDept === "All" || emp.dept === selectedDept;
-//       const matchesStatus = selectedStatus === "All" || emp.status === selectedStatus;
-//       return matchesSearch && matchesDept && matchesStatus;
-//     });
-//   }, [searchTerm, selectedDept, selectedStatus]);
-
-//   // --- Logic: Stats Calculation ---
-//   const stats = {
-//     total: INITIAL_DATA.length,
-//     inOffice: INITIAL_DATA.filter(e => e.status === "In Office").length,
-//     wfh: INITIAL_DATA.filter(e => e.status === "WFH").length,
-//     absent: INITIAL_DATA.filter(e => e.status === "Absent").length,
-//   };
-
-//   return (
-//     <div className="min-h-screen bg-blue-50/50 p-4 md:p-8 text-slate-700 font-sans">
-//       {/* Header */}
-//       <header className="mb-8 flex flex-col md:flex-row md:items-center justify-between gap-4">
-       
-        
-//         <div className="relative group">
-//           <FiSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-blue-400" />
-//           <input 
-//             type="text"
-//             placeholder="Search employees..."
-//             className="pl-10 pr-4 py-2 rounded-xl border border-blue-100 bg-white shadow-sm focus:ring-2 focus:ring-blue-400 outline-none w-full md:w-64 transition-all"
-//             value={searchTerm}
-//             onChange={(e) => setSearchTerm(e.target.value)}
-//           />
-//         </div>
-//       </header>
-
-//       <div className="grid grid-cols-12 gap-6">
-//         {/* Sidebar Filters */}
-//         <aside className="col-span-12 lg:col-span-3 space-y-6">
-//           <div className="rounded-2xl bg-white p-6 shadow-sm border border-blue-50">
-//             <div className="flex items-center gap-2 mb-6 text-blue-900 font-bold">
-//               <FiFilter />
-//               <h2>Filters</h2>
-//             </div>
-
-//             <div className="space-y-6">
-//               <div>
-//                 <label className="text-xs font-bold uppercase tracking-wider text-blue-400">Department</label>
-//                 <select 
-//                   className="mt-2 w-full rounded-lg border border-blue-100 bg-blue-50/30 p-2.5 text-sm outline-none focus:border-blue-400"
-//                   value={selectedDept}
-//                   onChange={(e) => setSelectedDept(e.target.value)}
-//                 >
-//                   <option>All</option>
-//                   <option>Sales</option>
-//                   <option>Marketing</option>
-//                   <option>IT</option>
-//                   <option>Finance</option>
-//                   <option>HR</option>
-//                 </select>
-//               </div>
-
-//               <div>
-//                 <label className="text-xs font-bold uppercase tracking-wider text-blue-400">Quick Status</label>
-//                 <div className="mt-3 space-y-1">
-//                   <FilterButton 
-//                     label="All" 
-//                     active={selectedStatus === "All"} 
-//                     onClick={() => setSelectedStatus("All")} 
-//                   />
-//                   <FilterButton 
-//                     icon={FiCheckCircle} 
-//                     label="In Office" 
-//                     active={selectedStatus === "In Office"} 
-//                     onClick={() => setSelectedStatus("In Office")} 
-//                     color="text-blue-600" 
-//                   />
-//                   <FilterButton 
-//                     icon={FiHome} 
-//                     label="WFH" 
-//                     active={selectedStatus === "WFH"} 
-//                     onClick={() => setSelectedStatus("WFH")} 
-//                     color="text-cyan-500" 
-//                   />
-//                   <FilterButton 
-//                     icon={FiXCircle} 
-//                     label="Absent" 
-//                     active={selectedStatus === "Absent"} 
-//                     onClick={() => setSelectedStatus("Absent")} 
-//                     color="text-slate-400" 
-//                   />
-//                 </div>
-//               </div>
-//             </div>
-//           </div>
-//         </aside>
-
-//         {/* Main Content */}
-//         <main className="col-span-12 lg:col-span-9 space-y-6">
-//           {/* KPI Cards */}
-//           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
-//             <Stat title="Total Staff" value={stats.total} icon={FiUsers} color="text-blue-600" />
-//             <Stat title="Present" value={stats.inOffice} icon={FiCheckCircle} color="text-blue-500" />
-//             <Stat title="Remote" value={stats.wfh} icon={FiHome} color="text-cyan-500" />
-//             <Stat title="Absence" value={stats.absent} icon={FiXCircle} color="text-slate-400" />
-//           </div>
-
-//           {/* Attendance Table */}
-//           <section className="rounded-2xl bg-white shadow-sm border border-blue-50 overflow-hidden">
-//             <div className="p-6 border-b border-blue-50 flex justify-between items-center">
-//               <h2 className="font-bold text-blue-900">Attendance Roster</h2>
-//               <span className="text-xs font-medium px-3 py-1 bg-blue-100 text-blue-700 rounded-full">
-//                 {filteredEmployees.length} Results
-//               </span>
-//             </div>
-//             <div className="overflow-x-auto">
-//               <table className="w-full text-sm">
-//                 <thead className="bg-blue-50/50 text-left text-blue-400 uppercase text-[10px] font-bold tracking-widest">
-//                   <tr>
-//                     <th className="px-6 py-4">Employee</th>
-//                     <th className="px-6 py-4">Status</th>
-//                     <th className="px-6 py-4">Department</th>
-//                     <th className="px-6 py-4">Check-In</th>
-//                   </tr>
-//                 </thead>
-//                 <tbody className="divide-y divide-blue-50">
-//                   {filteredEmployees.map((emp) => (
-//                     <TableRow key={emp.id} {...emp} />
-//                   ))}
-//                   {filteredEmployees.length === 0 && (
-//                     <tr>
-//                       <td colSpan="4" className="py-12 text-center text-slate-400">
-//                         No employees found matching those filters.
-//                       </td>
-//                     </tr>
-//                   )}
-//                 </tbody>
-//               </table>
-//             </div>
-//           </section>
-//         </main>
-//       </div>
-//     </div>
-//   );
-// }
-
-// // --- Sub-Components ---
-
-// function Stat({ title, value, icon: Icon, color }) {
-//   return (
-//     <div className="rounded-2xl bg-white p-5 shadow-sm border border-blue-50 hover:border-blue-200 transition-colors">
-//       <div className="flex justify-between items-start">
-//         <p className="text-xs font-bold uppercase tracking-wider text-slate-400">{title}</p>
-//         <Icon className={`text-xl ${color}`} />
-//       </div>
-//       <p className="mt-3 text-3xl font-bold text-slate-800">{value}</p>
-//     </div>
-//   );
-// }
-
-// function TableRow({ name, status, dept, time, color }) {
-//   const getIcon = () => {
-//     if (status === "In Office") return FiCheckCircle;
-//     if (status === "WFH") return FiHome;
-//     if (status === "Absent") return FiXCircle;
-//     return FiAlertTriangle;
-//   };
-//   const Icon = getIcon();
-
-//   return (
-//     <tr className="hover:bg-blue-50/30 transition-colors group">
-//       <td className="px-6 py-4 font-semibold text-slate-700">{name}</td>
-//       <td className="px-6 py-4">
-//         <div className={`flex items-center gap-2 font-medium ${color}`}>
-//           <Icon />
-//           {status}
-//         </div>
-//       </td>
-//       <td className="px-6 py-4 text-slate-500">{dept}</td>
-//       <td className="px-6 py-4 text-slate-400 font-mono">{time}</td>
-//     </tr>
-//   );
-// }
-
-// function FilterButton({ icon: Icon, label, active, onClick, color = "text-slate-600" }) {
-//   return (
-//     <button 
-//       onClick={onClick}
-//       className={`flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm transition-all ${
-//         active 
-//           ? "bg-blue-600 text-white shadow-md shadow-blue-200" 
-//           : "text-slate-600 hover:bg-blue-50"
-//       }`}
-//     >
-//       {Icon && <Icon className={active ? "text-white" : color} />}
-//       <span className={active ? "font-bold" : "font-medium"}>{label}</span>
-//     </button>
-//   );
-// }
-
-import { useState, useMemo } from 'react';
-import { FiUsers, FiHome, FiXCircle, FiCheckCircle, FiAlertTriangle, FiSearch, FiFilter, FiCalendar, FiLogOut, FiBell, FiChevronLeft, FiBriefcase } from 'react-icons/fi';
-
-// Sample data - in a real app this would come from an API
-const INITIAL_EMPLOYEES = [
-  { id: 1, name: 'John Smith', dept: 'Sales', time: '9:05 AM', status: 'In Office', color: 'text-blue-600' },
-  { id: 2, name: 'Emily Davis', dept: 'Marketing', time: '—', status: 'WFH', color: 'text-cyan-500' },
-  { id: 3, name: 'Michael Lee', dept: 'HR', time: '—', status: 'Absent', color: 'text-slate-400' },
-  { id: 4, name: 'Sarah Johnson', dept: 'IT', time: '8:55 AM', status: 'In Office', color: 'text-blue-600' },
-  { id: 5, name: 'David Chen', dept: 'IT', time: '9:15 AM', status: 'In Office', color: 'text-blue-600' },
-  { id: 6, name: 'Angela Moss', dept: 'Finance', time: '—', status: 'On Leave', color: 'text-indigo-400' },
-  { id: 7, name: 'Chris Evans', dept: 'Sales', time: '—', status: 'WFH', color: 'text-cyan-500' },
-  { id: 8, name: 'Jessica Alba', dept: 'Marketing', time: '9:02 AM', status: 'In Office', color: 'text-blue-600' },
-  { id: 9, name: 'Robert Fox', dept: 'Finance', time: '—', status: 'Absent', color: 'text-slate-400' },
-  { id: 10, name: 'Linda Blair', dept: 'IT', time: '8:30 AM', status: 'In Office', color: 'text-blue-600' },
+const attendanceData = [
+  { month: "Aug", present: 88, absent: 12 },
+  { month: "Sep", present: 91, absent: 9 },
+  { month: "Oct", present: 85, absent: 15 },
+  { month: "Nov", present: 93, absent: 7 },
+  { month: "Dec", present: 87, absent: 13 },
+  { month: "Jan", present: 90, absent: 10 },
 ];
 
-// Calendar data generator
-function getDaysInMonth(year, month) {
-  return new Date(year, month + 1, 0).getDate();
-}
+const headcountData = [
+  { name: "Engineering", value: 42, color: "#ADD8E6" },
+  { name: "HR", value: 15, color: "#34d399" },
+  { name: "Sales", value: 28, color: "#f59e0b" },
+  { name: "Finance", value: 18, color: "#60a5fa" },
+  { name: "Operations", value: 22, color: "#f472b6" },
+];
 
-function getFirstDayOfMonth(year, month) {
-  return new Date(year, month, 1).getDay();
-}
+const allEmployees = [
+  { id: 1, name: "Priya Sharma", dept: "Engineering", role: "Senior Developer", status: "present", avatar: "PS" },
+  { id: 2, name: "Rahul Mehta", dept: "HR", role: "HR Manager", status: "absent", avatar: "RM" },
+  { id: 3, name: "Anil Kumar", dept: "Sales", role: "Sales Lead", status: "present", avatar: "AK" },
+  { id: 4, name: "Sneha Patel", dept: "Design", role: "UI Designer", status: "remote", avatar: "SP" },
+  { id: 5, name: "Karan Singh", dept: "Engineering", role: "Backend Engineer", status: "present", avatar: "KS" },
+  { id: 6, name: "Divya Nair", dept: "HR", role: "Recruiter", status: "remote", avatar: "DN" },
+  { id: 7, name: "Vikram Joshi", dept: "Finance", role: "Financial Analyst", status: "absent", avatar: "VJ" },
+  { id: 8, name: "Meena Rao", dept: "Operations", role: "Ops Manager", status: "present", avatar: "MR" },
+  { id: 9, name: "Arjun Das", dept: "Engineering", role: "DevOps Engineer", status: "remote", avatar: "AD" },
+  { id: 10, name: "Pooja Iyer", dept: "Sales", role: "Account Executive", status: "present", avatar: "PI" },
+  { id: 11, name: "Suresh Verma", dept: "Finance", role: "Accountant", status: "absent", avatar: "SV" },
+  { id: 12, name: "Neha Kapoor", dept: "Design", role: "Product Designer", status: "present", avatar: "NK" },
+];
 
-export default function Dashboard() {
-  const [searchTerm, setSearchTerm] = useState('');
-  const [selectedDept, setSelectedDept] = useState('All');
-  const [selectedStatus, setSelectedStatus] = useState('All');
-  const [currentMonth, setCurrentMonth] = useState(new Date());
-  const [showYearMonthPicker, setShowYearMonthPicker] = useState(false);
-  const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
-  const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth());
-  const [showNotifications, setShowNotifications] = useState(false);
-  const [showProfileDetails, setShowProfileDetails] = useState(false);
+const departments = ["All Departments", "Engineering", "HR", "Sales", "Finance", "Operations", "Design"];
 
-  const announcements = [
+const statusConfig = {
+  present: { label: "In Office", color: "text-emerald-700 bg-emerald-50", dot: "bg-emerald-500" },
+  remote:  { label: "Remote",    color: "text-cyan-700 bg-cyan-50",       dot: "bg-cyan-500"    },
+  absent:  { label: "Absent",    color: "text-slate-500 bg-slate-100",    dot: "bg-slate-400"   },
+};
+
+/* ── Avatar gradient pool ── */
+const avatarGradients = [
+  "from-violet-400 to-purple-500",
+  "from-emerald-400 to-teal-500",
+  "from-amber-400 to-orange-500",
+  "from-sky-400 to-blue-500",
+  "from-pink-400 to-rose-500",
+  "from-indigo-400 to-blue-600",
+];
+
+export default function HRDashboard() {
+  const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [selectedDept, setSelectedDept] = useState("All Departments");
+  const [selectedStatus, setSelectedStatus] = useState("all");
+
+  const totalStaff   = allEmployees.length;
+  const presentCount = allEmployees.filter(e => e.status === "present").length;
+  const remoteCount  = allEmployees.filter(e => e.status === "remote").length;
+  const absentCount  = allEmployees.filter(e => e.status === "absent").length;
+
+  const filteredEmployees = allEmployees.filter(emp => {
+    const deptMatch   = selectedDept   === "All Departments" || emp.dept   === selectedDept;
+    const statusMatch = selectedStatus === "all"             || emp.status === selectedStatus;
+    return deptMatch && statusMatch;
+  });
+
+  /* KPI cards — each with its own distinct palette (mirrors screenshot style) */
+  const kpiCards = [
     {
-      id: 1,
-      title: 'Company Townhall This Friday',
-      description: 'Join us for Q4 review and 2026 roadmap discussion at 3 PM in the main auditorium.',
-      date: '2 hours ago',
-      type: 'meeting',
-      read: false
+      title: "Total Staff", value: totalStaff,
+      icon: FiUsers,
+      bg: "from-blue-50 to-blue-100/60",
+      border: "border-blue-100",
+      iconBg: "bg-blue-100", iconColor: "text-blue-600",
+      valColor: "text-blue-700",
     },
     {
-      id: 2,
-      title: 'New Health Insurance Benefits',
-      description: 'Enhanced coverage effective from March 1st. Please review the updated policy documents.',
-      date: '1 day ago',
-      type: 'benefits',
-      read: false
+      title: "Present", value: presentCount,
+      icon: FiCheckCircle,
+      bg: "from-emerald-50 to-emerald-100/60",
+      border: "border-emerald-100",
+      iconBg: "bg-emerald-100", iconColor: "text-emerald-600",
+      valColor: "text-emerald-700",
     },
     {
-      id: 3,
-      title: 'Annual Performance Reviews',
-      description: 'Please schedule your 1-on-1 with your manager before February 15th.',
-      date: '2 days ago',
-      type: 'hr',
-      read: true
-    }
+      title: "Remote", value: remoteCount,
+      icon: FiHome,
+      bg: "from-amber-50 to-yellow-100/60",
+      border: "border-amber-100",
+      iconBg: "bg-amber-100", iconColor: "text-amber-600",
+      valColor: "text-amber-700",
+    },
+    {
+      title: "Absent", value: absentCount,
+      icon: FiX,
+      bg: "from-slate-50 to-slate-100/60",
+      border: "border-slate-200",
+      iconBg: "bg-slate-200", iconColor: "text-slate-500",
+      valColor: "text-slate-600",
+    },
   ];
-
-  const leaveData = [
-    { label: 'Casual Leave', used: 4, total: 12, pending: 8, color: 'bg-blue-600', bgColor: 'bg-blue-50', borderColor: 'border-blue-200' },
-    { label: 'Sick Leave', used: 2, total: 10, pending: 8, color: 'bg-green-500', bgColor: 'bg-green-50', borderColor: 'border-green-200' },
-    { label: 'Earned Leave', used: 3, total: 15, pending: 12, color: 'bg-purple-500', bgColor: 'bg-purple-50', borderColor: 'border-purple-200' },
-    { label: 'Maternity Leave', used: 0, total: 180, pending: 180, color: 'bg-rose-500', bgColor: 'bg-rose-50', borderColor: 'border-rose-200' }
-  ];
-
-  const filteredEmployees = useMemo(() => {
-    return INITIAL_EMPLOYEES.filter((emp) => {
-      const matchesSearch = emp.name.toLowerCase().includes(searchTerm.toLowerCase());
-      const matchesDept = selectedDept === 'All' || emp.dept === selectedDept;
-      const matchesStatus = selectedStatus === 'All' || emp.status === selectedStatus;
-      return matchesSearch && matchesDept && matchesStatus;
-    });
-  }, [searchTerm, selectedDept, selectedStatus]);
-
-  const stats = {
-    total: INITIAL_EMPLOYEES.length,
-    inOffice: INITIAL_EMPLOYEES.filter(e => e.status === 'In Office').length,
-    wfh: INITIAL_EMPLOYEES.filter(e => e.status === 'WFH').length,
-    absent: INITIAL_EMPLOYEES.filter(e => e.status === 'Absent').length,
-  };
-
-  const generateCalendar = () => {
-    const year = currentMonth.getFullYear();
-    const month = currentMonth.getMonth();
-    const daysInMonth = getDaysInMonth(year, month);
-    const firstDay = getFirstDayOfMonth(year, month);
-    const days = [];
-
-    const prevMonthDays = getDaysInMonth(year, month - 1);
-    for (let i = firstDay - 1; i >= 0; i--) {
-      days.push({ date: prevMonthDays - i, currentMonth: false, type: 'prev' });
-    }
-
-    for (let i = 1; i <= daysInMonth; i++) {
-      const day = new Date(year, month, i).getDay();
-      const isWeekend = day === 0 || day === 6;
-      const today = new Date();
-      const isToday = i === today.getDate() && month === today.getMonth() && year === today.getFullYear();
-      
-      let dayType = 'present';
-      if (isToday) dayType = 'today';
-      else if (i === 15 || i === 26) dayType = 'holiday';
-      else if (i === 13 || i === 20 || i === 27 || i === 28) dayType = 'absent';
-      else if (i === 7 || i === 14) dayType = 'late';
-      else if (isWeekend) dayType = 'weekend';
-      
-      days.push({ date: i, currentMonth: true, type: dayType });
-    }
-
-    const totalCells = 42;
-    const nextMonthDays = totalCells - days.length;
-    for (let i = 1; i <= nextMonthDays; i++) {
-      days.push({ date: i, currentMonth: false, type: 'next' });
-    }
-
-    return days;
-  };
-
-  const calendarData = generateCalendar();
-  const calendarDays = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-
-  const getDayStyle = (day) => {
-    if (!day.currentMonth) return 'bg-gray-50/50 text-gray-300 cursor-default opacity-40';
-    
-    const baseStyle = 'cursor-pointer border hover:scale-105 transition-transform';
-    switch (day.type) {
-      case 'today':
-        return `${baseStyle} bg-blue-100 border-blue-300 text-blue-800 font-bold`;
-      case 'holiday':
-        return `${baseStyle} bg-red-50 border-red-200 text-red-700`;
-      case 'absent':
-        return `${baseStyle} bg-gray-50 border-gray-200 text-gray-700`;
-      case 'late':
-        return `${baseStyle} bg-yellow-50 border-yellow-200 text-yellow-700`;
-      case 'weekend':
-        return `${baseStyle} bg-gray-50 border-gray-200 text-gray-500`;
-      default:
-        return `${baseStyle} bg-green-50 border-green-200 text-green-700`;
-    }
-  };
-
-  const navigateMonth = (direction) => {
-    const newDate = new Date(currentMonth);
-    newDate.setMonth(newDate.getMonth() + direction);
-    setCurrentMonth(newDate);
-  };
-
-  const handleQuickAction = (action) => {
-    if (action === 'notifications') {
-      setShowNotifications(!showNotifications);
-    } else if (action === 'profile') {
-      setShowProfileDetails(!showProfileDetails);
-    } else {
-      alert(`Opening ${action}...`);
-    }
-  };
 
   return (
-    <div className="min-h-screen bg-blue-50/50 p-4 md:p-6 text-slate-700">
-      {/* Header */}
-      <header className="mb-6 flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white p-4 rounded-2xl border border-blue-100 shadow-sm">
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center">
-            <FiUsers className="text-white text-lg" />
-          </div>
-          <div>
-            <h1 className="text-xl font-bold text-blue-900">Team Dashboard</h1>
-            <p className="text-xs text-blue-500">Real-time attendance overview</p>
-          </div>
-        </div>
-        
-        <div className="flex items-center gap-3">
-          {/* Quick actions */}
-          <button 
-            onClick={() => handleQuickAction('notifications')}
-            className="relative p-2 bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-600 hover:text-white transition-colors border border-blue-100"
-          >
-            <FiBell className="w-4 h-4" />
-            {announcements.filter(a => !a.read).length > 0 && (
-              <span className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white text-xs rounded-full flex items-center justify-center">
-                {announcements.filter(a => !a.read).length}
-              </span>
-            )}
-          </button>
-          
-          {/* <button 
-            onClick={() => handleQuickAction('profile')}
-            className="p-2 bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-600 hover:text-white transition-colors border border-blue-100"
-          >
-            <FiUsers className="w-4 h-4" />
-          </button> */}
-          
-          <button 
-            onClick={() => handleQuickAction('logout')}
-            className="p-2 bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-600 hover:text-white transition-colors border border-blue-100"
-          >
-            <FiLogOut className="w-4 h-4" />
-          </button>
-        </div>
-      </header>
+    <div
+      className="flex h-screen font-sans overflow-hidden"
+      style={{ background: "linear-gradient(135deg, #eef2ff 0%, #e0f2fe 50%, #f0fdf4 100%)" }}
+    >
+      {/* Main */}
+      <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
 
-      {/* Notifications Dropdown */}
-      {showNotifications && (
-        <div className="mb-6 bg-white rounded-2xl border border-blue-100 shadow-sm p-4">
-          <h3 className="font-bold text-blue-900 mb-3 flex items-center gap-2">
-            <FiBell className="text-blue-600" />
-            Notifications ({announcements.length})
-          </h3>
-          <div className="space-y-3 max-h-60 overflow-y-auto">
-            {announcements.map(announcement => (
-              <div key={announcement.id} className="p-3 bg-blue-50/30 rounded-xl border border-blue-100 hover:border-blue-200 transition-colors">
-                <div className="flex items-start justify-between mb-1">
-                  <h4 className="font-semibold text-blue-900 text-sm">{announcement.title}</h4>
-                  <span className="text-xs text-blue-500">{announcement.date}</span>
+        {/* Topbar */}
+        <div className="h-16 bg-white/80 backdrop-blur border-b border-slate-100 flex items-center px-6 gap-4 flex-shrink-0">
+          <button
+            onClick={() => setSidebarOpen(!sidebarOpen)}
+            className="text-slate-400 hover:text-slate-600 p-1 rounded-lg hover:bg-slate-50 transition-colors"
+          >
+            <FiMenu size={18} />
+          </button>
+          <div className="flex-1 max-w-sm">
+            <div className="relative">
+              <FiSearch size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-300" />
+              <input
+                type="text"
+                placeholder="Search employees..."
+                className="w-full pl-9 pr-4 py-2 text-sm bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-300 transition-colors"
+              />
+            </div>
+          </div>
+          <div className="flex items-center gap-3 ml-auto">
+            <button className="relative p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-50 rounded-xl transition-colors">
+              <FiBell size={18} />
+              <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-blue-500 rounded-full" />
+            </button>
+            <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white text-xs font-bold">A</div>
+          </div>
+        </div>
+
+        {/* Content */}
+        <main className="flex-1 overflow-y-auto px-6 py-5">
+
+          {/* Page Header */}
+          <div className="mb-6 flex items-center justify-between">
+            <div>
+              <h1 className="text-2xl font-bold text-gray-800 tracking-tight">HR Dashboard</h1>
+              <p className="text-sm text-slate-400 mt-0.5 font-normal">Welcome back, Aditi · Tuesday, Feb 17, 2026</p>
+            </div>
+            <button className="px-4 py-2 bg-blue-600 text-white text-sm font-semibold rounded-xl hover:bg-blue-700 transition-colors shadow-sm flex items-center gap-2">
+              <FiUserPlus size={15} />
+              Add Employee
+            </button>
+          </div>
+
+          {/* Charts Row */}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-4">
+
+            {/* Attendance Bar Chart */}
+            <div className="lg:col-span-2 bg-white rounded-2xl p-5 shadow-sm border border-white/80" style={{ boxShadow: "0 4px 24px rgba(0,0,0,0.06)" }}>
+              <div className="flex items-center justify-between mb-4">
+                <div>
+                  <h2 className="text-sm font-bold text-gray-800 tracking-tight">Attendance Overview</h2>
+                  <p className="text-xs text-slate-400 font-normal">Last 6 months (%)</p>
                 </div>
-                <p className="text-xs text-blue-700">{announcement.description}</p>
+                <span className="text-xs bg-blue-50 text-blue-600 font-semibold px-3 py-1 rounded-full">Monthly</span>
               </div>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {/* Main Grid */}
-      <div className="grid grid-cols-12 gap-6">
-        {/* Sidebar Filters */}
-        <aside className="col-span-12 lg:col-span-3 space-y-6">
-          <div className="rounded-2xl bg-white p-6 shadow-sm border border-blue-50">
-            <div className="flex items-center gap-2 mb-6 text-blue-900 font-bold">
-              <FiFilter />
-              <h2>Filters</h2>
+              <ResponsiveContainer width="100%" height={200}>
+                <BarChart data={attendanceData} barCategoryGap="30%">
+                  <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" vertical={false} />
+                  <XAxis dataKey="month" tick={{ fontSize: 11, fill: "#94a3b8" }} axisLine={false} tickLine={false} />
+                  <YAxis tick={{ fontSize: 11, fill: "#94a3b8" }} axisLine={false} tickLine={false} />
+                  <Tooltip contentStyle={{ borderRadius: "12px", border: "1px solid #e2e8f0", fontSize: 12 }} cursor={{ fill: "#f0f9ff" }} />
+                  <Bar dataKey="present" name="Present" fill="#ADD8E6" radius={[6, 6, 0, 0]} />
+                  <Bar dataKey="absent"  name="Absent"  fill="#fca5a5" radius={[6, 6, 0, 0]} />
+                </BarChart>
+              </ResponsiveContainer>
             </div>
 
-            <div className="space-y-6">
-              <div>
-                <label className="text-xs font-bold uppercase tracking-wider text-blue-400">Department</label>
-                <select 
-                  className="mt-2 w-full rounded-lg border border-blue-100 bg-blue-50/30 p-2.5 text-sm outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-200"
+            {/* Department Pie Chart */}
+            <div className="bg-white rounded-2xl p-5 shadow-sm border border-white/80" style={{ boxShadow: "0 4px 24px rgba(0,0,0,0.06)" }}>
+              <div className="mb-4">
+                <h2 className="text-sm font-bold text-gray-800 tracking-tight">Dept. Headcount</h2>
+                <p className="text-xs text-slate-400 font-normal">Total: 125 employees</p>
+              </div>
+              <ResponsiveContainer width="100%" height={140}>
+                <PieChart>
+                  <Pie data={headcountData} cx="50%" cy="50%" innerRadius={40} outerRadius={65} dataKey="value" paddingAngle={3}>
+                    {headcountData.map((entry, i) => (
+                      <Cell key={i} fill={entry.color} />
+                    ))}
+                  </Pie>
+                  <Tooltip contentStyle={{ borderRadius: "10px", fontSize: 12 }} />
+                </PieChart>
+              </ResponsiveContainer>
+              <div className="space-y-1.5 mt-2">
+                {headcountData.map((d) => (
+                  <div key={d.name} className="flex items-center justify-between text-xs">
+                    <div className="flex items-center gap-2">
+                      <span className="w-2.5 h-2.5 rounded-full" style={{ background: d.color }} />
+                      <span className="text-slate-500 font-normal">{d.name}</span>
+                    </div>
+                    <span className="font-bold text-gray-700">{d.value}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/* Attendance Roster Section */}
+          <div className="grid grid-cols-1 lg:grid-cols-4 gap-4">
+
+            {/* Filter Panel */}
+            <div className="bg-white rounded-2xl p-5 shadow-sm border border-white/80 h-fit" style={{ boxShadow: "0 4px 24px rgba(0,0,0,0.06)" }}>
+              <div className="flex items-center gap-2 mb-5">
+                <FiFilter size={14} className="text-slate-400" />
+                <h2 className="text-sm font-bold text-gray-800 tracking-tight">Filters</h2>
+              </div>
+
+              <div className="mb-5">
+                <p className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2.5">Department</p>
+                <select
                   value={selectedDept}
                   onChange={(e) => setSelectedDept(e.target.value)}
+                  className="w-full text-sm border border-slate-200 rounded-xl px-3 py-2.5 text-slate-600 font-normal focus:outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-300 bg-slate-50 transition-colors"
                 >
-                  <option>All</option>
-                  <option>Sales</option>
-                  <option>Marketing</option>
-                  <option>IT</option>
-                  <option>Finance</option>
-                  <option>HR</option>
+                  {departments.map(d => <option key={d}>{d}</option>)}
                 </select>
               </div>
 
               <div>
-                <label className="text-xs font-bold uppercase tracking-wider text-blue-400">Quick Status</label>
-                <div className="mt-3 space-y-1">
-                  <FilterButton 
-                    icon={FiUsers}
-                    label="All" 
-                    active={selectedStatus === "All"} 
-                    onClick={() => setSelectedStatus("All")} 
-                  />
-                  <FilterButton 
-                    icon={FiCheckCircle} 
-                    label="In Office" 
-                    active={selectedStatus === "In Office"} 
-                    onClick={() => setSelectedStatus("In Office")} 
-                    color="text-blue-600" 
-                  />
-                  <FilterButton 
-                    icon={FiHome} 
-                    label="WFH" 
-                    active={selectedStatus === "WFH"} 
-                    onClick={() => setSelectedStatus("WFH")} 
-                    color="text-cyan-500" 
-                  />
-                  <FilterButton 
-                    icon={FiXCircle} 
-                    label="Absent" 
-                    active={selectedStatus === "Absent"} 
-                    onClick={() => setSelectedStatus("Absent")} 
-                    color="text-slate-400" 
-                  />
-                </div>
-              </div>
-            </div>
-          </div>
-        </aside>
-
-        {/* Main Content */}
-        <main className="col-span-12 lg:col-span-9 space-y-6">
-          {/* KPI Cards */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
-            <Stat title="Total Staff" value={stats.total} icon={FiUsers} color="text-blue-600" />
-            <Stat title="Present" value={stats.inOffice} icon={FiCheckCircle} color="text-blue-500" />
-            <Stat title="Remote" value={stats.wfh} icon={FiHome} color="text-cyan-500" />
-            <Stat title="Absent" value={stats.absent} icon={FiXCircle} color="text-slate-400" />
-          </div>
-
-          {/* Calendar and Leave Overview Grid */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            {/* Attendance Calendar */}
-            <div className="bg-white rounded-2xl border border-blue-100 p-5 shadow-sm">
-              <div className="flex justify-between items-center mb-5">
-                <div>
-                  <h2 className="text-lg font-bold text-blue-900 flex items-center gap-2">
-                    <FiCalendar className="text-blue-600" />
-                    Attendance Calendar
-                  </h2>
-                  <p className="text-xs text-blue-500 mt-1">
-                    {currentMonth.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}
-                  </p>
-                </div>
-                <button
-                  onClick={() => setShowYearMonthPicker(!showYearMonthPicker)}
-                  className="p-2 bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-600 hover:text-white transition-colors border border-blue-100"
-                >
-                  <FiCalendar className="w-4 h-4" />
-                </button>
-              </div>
-
-              {/* Year/Month Picker */}
-              {showYearMonthPicker && (
-                <div className="mb-4 p-4 bg-blue-50 rounded-xl border border-blue-100">
-                  <div className="grid grid-cols-3 gap-2 mb-3">
-                    {[2023, 2024, 2025, 2026, 2027].map(year => (
-                      <button
-                        key={year}
-                        onClick={() => setSelectedYear(year)}
-                        className={`p-2 text-xs rounded border ${selectedYear === year
-                          ? 'bg-blue-600 text-white border-blue-600'
-                          : 'bg-white text-blue-700 border-blue-200'
-                          }`}
-                      >
-                        {year}
-                      </button>
-                    ))}
-                  </div>
-                  <div className="grid grid-cols-4 gap-2">
-                    {['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'].map((month, index) => (
-                      <button
-                        key={month}
-                        onClick={() => {
-                          setSelectedMonth(index);
-                          setCurrentMonth(new Date(selectedYear, index, 1));
-                          setShowYearMonthPicker(false);
-                        }}
-                        className={`p-2 text-xs rounded border ${selectedMonth === index
-                          ? 'bg-blue-600 text-white border-blue-600'
-                          : 'bg-white text-blue-700 border-blue-200'
-                          }`}
-                      >
-                        {month}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              {/* Calendar Navigation */}
-              <div className="flex items-center justify-between mb-4">
-                <button
-                  onClick={() => navigateMonth(-1)}
-                  className="p-1.5 bg-blue-50 hover:bg-blue-600 hover:text-white text-blue-600 rounded-lg transition-colors border border-blue-100"
-                >
-                  <FiChevronLeft className="w-4 h-4" />
-                </button>
-                <span className="font-bold text-blue-900">
-                  {currentMonth.toLocaleDateString('en-US', { month: 'short', year: 'numeric' })}
-                </span>
-                <button
-                  onClick={() => navigateMonth(1)}
-                  className="p-1.5 bg-blue-50 hover:bg-blue-600 hover:text-white text-blue-600 rounded-lg transition-colors border border-blue-100"
-                >
-                  <FiChevronLeft className="w-4 h-4 rotate-180" />
-                </button>
-              </div>
-
-              {/* Calendar Grid */}
-              <div className="grid grid-cols-7 gap-1.5 mb-4">
-                {calendarDays.map((day, index) => (
-                  <div key={`day-${index}`} className="text-center font-bold text-blue-400 text-[10px] py-2 uppercase">
-                    {day}
-                  </div>
-                ))}
-                {calendarData.map((day, idx) => (
-                  <button
-                    key={`cal-${day.date}-${day.currentMonth ? 'curr' : 'oth'}-${idx}`}
-                    className={`p-2 rounded-lg text-xs transition-all ${getDayStyle(day)}`}
-                  >
-                    <span className="font-semibold">{day.date}</span>
-                  </button>
-                ))}
-              </div>
-
-              {/* Legend */}
-              <div className="grid grid-cols-2 gap-2 pt-4 border-t border-blue-50">
-                <div className="flex items-center gap-2 bg-green-50 px-2 py-1.5 rounded-lg border border-green-100">
-                  <div className="w-2 h-2 rounded-full bg-green-500"></div>
-                  <span className="text-[10px] font-bold text-green-700">Present</span>
-                </div>
-                <div className="flex items-center gap-2 bg-gray-50 px-2 py-1.5 rounded-lg border border-gray-100">
-                  <div className="w-2 h-2 rounded-full bg-gray-400"></div>
-                  <span className="text-[10px] font-bold text-gray-600">Absent</span>
-                </div>
-                <div className="flex items-center gap-2 bg-yellow-50 px-2 py-1.5 rounded-lg border border-yellow-100">
-                  <div className="w-2 h-2 rounded-full bg-yellow-500"></div>
-                  <span className="text-[10px] font-bold text-yellow-700">Late</span>
-                </div>
-                <div className="flex items-center gap-2 bg-red-50 px-2 py-1.5 rounded-lg border border-red-100">
-                  <div className="w-2 h-2 rounded-full bg-red-500"></div>
-                  <span className="text-[10px] font-bold text-red-700">Holiday</span>
+                <p className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2.5">Status</p>
+                <div className="space-y-1.5">
+                  {[
+                    { key: "all",     label: "All Status", icon: FiUsers,        color: "text-blue-600",    activeBg: "bg-blue-600"    },
+                    { key: "present", label: "In Office",  icon: FiCheckCircle,  color: "text-emerald-500", activeBg: "bg-emerald-500" },
+                    { key: "remote",  label: "Remote",     icon: FiHome,         color: "text-amber-500",   activeBg: "bg-amber-500"   },
+                    { key: "absent",  label: "Absent",     icon: FiX,            color: "text-slate-400",   activeBg: "bg-slate-500"   },
+                  ].map(({ key, label, icon: Icon, color, activeBg }) => (
+                    <button
+                      key={key}
+                      onClick={() => setSelectedStatus(key)}
+                      className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold transition-colors ${
+                        selectedStatus === key
+                          ? `${activeBg} text-white`
+                          : "text-slate-500 hover:bg-slate-50"
+                      }`}
+                    >
+                      <Icon size={15} className={selectedStatus === key ? "text-white" : color} />
+                      {label}
+                    </button>
+                  ))}
                 </div>
               </div>
             </div>
 
-            {/* Leave Overview */}
-            <div className="bg-white rounded-2xl border border-blue-100 p-5 shadow-sm">
-              <div className="mb-5">
-                <h2 className="text-lg font-bold text-blue-900 flex items-center gap-2">
-                  <FiBriefcase className="text-blue-600" />
-                  Leave Entitlement
-                </h2>
-                <p className="text-xs text-blue-500 mt-1">Your available balances</p>
-              </div>
+            {/* Roster Panel */}
+            <div className="lg:col-span-3 bg-white rounded-2xl shadow-sm border border-white/80 overflow-hidden" style={{ boxShadow: "0 4px 24px rgba(0,0,0,0.06)" }}>
 
-              <div className="space-y-4">
-                {leaveData.map((leave, index) => {
-                  const percentage = (leave.used / leave.total) * 100;
+              {/* KPI Cards — colorful, like the Monthly Summary screenshot */}
+              <div className="grid grid-cols-4 divide-x divide-slate-100 border-b border-slate-100">
+                {kpiCards.map((card) => {
+                  const Icon = card.icon;
                   return (
-                    <div key={index} className="bg-white rounded-xl p-4 border border-blue-50 hover:border-blue-100 transition-colors">
-                      <div className="flex items-center justify-between mb-2">
-                        <div className="flex items-center">
-                          <div className={`w-8 h-8 ${leave.bgColor} rounded-lg flex items-center justify-center mr-3 border ${leave.borderColor}`}>
-                            <FiCalendar className="w-3.5 h-3.5 text-blue-600" />
-                          </div>
-                          <div>
-                            <p className="font-bold text-blue-900 text-sm">{leave.label}</p>
-                            <p className="text-xs text-blue-500">{leave.total - leave.used} days left</p>
-                          </div>
-                        </div>
-                        <div className="text-right">
-                          <p className="text-lg font-black text-blue-900">{leave.pending || leave.total - leave.used}</p>
-                          <p className="text-[9px] text-blue-400 font-bold uppercase">Left</p>
-                        </div>
+                    <div
+                      key={card.title}
+                      className={`p-4 bg-gradient-to-br ${card.bg} flex flex-col gap-1`}
+                    >
+                      <div className={`w-8 h-8 rounded-xl ${card.iconBg} flex items-center justify-center mb-2`}>
+                        <Icon size={15} className={card.iconColor} />
                       </div>
-                      <div className="flex justify-between text-[10px] mb-1.5 font-bold">
-                        <span className="text-blue-400">USED: {leave.used}</span>
-                        <span className="text-blue-600">TOTAL: {leave.total}</span>
-                      </div>
-                      <div className="h-1.5 bg-blue-50 rounded-full overflow-hidden border border-blue-100">
-                        <div
-                          className={`h-full ${leave.color} rounded-full transition-all duration-500`}
-                          style={{ width: `${percentage}%` }}
-                        ></div>
-                      </div>
+                      <p className={`text-2xl font-bold ${card.valColor}`}>{card.value}</p>
+                      <p className="text-xs font-bold text-slate-400 uppercase tracking-wider">{card.title}</p>
                     </div>
                   );
                 })}
               </div>
+
+              {/* Roster Header */}
+              <div className="px-5 pt-4 pb-3 border-b border-slate-50">
+                <h2 className="text-sm font-bold text-gray-800 tracking-tight">Attendance Roster</h2>
+                <p className="text-xs text-slate-400 font-normal">{filteredEmployees.length} employees shown</p>
+              </div>
+
+              {/* Roster Table */}
+              {filteredEmployees.length === 0 ? (
+                <div className="flex flex-col items-center justify-center py-16 text-center">
+                  <div className="w-14 h-14 rounded-2xl bg-slate-100 flex items-center justify-center mx-auto mb-4">
+                    <FiUsers size={26} className="text-slate-300" />
+                  </div>
+                  <p className="text-sm font-semibold text-slate-500">No employees found</p>
+                  <p className="text-xs text-slate-300 mt-1 font-normal">Try adjusting your filters</p>
+                </div>
+              ) : (
+                <div className="overflow-auto max-h-72">
+                  <table className="w-full text-sm">
+                    <thead>
+                      <tr className="border-b border-slate-100 bg-slate-50/70">
+                        <th className="text-left px-5 py-3 text-xs font-bold text-slate-400 uppercase tracking-wider">Employee</th>
+                        <th className="text-left px-5 py-3 text-xs font-bold text-slate-400 uppercase tracking-wider">Department</th>
+                        <th className="text-left px-5 py-3 text-xs font-bold text-slate-400 uppercase tracking-wider hidden md:table-cell">Role</th>
+                        <th className="text-left px-5 py-3 text-xs font-bold text-slate-400 uppercase tracking-wider">Status</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {filteredEmployees.map((emp, idx) => {
+                        const sc = statusConfig[emp.status];
+                        const grad = avatarGradients[idx % avatarGradients.length];
+                        return (
+                          <tr key={emp.id} className="border-b border-slate-50 hover:bg-slate-50/60 transition-colors">
+                            <td className="px-5 py-3">
+                              <div className="flex items-center gap-3">
+                                <div className={`w-8 h-8 rounded-xl bg-gradient-to-br ${grad} flex items-center justify-center text-white text-xs font-bold flex-shrink-0`}>
+                                  {emp.avatar}
+                                </div>
+                                <span className="font-semibold text-gray-700">{emp.name}</span>
+                              </div>
+                            </td>
+                            <td className="px-5 py-3 text-slate-500 font-normal">{emp.dept}</td>
+                            <td className="px-5 py-3 text-slate-400 font-normal hidden md:table-cell">{emp.role}</td>
+                            <td className="px-5 py-3">
+                              <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold ${sc.color}`}>
+                                <span className={`w-1.5 h-1.5 rounded-full ${sc.dot}`} />
+                                {sc.label}
+                              </span>
+                            </td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                </div>
+              )}
             </div>
           </div>
-
-          {/* Attendance Table */}
-          <section className="rounded-2xl bg-white shadow-sm border border-blue-50 overflow-hidden">
-            <div className="p-6 border-b border-blue-50 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
-              <h2 className="font-bold text-blue-900 flex items-center gap-2">
-                <FiUsers className="text-blue-600" />
-                Attendance Roster
-              </h2>
-              
-              <div className="flex items-center gap-3">
-                <div className="relative">
-                  <FiSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-blue-400" />
-                  <input 
-                    type="text"
-                    placeholder="Search employees..."
-                    className="pl-10 pr-4 py-2 rounded-xl border border-blue-100 bg-blue-50/30 text-sm outline-none focus:ring-2 focus:ring-blue-200 focus:border-blue-400 w-64"
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                  />
-                </div>
-                <span className="text-xs font-medium px-3 py-1 bg-blue-100 text-blue-700 rounded-full">
-                  {filteredEmployees.length} Results
-                </span>
-              </div>
-            </div>
-            
-            <div className="overflow-x-auto">
-              <table className="w-full text-sm">
-                <thead className="bg-blue-50/50 text-left text-blue-400 uppercase text-[10px] font-bold tracking-widest">
-                  <tr>
-                    <th className="px-6 py-4">Employee</th>
-                    <th className="px-6 py-4">Status</th>
-                    <th className="px-6 py-4">Department</th>
-                    <th className="px-6 py-4">Check-In</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-blue-50">
-                  {filteredEmployees.map((emp) => (
-                    <TableRow key={emp.id} {...emp} />
-                  ))}
-                  {filteredEmployees.length === 0 && (
-                    <tr>
-                      <td colSpan="4" className="py-12 text-center text-blue-400">
-                        No employees found matching those filters.
-                      </td>
-                    </tr>
-                  )}
-                </tbody>
-              </table>
-            </div>
-          </section>
         </main>
       </div>
     </div>
-  );
-}
-
-// Sub-components
-function Stat({ title, value, icon: Icon, color }) {
-  return (
-    <div className="rounded-2xl bg-white p-5 shadow-sm border border-blue-50 hover:border-blue-200 transition-colors">
-      <div className="flex justify-between items-start">
-        <p className="text-xs font-bold uppercase tracking-wider text-blue-400">{title}</p>
-        <Icon className={`text-xl ${color}`} />
-      </div>
-      <p className="mt-3 text-3xl font-bold text-blue-900">{value}</p>
-    </div>
-  );
-}
-
-function TableRow({ name, status, dept, time, color }) {
-  const getIcon = () => {
-    if (status === 'In Office') return FiCheckCircle;
-    if (status === 'WFH') return FiHome;
-    if (status === 'Absent') return FiXCircle;
-    return FiAlertTriangle;
-  };
-  const Icon = getIcon();
-
-  return (
-    <tr className="hover:bg-blue-50/30 transition-colors">
-      <td className="px-6 py-4 font-semibold text-blue-900">{name}</td>
-      <td className="px-6 py-4">
-        <div className={`flex items-center gap-2 font-medium ${color}`}>
-          <Icon className="w-4 h-4" />
-          {status}
-        </div>
-      </td>
-      <td className="px-6 py-4 text-blue-500">{dept}</td>
-      <td className="px-6 py-4 text-blue-400 font-mono text-xs">{time}</td>
-    </tr>
-  );
-}
-
-function FilterButton({ icon: Icon, label, active, onClick, color = 'text-slate-600' }) {
-  return (
-    <button 
-      onClick={onClick}
-      className={`flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm transition-all ${
-        active 
-          ? 'bg-blue-600 text-white shadow-md shadow-blue-200' 
-          : 'text-blue-600 hover:bg-blue-50'
-      }`}
-    >
-      {Icon && <Icon className={active ? 'text-white' : color} />}
-      <span className={active ? 'font-bold' : 'font-medium'}>{label}</span>
-    </button>
   );
 }

@@ -8,6 +8,9 @@ import ForgotPassword from "../../features/Auth/Pages/ForgotPassword";
 import ResetPassword from "../../features/Auth/pages/ResetPassword";
 import ForgotPasswordOtp from "../../features/Auth/Pages/forgotpasswordotp";
 import AboutUs from "../../features/Auth/Pages/AboutUs";
+
+import PolicyPage from "../../features/Auth/Pages/PolicyPage";
+import NotFound from "../../features/Auth/Pages/NotFound";
 const authRoutes = [
   {
     path: ROUTES.AUTH.LOGIN,
@@ -41,6 +44,14 @@ const authRoutes = [
     path:ROUTES.AUTH.ABOUTUS,
     element: <AboutUs />
   },
+  {
+    path:ROUTES.AUTH.POLICYPAGE,
+    element: <PolicyPage />
+  },
+  {
+    path:ROUTES.AUTH.NOTFOUND,
+    element: < NotFound/>
+  }
 ];
 
 export default authRoutes;
