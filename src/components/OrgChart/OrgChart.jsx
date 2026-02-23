@@ -1,6 +1,4 @@
-import React, { useMemo, useState, useEffect } from 'react';
-import { useDispatch, useSelector } from "react-redux";
-import orgChartThunk from "../../features/OrgChart/Redux/thunks/orgChartThunk";
+import React, { useMemo, useState } from 'react';
 import {
     FiFilter,
     FiDownload,
@@ -18,10 +16,7 @@ import {
     FiList
 } from "react-icons/fi";
 
-const OrgChart = () => {
-    const dispatch = useDispatch();
-    const orgChartState = useSelector((state) => state.orgChart);
-    const { loading = false, data = [], error = null } = orgChartState || {};
+const OrgChart = ({ data = [], loading = false, error = null }) => {
 
     const countEmployees = (nodes = []) => {
         let count = 0;
@@ -56,9 +51,6 @@ const OrgChart = () => {
         return data.map(mapNode);
     }, [data]);
 
-    useEffect(() => {
-        dispatch(orgChartThunk());
-    }, [dispatch]);
 
     const [selectedEmployee, setSelectedEmployee] = useState(null);
     const [zoom, setZoom] = useState(1);
