@@ -1,7 +1,7 @@
 import axiosInstance from "../axiosInstance";
 
 const superAdminOrgChartApi = {
-    getOrgChart: () => {
+    getOrgChartApi: () => {
         return axiosInstance.get("/superadmin/orgchart/allchart");
     },
 };
