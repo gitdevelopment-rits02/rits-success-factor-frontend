@@ -16,6 +16,7 @@ import managerTaskAssignmentReducer from "./slices/ManagerTaskAssignmentSlice.js
 import managerTimeSheetReviewReducer from "./slices/ManagerTimeSheetReviewSlice.js";
 import managerTimesheetReducer from "./slices/ManagerTimesheetSlice.js";
 import managerViewMyProfileReducer from "./slices/ManagerViewMyProfileSlice.js";
+import managerOrgChartReducer from "./slices/ManagerOrgChartSlice.js";
 
 const managerRootReducer = combineReducers({
     clockMyTime: managerClockMyTimeReducer,
@@ -34,6 +35,7 @@ const managerRootReducer = combineReducers({
     timeSheetReview: managerTimeSheetReviewReducer,
     timesheet: managerTimesheetReducer,
     viewMyProfile: managerViewMyProfileReducer,
+    orgChart: managerOrgChartReducer,
 });
 
 export default managerRootReducer;

@@ -1,12 +1,9 @@
 import axiosInstance from "./axiosInstance";
 
 const orgChartApi = {
-    // GET all org charts
-    getAllOrgChart: (params) => {
-        return axiosInstance.get(
-            "/superadmin/orgchart/allchart",
-            { params }
-        );
+    // Basic boilerplate for reference
+    getAllOrgChart: () => {
+        return axiosInstance.get("/superadmin/orgchart/allchart");
     },
 };
 

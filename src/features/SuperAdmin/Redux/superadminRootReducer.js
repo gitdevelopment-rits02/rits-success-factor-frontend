@@ -6,6 +6,7 @@ import superAdminFeedbackReducer from "./slices/superAdminFeedbackSlice";
 
 import superAdminPayrollReducer from "./slices/superAdminPayrollSlice";
 import superAdminPolicyReducer from "./slices/superAdminPolicySlice";
+import superAdminOrgChartReducer from "./slices/superAdminOrgChartSlice";
 
 const superradminRootReducer = combineReducers({
   dashboard: superAdminDashboardReducer,
@@ -14,6 +15,7 @@ const superradminRootReducer = combineReducers({
 
   payroll: superAdminPayrollReducer,
   policy: superAdminPolicyReducer,
+  orgChart: superAdminOrgChartReducer,
 });
 
 export default superradminRootReducer;
