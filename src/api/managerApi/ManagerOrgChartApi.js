@@ -1,7 +1,7 @@
 import axiosInstance from "../axiosInstance";
 
 const managerOrgChartApi = {
-    getOrgChart: () => {
+    getOrgChartApi: () => {
         return axiosInstance.get("/manager/organization-chart");
     },
 };

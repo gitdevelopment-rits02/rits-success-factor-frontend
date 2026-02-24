@@ -2,9 +2,9 @@ import { createSlice } from "@reduxjs/toolkit";
 import superAdminOrgChartThunk from "../thunks/superAdminOrgChartThunk";
 
 const initialState = {
-    loading: false,
-    data: [],
-    error: null,
+    getOrgChartLoading: false,
+    orgChartData: [],
+    getOrgChartError: null,
 };
 
 const superAdminOrgChartSlice = createSlice({
@@ -13,17 +13,17 @@ const superAdminOrgChartSlice = createSlice({
     reducers: {},
     extraReducers: (builder) => {
         builder
-            .addCase(superAdminOrgChartThunk.getOrgChart.pending, (state) => {
-                state.loading = true;
-                state.error = null;
+            .addCase(superAdminOrgChartThunk.getOrgChartThunk.pending, (state) => {
+                state.getOrgChartLoading = true;
+                state.getOrgChartError = null;
             })
-            .addCase(superAdminOrgChartThunk.getOrgChart.fulfilled, (state, action) => {
-                state.loading = false;
-                state.data = action.payload.data;
+            .addCase(superAdminOrgChartThunk.getOrgChartThunk.fulfilled, (state, action) => {
+                state.getOrgChartLoading = false;
+                state.orgChartData = action.payload;
             })
-            .addCase(superAdminOrgChartThunk.getOrgChart.rejected, (state, action) => {
-                state.loading = false;
-                state.error = action.payload;
+            .addCase(superAdminOrgChartThunk.getOrgChartThunk.rejected, (state, action) => {
+                state.getOrgChartLoading = false;
+                state.getOrgChartError = action.payload;
             });
     },
 });

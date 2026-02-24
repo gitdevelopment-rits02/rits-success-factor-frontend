@@ -1,4 +1,5 @@
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 import {
     FiFilter,
     FiDownload,
@@ -15,6 +16,7 @@ import {
     FiCheck,
     FiList
 } from "react-icons/fi";
+import hrOrgChartThunk from '../Redux/thunks/HrOrgChartThunk';
 
 const MOCK_EMPLOYEES = [
     {
@@ -139,7 +141,15 @@ const MOCK_EMPLOYEES = [
     }
 ];
 
-const SuperAdminOrgChart = ({ employees: initialEmployees }) => {
+const HrOrgChart = ({ employees: initialEmployees }) => {
+    const dispatch = useDispatch();
+    const { getOrgChartLoading: loading, orgChartData: data, getOrgChartError: error } = useSelector((state) => state.hr.orgChart);
+
+    useEffect(() => {
+        dispatch(hrOrgChartThunk.getOrgChartThunk());
+    }, [dispatch]);
+
+    // Use Redux data if available, otherwise fallback to existing logic
     // Merge all data sources from localStorage for a complete view
     const allEmployees = useMemo(() => {
         const superAdminRaw = localStorage.getItem('successfactor_superadmin');
@@ -514,4 +524,4 @@ const SuperAdminOrgChart = ({ employees: initialEmployees }) => {
     );
 };
 
-export default SuperAdminOrgChart;
+export default HrOrgChart;

@@ -2,9 +2,9 @@ import { createSlice } from "@reduxjs/toolkit";
 import employeeOrgChartThunk from "../thunks/EmployeeOrgChartThunk";
 
 const initialState = {
-    loading: false,
-    data: [],
-    error: null,
+    getOrgChartLoading: false,
+    orgChartData: [],
+    getOrgChartError: null,
 };
 
 const employeeOrgChartSlice = createSlice({
@@ -13,17 +13,17 @@ const employeeOrgChartSlice = createSlice({
     reducers: {},
     extraReducers: (builder) => {
         builder
-            .addCase(employeeOrgChartThunk.getOrgChart.pending, (state) => {
-                state.loading = true;
-                state.error = null;
+            .addCase(employeeOrgChartThunk.getOrgChartThunk.pending, (state) => {
+                state.getOrgChartLoading = true;
+                state.getOrgChartError = null;
             })
-            .addCase(employeeOrgChartThunk.getOrgChart.fulfilled, (state, action) => {
-                state.loading = false;
-                state.data = action.payload.data;
+            .addCase(employeeOrgChartThunk.getOrgChartThunk.fulfilled, (state, action) => {
+                state.getOrgChartLoading = false;
+                state.orgChartData = action.payload;
             })
-            .addCase(employeeOrgChartThunk.getOrgChart.rejected, (state, action) => {
-                state.loading = false;
-                state.error = action.payload;
+            .addCase(employeeOrgChartThunk.getOrgChartThunk.rejected, (state, action) => {
+                state.getOrgChartLoading = false;
+                state.getOrgChartError = action.payload;
             });
     },
 });

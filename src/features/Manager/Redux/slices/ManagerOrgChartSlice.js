@@ -2,9 +2,9 @@ import { createSlice } from "@reduxjs/toolkit";
 import managerOrgChartThunk from "../thunks/ManagerOrgChartThunk";
 
 const initialState = {
-    loading: false,
-    data: [],
-    error: null,
+    getOrgChartLoading: false,
+    orgChartData: [],
+    getOrgChartError: null,
 };
 
 const managerOrgChartSlice = createSlice({
@@ -13,17 +13,17 @@ const managerOrgChartSlice = createSlice({
     reducers: {},
     extraReducers: (builder) => {
         builder
-            .addCase(managerOrgChartThunk.getOrgChart.pending, (state) => {
-                state.loading = true;
-                state.error = null;
+            .addCase(managerOrgChartThunk.getOrgChartThunk.pending, (state) => {
+                state.getOrgChartLoading = true;
+                state.getOrgChartError = null;
             })
-            .addCase(managerOrgChartThunk.getOrgChart.fulfilled, (state, action) => {
-                state.loading = false;
-                state.data = action.payload.data;
+            .addCase(managerOrgChartThunk.getOrgChartThunk.fulfilled, (state, action) => {
+                state.getOrgChartLoading = false;
+                state.orgChartData = action.payload;
             })
-            .addCase(managerOrgChartThunk.getOrgChart.rejected, (state, action) => {
-                state.loading = false;
-                state.error = action.payload;
+            .addCase(managerOrgChartThunk.getOrgChartThunk.rejected, (state, action) => {
+                state.getOrgChartLoading = false;
+                state.getOrgChartError = action.payload;
             });
     },
 });
