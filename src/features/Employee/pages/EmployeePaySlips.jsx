@@ -4,6 +4,7 @@ import { FaDownload, FaEye, FaListUl } from "react-icons/fa";
 import bgWave from "../../../assets/background.png";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchMyPayslip, fetchMyPayslipHistory, fetchMyPayslipPdf } from "../Redux/thunks/EmployeePaySlipsThunk";
+import EmployeePayslipSkeleton from "./EmployeePayslipsSkeleton";
 
 
 const monthNames = {
@@ -47,6 +48,7 @@ const {
   historyData,
 } = useSelector((state) => state.employee.paySlips);
 
+const [allHistory, setAllHistory] = useState([]);
 const [showBreakdown, setShowBreakdown] = useState(false);
 const today = new Date();
 const currentMonth = today.getMonth() + 1;   
@@ -70,22 +72,23 @@ useEffect(() => {
   console.log("HISTORY FROM REDUX:", historyData);
 }, [historyData]);
 
+useEffect(() => {
+  if (historyData?.length && allHistory.length === 0) {
+    setAllHistory(historyData);
+  }
+}, [historyData, allHistory.length]);
 
 const [historyYear, setHistoryYear] = useState("All");
 const [historyMonth, setHistoryMonth] = useState("All");
+const [initialLoading, setInitialLoading] = useState(true);
 
- useEffect(() => {
-  dispatch(
-    fetchMyPayslipHistory({
-      year: historyYear === "All" ? currentYear : Number(historyYear),
-      month:
-        historyMonth === "All"
-          ? undefined
-          : monthNumberMap[historyMonth],   
-    })
-  );
-}, [historyYear, historyMonth, dispatch]);
+useEffect(() => {
+  const timer = setTimeout(() => {
+    setInitialLoading(false);
+  }, 1500);
 
+  return () => clearTimeout(timer);
+}, []);
 
 const [modalData, setModalData] = useState(null);
 const currentCTC = payslip?.totalCTC ?? 0;
@@ -109,33 +112,25 @@ const currentCTC = payslip?.totalCTC ?? 0;
   : null;
 
 
-const history = Array.isArray(historyData) && historyData.length
-  ? historyData.map(item => {
-      const monthName =
-        item.month === 1 ? "January" :
-        item.month === 2 ? "February" :
-        item.month === 3 ? "March" :
-        item.month === 4 ? "April" :
-        item.month === 5 ? "May" :
-        item.month === 6 ? "June" :
-        item.month === 7 ? "July" :
-        item.month === 8 ? "August" :
-        item.month === 9 ? "September" :
-        item.month === 10 ? "October" :
-        item.month === 11 ? "November" :
-        item.month === 12 ? "December" :
-        String(item.month);
+const history = allHistory
+  .filter(item => {
+    const yearMatch =
+      historyYear === "All" || Number(historyYear) === item.year;
 
-  return {
-  monthNum: item.month,
-  month: monthName,
-  year: String(item.year),
-  status: item.status,
-  net: item.salary?.netPay ?? 0,
-  gross: item.salary?.gross ?? 0   
-};
-})
-: [];
+    const monthMatch =
+      historyMonth === "All" || monthNumberMap[historyMonth] === item.month;
+
+    return yearMatch && monthMatch;
+  })
+  .map(item => ({
+    monthNum: item.month,
+    month: monthNames[item.month],
+    year: String(item.year),
+    status: item.status,
+    net: item.salary?.netPay ?? 0,
+    gross: item.salary?.gross ?? 0
+  }));
+
 
 
 
@@ -166,16 +161,7 @@ const downloadPDF = async (data) => {
 
 
 
-if (loading && !payslip) {
-  return <div>Loading payslip...</div>;
-}
 
-if (error) {
-  return <div className="p-10 text-red-600">Error: {error}</div>;
-}
-if (!payslip || !structure) {
-  return <div className="p-10 text-center">Preparing payslip data...</div>;
-}
 
 const modalStructure = payslip
   ? {
@@ -193,6 +179,9 @@ const modalStructure = payslip
     }
   : null;
 
+if (initialLoading) {
+  return <EmployeePayslipSkeleton />;
+}
 
   return (
      <div
@@ -301,7 +290,8 @@ const modalStructure = payslip
       onChange={(e) => setHistoryYear(e.target.value)}
       className="pl-9 pr-4 py-2.5 rounded-xl border border-gray-200 bg-white shadow-sm text-[13px] font-medium outline-none focus:ring-2 focus:ring-blue-200 focus:border-blue-400 transition-all">
       <option value="All">All Years</option>
-      {[...new Set(history.map(h => h.year))].map(y => (
+      {[...new Set(allHistory.map(h => h.year))]
+.map(y => (
         <option key={y} value={y}>{y}</option>
       ))}
     </select>
@@ -315,7 +305,7 @@ const modalStructure = payslip
       onChange={(e) => setHistoryMonth(e.target.value)}
       className="pl-9 pr-4 py-2.5 rounded-xl border border-gray-200 bg-white shadow-sm text-[13px] font-medium outline-none focus:ring-2 focus:ring-blue-200 focus:border-blue-400 transition-all" >
       <option value="All">Months</option>
-      {[...new Set(history.map(h => h.month))].map(m => (
+      {[...new Set(allHistory.map(h => monthNames[h.month]))].map(m => (
         <option key={m} value={m}>{m}</option>
       ))}
     </select>
