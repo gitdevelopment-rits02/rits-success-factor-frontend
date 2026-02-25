@@ -9,19 +9,22 @@ export default function LandingRedirect() {
   if (!isAuthenticated || !user) return <Navigate to="/login" replace />;
 
   switch (user.role) {
-    case ROLES.SUPERADMIN:
-      return <Navigate to={ROUTES.SUPERADMIN.TIMESHEETAPPROVAL} replace />;
+  case "superadmin":
+    return <Navigate to="/superadmin/dashboard" replace />;
 
-    case ROLES.MANAGER:
-      return <Navigate to={ROUTES.MANAGER.DASHBOARD} replace />;
+  case "chief":
+    return <Navigate to="/chief/dashboard" replace />;
 
-    case ROLES.KITCHEN:
-      return <Navigate to={ROUTES.KITCHEN.KOT_VIEW} replace />;
+  case "hr":
+    return <Navigate to="/hr/dashboard" replace />;
 
-    case ROLES.WAITER:
-      return <Navigate to={ROUTES.WAITER.DASHBOARD} replace />;
+  case "manager":
+    return <Navigate to="/manager/dashboard" replace />;
 
-    default:
-      return <Navigate to="/not-found" replace />;
-  }
+  case "employee":
+    return <Navigate to="/employee/dashboard" replace />;
+
+  default:
+    return <Navigate to="/login" replace />;
+}
 }

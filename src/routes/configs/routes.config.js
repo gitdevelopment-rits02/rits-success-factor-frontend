@@ -12,7 +12,10 @@ export const ROUTES = {
     ABOUT:"/aboutus",
     DUMMY:"/dummy",
     FORGOTPASSWORDOTPVERIFY:"/forgotpasswordotpverify",
-    ABOUTUS:"/aboutus"
+    ABOUTUS:"/aboutus",
+    POLICYPAGE:"/privacypolicy",
+    NOTFOUND:"/notfound"
+
   },
 
   SUPERADMIN: {
@@ -98,6 +101,7 @@ export const ROUTES = {
     TIMESHEET:"/hr/timesheet",
     ORGCHART:"/hr/orgchart",
     OFFBOARDING:"/hr/offboarding",
+    LEAVEAPPROVAL:"/hr/leaveapproval"
 
 
   },

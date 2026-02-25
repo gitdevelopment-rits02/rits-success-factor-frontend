@@ -93,8 +93,6 @@ const mapAdminToForm = (admin) => ({
     ? admin.status.toLowerCase()
     : "active",
 
-
-
   personalDetails: {
     dob: admin.personalDetails?.dob
       ? admin.personalDetails.dob.split("T")[0]
@@ -162,6 +160,7 @@ const mapAdminToForm = (admin) => ({
 
 
   salary: {
+    totalCtc: admin.salary?.totalCtc || "",
     basic: admin.salary?.basic || "",
     hra: admin.salary?.hra || "",
     conveyance: admin.salary?.conveyance || "",
@@ -184,6 +183,8 @@ export default function SuperAdminAdminManagement() {
   const [openEdit, setOpenEdit] = useState(false);
   const [selected, setSelected] = useState(null);
   const [errors, setErrors] = useState({});
+  const [page, setPage] = useState(1);
+  const limit = 10;
 
   const [form, setForm] = useState({
     role: "admin",
@@ -247,6 +248,7 @@ export default function SuperAdminAdminManagement() {
     ],
 
     salary: {
+      totalCtc: "",
       basic: "",
       hra: "",
       conveyance: "",
@@ -260,15 +262,21 @@ export default function SuperAdminAdminManagement() {
 
   const dispatch = useDispatch();
 
-
-  const { data: admins = [], loading, error } = useSelector(
-    (state) => state.superAdmin.adminManagement
-  );
+  const {
+    data: admins = [],
+    totalPages = 1,
+    total = 0,
+    loading,
+    error,
+  } = useSelector((state) => state.superAdmin.adminManagement);
 
 
   useEffect(() => {
-    dispatch(superAdminAdminManagementThunk.getAdmins());
-  }, [dispatch]);
+    dispatch(
+      superAdminAdminManagementThunk.getAdmins({ page, limit })
+    );
+  }, [dispatch, page]);
+
 
 
   const filtered = useMemo(() => {
@@ -378,6 +386,7 @@ export default function SuperAdminAdminManagement() {
       ],
 
       salary: {
+        totalCtc: "",
         basic: "",
         hra: "",
         conveyance: "",
@@ -389,240 +398,278 @@ export default function SuperAdminAdminManagement() {
   };
 
   const validateBasicDetails = () => {
-  const e = {};
+    const e = {};
 
-  if (!form.employeeName.trim())
-    e.employeeName = "Employee Name is required";
+    if (!form.employeeName.trim())
+      e.employeeName = "Employee Name is required";
 
-  if (!form.officialEmail.trim()) {
-    e.officialEmail = "Official Email is required";
-  } else if (
-    !/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i.test(form.officialEmail)
-  ) {
-    e.officialEmail = "Invalid email format";
-  }
+    if (!form.officialEmail.trim()) {
+      e.officialEmail = "Official Email is required";
+    } else if (
+      !/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.(com|in|org|net)$/i.test(form.officialEmail)
 
-  if (!form.phoneNumber) {
-    e.phoneNumber = "Phone Number is required";
-  } else if (form.phoneNumber.length !== 10) {
-    e.phoneNumber = "Phone Number must be 10 digits";
-  }
+    ) {
+      e.officialEmail = "email should be name@gmail.com";
+    }
 
-  if (!form.password && !selected)
-    e.password = "Password is required";
+    if (!form.phoneNumber) {
+      e.phoneNumber = "Phone Number is required";
+    } else if (!/^\d{10}$/.test(form.phoneNumber)) {
+      e.phoneNumber = "Phone Number must be exactly 10 digits";
+    }
 
-  if (!form.status)
-    e.status = "Status is required";
+    if (!form.password && !selected) {
+      e.password = "Password is required";
+    } else if (form.password) {
+      const strongPassword =
+        /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&]).{8,}$/;
 
-  return e;
-};
+      if (!strongPassword.test(form.password)) {
+        e.password =
+          "Password must contain 8+ chars, 1 uppercase, 1 lowercase, 1 number, 1 special symbol";
+      }
+    }
+
+
+    if (!form.status)
+      e.status = "Status is required";
+
+    return e;
+  };
 
 
 
- const validatePersonalDetails = () => {
-  const e = {};
-  const p = form.personalDetails;
+  const validatePersonalDetails = () => {
+    const e = {};
+    const p = form.personalDetails;
 
-  if (!p.dob)
-    e["personalDetails.dob"] = "DOB is required";
+    if (!p.dob)
+      e["personalDetails.dob"] = "DOB is required";
 
-  if (!p.bloodGroup.trim())
-    e["personalDetails.bloodGroup"] = "Blood group is required";
+    if (!p.bloodGroup.trim())
+      e["personalDetails.bloodGroup"] = "Blood group is required";
 
-  if (!p.personalEmail.trim()) {
-    e["personalDetails.personalEmail"] = "Personal email is required";
-  } else if (
-    !/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i.test(p.personalEmail)
-  ) {
-    e["personalDetails.personalEmail"] = "Invalid email format";
-  }
+    if (!p.personalEmail.trim()) {
+      e["personalDetails.personalEmail"] = "Personal email is required";
+    } else if (
+      !/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.(com|in|org|net)$/i.test(p.personalEmail)
 
-  if (!p.alternateNumber) {
-    e["personalDetails.alternateNumber"] = "Alternate number is required";
-  } else if (p.alternateNumber.length !== 10) {
-    e["personalDetails.alternateNumber"] =
-      "Alternate number must be 10 digits";
-  }
+    ) {
+      e["personalDetails.personalEmail"] = "email should be name@gmail.com";
+    }
 
-  if (!p.city.trim())
-    e["personalDetails.city"] = "City is required";
+    if (!p.alternateNumber) {
+      e["personalDetails.alternateNumber"] = "Alternate number is required";
+    } else if (!/^\d{10}$/.test(p.alternateNumber)) {
+      e["personalDetails.alternateNumber"] =
+        "Alternate number must be exactly 10 digits";
+    }
 
-  if (!p.pinCode.trim()) {
-    e["personalDetails.pinCode"] = "Pin Code is required";
-  } else if (!/^\d{6}$/.test(p.pinCode)) {
-    e["personalDetails.pinCode"] = "Pin Code must be 6 digits";
-  }
 
-  if (!p.address.trim())
-    e["personalDetails.address"] = "Address is required";
+    if (!p.city.trim())
+      e["personalDetails.city"] = "City is required";
 
-  return e;
-};
+    if (!p.pinCode.trim()) {
+      e["personalDetails.pinCode"] = "Pin Code is required";
+    } else if (!/^\d{6}$/.test(p.pinCode)) {
+      e["personalDetails.pinCode"] = "Pin Code must be 6 digits";
+    }
 
-const validateWorkDetails = () => {
-  const e = {};
-  const w = form.workDetails;
+    if (!p.address.trim())
+      e["personalDetails.address"] = "Address is required";
 
-  if (!w.department.trim())
-    e["workDetails.department"] = "Department is required";
+    return e;
+  };
 
-  if (!w.designation.trim())
-    e["workDetails.designation"] = "Designation is required";
+  const validateWorkDetails = () => {
+    const e = {};
+    const w = form.workDetails;
 
-  if (!w.dateOfJoining)
-    e["workDetails.dateOfJoining"] = "Joining date is required";
+    if (!w.department.trim())
+      e["workDetails.department"] = "Department is required";
 
-  if (!w.reportingManager.trim())
-    e["workDetails.reportingManager"] = "Reporting manager required";
+    if (!w.designation.trim())
+      e["workDetails.designation"] = "Designation is required";
 
-  if (!w.workLocation.trim())
-    e["workDetails.workLocation"] = "Work location required";
+    if (!w.dateOfJoining)
+      e["workDetails.dateOfJoining"] = "Joining date is required";
 
-  if (!w.workType.trim())
-    e["workDetails.workType"] = "Work type required";
+    if (!w.reportingManager.trim())
+      e["workDetails.reportingManager"] = "Reporting manager required";
 
-  if (!w.employmentStatus)
-    e["workDetails.employmentStatus"] = "Employment status required";
+    if (!w.workLocation.trim())
+      e["workDetails.workLocation"] = "Work location required";
 
-  return e;
-};
+    if (!w.workType.trim())
+      e["workDetails.workType"] = "Work type required";
+
+    if (!w.employmentStatus)
+      e["workDetails.employmentStatus"] = "Employment status required";
+
+    return e;
+  };
 
 
   const validateSkills = () => {
-  const e = {};
+    const e = {};
 
-  form.skills.forEach((s, i) => {
-    if (!s.skillCategory.trim())
-      e[`skills.${i}.skillCategory`] = "Skill category required";
+    form.skills.forEach((s, i) => {
+      if (!s.skillCategory.trim())
+        e[`skills.${i}.skillCategory`] = "Skill category required";
 
-    if (!s.skillName.trim())
-      e[`skills.${i}.skillName`] = "Skill name required";
-  });
+      if (!s.skillName.trim())
+        e[`skills.${i}.skillName`] = "Skill name required";
+    });
 
-  return e;
-};
+    return e;
+  };
 
 
   // 5. Qualification
   const validateQualification = () => {
-  const e = {};
-  const q = form.qualification;
+    const e = {};
+    const q = form.qualification;
 
-  if (!q.degree.trim())
-    e["qualification.degree"] = "Degree required";
+    if (!q.degree.trim())
+      e["qualification.degree"] = "Degree required";
 
-  if (!q.institution.trim())
-    e["qualification.institution"] = "Institution required";
+    if (!q.institution.trim())
+      e["qualification.institution"] = "Institution required";
 
-  if (!q.yearOfCompletion) {
-    e["qualification.yearOfCompletion"] = "Year required";
-  } else if (q.yearOfCompletion < 1950 || q.yearOfCompletion > new Date().getFullYear()) {
-    e["qualification.yearOfCompletion"] = "Invalid year";
-  }
+    if (!q.yearOfCompletion) {
+      e["qualification.yearOfCompletion"] = "Year required";
+    } else if (q.yearOfCompletion < 1950 || q.yearOfCompletion > new Date().getFullYear()) {
+      e["qualification.yearOfCompletion"] = "Invalid year";
+    }
 
-  return e;
-};
-
- const validateExperiences = () => {
-  const e = {};
-
-  form.experiences.forEach((ex, i) => {
-    if (!ex.jobTitle.trim())
-      e[`experiences.${i}.jobTitle`] = "Job title required";
-
-    if (!ex.companyName.trim())
-      e[`experiences.${i}.companyName`] = "Company name required";
-
-    if (!ex.duration.trim())
-      e[`experiences.${i}.duration`] = "Duration required";
-
-    if (!ex.documentUrl)
-      e[`experiences.${i}.documentUrl`] = "Experience document required";
-  });
-
-  return e;
-};
-
-
-const validateDocuments = () => {
-  const e = {};
-
-  form.documents.forEach((d, i) => {
-    if (!d.documentName.trim())
-      e[`documents.${i}.documentName`] = "Document name is required";
-
-    if (!d.documentUrl)
-      e[`documents.${i}.documentUrl`] = "Document file is required";
-  });
-
-  return e;
-};
-
-
-
- const validateAssets = () => {
-  const e = {};
-
-  form.assets.forEach((a, i) => {
-    if (!a.assetName.trim())
-      e[`assets.${i}.assetName`] = "Asset name required";
-
-    if (!a.serialNumber.trim())
-      e[`assets.${i}.serialNumber`] = "Serial number required";
-
-    if (!a.assignedDate)
-      e[`assets.${i}.assignedDate`] = "Assigned date required";
-  });
-
-  return e;
-};
-
-
- const validateSalary = () => {
-  const e = {};
-  const s = form.salary;
-
-  const isValidNumber = (val) =>
-    val !== "" && !isNaN(val) && Number(val) >= 0;
-
-  if (!isValidNumber(s.basic))
-    e["salary.basic"] = "Basic salary is required";
-
-  if (!isValidNumber(s.hra))
-    e["salary.hra"] = "HRA is required";
-
-  if (!isValidNumber(s.conveyance))
-    e["salary.conveyance"] = "Conveyance is required";
-
-  if (!isValidNumber(s.specialAllowance))
-    e["salary.specialAllowance"] = "Special Allowance is required";
-
-  if (!isValidNumber(s.grossSalary))
-    e["salary.grossSalary"] = "Gross salary is required";
-
-  if (!isValidNumber(s.netPay))
-    e["salary.netPay"] = "Net pay is required";
-
-  return e;
-};
-
-  
-  const validateAllSections = () => {
-  const allErrors = {
-    ...validateBasicDetails(),
-    ...validatePersonalDetails(),
-    ...validateWorkDetails(),
-    ...validateSkills(),
-    ...validateQualification(),
-    ...validateExperiences(),
-    ...validateDocuments(),
-    ...validateAssets(),
-    ...validateSalary(),
+    return e;
   };
 
-  setErrors(allErrors);
-  return Object.keys(allErrors).length === 0;
-};
+  const validateExperiences = () => {
+    const e = {};
+
+    form.experiences.forEach((ex, i) => {
+      if (!ex.jobTitle.trim())
+        e[`experiences.${i}.jobTitle`] = "Job title required";
+
+      if (!ex.companyName.trim())
+        e[`experiences.${i}.companyName`] = "Company name required";
+
+      if (!ex.duration.trim())
+        e[`experiences.${i}.duration`] = "Duration required";
+
+      if (!ex.documentUrl)
+        e[`experiences.${i}.documentUrl`] = "Experience document required";
+    });
+
+    return e;
+  };
+
+
+  const validateDocuments = () => {
+    const e = {};
+
+    form.documents.forEach((d, i) => {
+      if (!d.documentName.trim())
+        e[`documents.${i}.documentName`] = "Document name is required";
+
+      if (!d.documentUrl)
+        e[`documents.${i}.documentUrl`] = "Document file is required";
+    });
+
+    return e;
+  };
+
+
+
+  const validateAssets = () => {
+    const e = {};
+
+    form.assets.forEach((a, i) => {
+      if (!a.assetName.trim())
+        e[`assets.${i}.assetName`] = "Asset name required";
+
+      if (!a.serialNumber.trim())
+        e[`assets.${i}.serialNumber`] = "Serial number required";
+
+      if (!a.assignedDate)
+        e[`assets.${i}.assignedDate`] = "Assigned date required";
+    });
+
+    return e;
+  };
+
+
+  const validateSalary = () => {
+    const e = {};
+    const s = form.salary;
+
+    const isValidNumber = (val) =>
+      val !== "" && !isNaN(val) && Number(val) >= 0;
+
+    if (!isValidNumber(s.totalCtc))
+      e["salary.totalCtc"] = "CTC is required";
+
+
+    if (!isValidNumber(s.basic))
+      e["salary.basic"] = "Basic salary is required";
+
+    if (!isValidNumber(s.hra))
+      e["salary.hra"] = "HRA is required";
+
+    if (!isValidNumber(s.conveyance))
+      e["salary.conveyance"] = "Conveyance is required";
+
+    if (!isValidNumber(s.specialAllowance))
+      e["salary.specialAllowance"] = "Special Allowance is required";
+
+    if (!isValidNumber(s.grossSalary))
+      e["salary.grossSalary"] = "Gross salary is required";
+
+    if (!isValidNumber(s.netPay))
+      e["salary.netPay"] = "Net pay is required";
+
+    return e;
+  };
+
+
+  const validateAllSections = () => {
+    const allErrors = {
+      ...validateBasicDetails(),
+      ...validatePersonalDetails(),
+      ...validateWorkDetails(),
+      ...validateSkills(),
+      ...validateQualification(),
+      ...validateExperiences(),
+      ...validateDocuments(),
+      ...validateAssets(),
+      ...validateSalary(),
+    };
+
+    setErrors(allErrors);
+     if (Object.keys(allErrors).length > 0) {
+    const firstErrorField = Object.keys(allErrors)[0];
+
+    // small delay to ensure DOM updates
+    setTimeout(() => {
+      const element = document.querySelector(
+        `[name="${firstErrorField}"]`
+      );
+
+      if (element) {
+        element.scrollIntoView({
+          behavior: "smooth",
+          block: "center",
+        });
+        element.focus();
+      }
+    }, 100);
+
+    return false;
+  }
+
+  return true;
+  };
 
   const handleCreate = async () => {
     if (!validateAllSections()) return;
@@ -858,7 +905,8 @@ const validateDocuments = () => {
           <StatCard
             icon={<FiUserPlus size={20} className="text-blue-600" />}
             label="Admins Created"
-            value={createdThisMonth}
+            value={total}
+
             badge="This month"
             badgeColor="bg-blue-100 text-blue-700"
             gradient="from-blue-50 to-indigo-50"
@@ -1017,6 +1065,63 @@ const validateDocuments = () => {
                     <p className="mt-1 text-sm">Try adjusting your search or filters</p>
                   </div>
                 )}
+                {totalPages > 1 && (
+                  <div className="flex items-center justify-between border-t border-slate-200 bg-white px-6 py-4">
+
+                    <div className="text-sm text-slate-600">
+                      Page {page} of {totalPages}
+                    </div>
+
+                    <div className="flex items-center gap-2">
+
+                      <button
+                        onClick={() => setPage((prev) => prev - 1)}
+                        disabled={page === 1}
+                        className={`rounded-lg px-4 py-2 text-sm font-medium transition
+          ${page === 1
+                            ? "cursor-not-allowed bg-slate-100 text-slate-400"
+                            : "bg-slate-200 text-slate-700 hover:bg-slate-300"
+                          }
+                       `}
+                      >
+                        Previous
+                      </button>
+
+                      {[...Array(totalPages)].map((_, index) => {
+                        const pageNumber = index + 1;
+                        return (
+                          <button
+                            key={pageNumber}
+                            onClick={() => setPage(pageNumber)}
+                            className={`rounded-lg px-3 py-2 text-sm font-medium transition
+                            ${page === pageNumber
+                                ? "bg-blue-600 text-white"
+                                : "bg-slate-200 text-slate-700 hover:bg-slate-300"
+                              }
+            `}
+                          >
+                            {pageNumber}
+                          </button>
+                        );
+                      })}
+
+                      <button
+                        onClick={() => setPage((prev) => prev + 1)}
+                        disabled={page === totalPages}
+                        className={`rounded-lg px-4 py-2 text-sm font-medium transition
+          ${page === totalPages
+                            ? "cursor-not-allowed bg-slate-100 text-slate-400"
+                            : "bg-slate-200 text-slate-700 hover:bg-slate-300"
+                          }
+        `}
+                      >
+                        Next
+                      </button>
+
+                    </div>
+                  </div>
+                )}
+
               </div>
 
               {/* Mobile */}
@@ -1093,9 +1198,67 @@ const validateDocuments = () => {
                     <p className="mt-1 text-sm">Try adjusting your search or filters</p>
                   </div>
                 )}
+                {totalPages > 1 && (
+                  <div className="flex items-center justify-between border-t border-slate-200 bg-white px-6 py-4">
+
+                    <div className="text-sm text-slate-600">
+                      Page {page} of {totalPages}
+                    </div>
+
+                    <div className="flex items-center gap-2">
+
+                      <button
+                        onClick={() => setPage((prev) => prev - 1)}
+                        disabled={page === 1}
+                        className={`rounded-lg px-4 py-2 text-sm font-medium transition
+          ${page === 1
+                            ? "cursor-not-allowed bg-slate-100 text-slate-400"
+                            : "bg-slate-200 text-slate-700 hover:bg-slate-300"
+                          }
+        `}
+                      >
+                        Previous
+                      </button>
+
+                      {[...Array(totalPages)].map((_, index) => {
+                        const pageNumber = index + 1;
+                        return (
+                          <button
+                            key={pageNumber}
+                            onClick={() => setPage(pageNumber)}
+                            className={`rounded-lg px-3 py-2 text-sm font-medium transition
+              ${page === pageNumber
+                                ? "bg-blue-600 text-white"
+                                : "bg-slate-200 text-slate-700 hover:bg-slate-300"
+                              }
+            `}
+                          >
+                            {pageNumber}
+                          </button>
+                        );
+                      })}
+
+                      <button
+                        onClick={() => setPage((prev) => prev + 1)}
+                        disabled={page === totalPages}
+                        className={`rounded-lg px-4 py-2 text-sm font-medium transition
+          ${page === totalPages
+                            ? "cursor-not-allowed bg-slate-100 text-slate-400"
+                            : "bg-slate-200 text-slate-700 hover:bg-slate-300"
+                          }
+        `}
+                      >
+                        Next
+                      </button>
+
+                    </div>
+                  </div>
+                )}
+
               </div>
             </>
           )}
+
         </div>
 
       </div>
@@ -1122,7 +1285,7 @@ const validateDocuments = () => {
           title="Edit Admin"
           form={form}
           setForm={setForm}
-          errors={errors}        // 🔥 ADD THIS
+          errors={errors}        
           setErrors={setErrors}
           onClose={() => {
             setOpenEdit(false);
@@ -1141,7 +1304,7 @@ function Modal({ title, form, setForm, errors, setErrors, onClose, onSubmit, sub
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm">
       <div className="w-full max-w-screen-lg transform rounded-2xl bg-white shadow-2xl transition-all">
-        <div  className="flex items-center bg-slate-100 justify-between rounded-2xl border-b border-slate-200 bg-gradient-to-r from-slate-50 to-white p-6">
+        <div className="flex items-center bg-slate-100 justify-between rounded-2xl border-b border-slate-200 bg-gradient-to-r from-slate-50 to-white p-6">
           <h2 className="text-xl font-bold  text-slate-900">{title}</h2>
           <button
             onClick={onClose}
@@ -1219,6 +1382,7 @@ function Modal({ title, form, setForm, errors, setErrors, onClose, onSubmit, sub
                   </label>
 
                   <select
+                  name="status"
                     value={form.status}
                     onChange={(e) => {
                       setForm({ ...form, status: e.target.value });
@@ -1474,6 +1638,7 @@ function Modal({ title, form, setForm, errors, setErrors, onClose, onSubmit, sub
                   </label>
 
                   <select
+                  name="workDetails.employmentStatus"
                     value={form.workDetails.employmentStatus}
                     onChange={(e) => {
                       setForm({
@@ -1675,6 +1840,7 @@ function Modal({ title, form, setForm, errors, setErrors, onClose, onSubmit, sub
                     </label>
 
                     <input
+                    name={`experiences.${i}.documentUrl`}
                       type="file"
                       accept=".pdf,.jpg,.jpeg,.png"
                       onChange={(ev) => {
@@ -1775,9 +1941,9 @@ function Modal({ title, form, setForm, errors, setErrors, onClose, onSubmit, sub
                           file:mr-4 file:rounded-lg file:border-0
                              file:bg-blue-600 file:px-4 file:py-2
                             file:text-white hover:file:bg-blue-700"
-                     />
+                    />
 
-                     {typeof d.documentUrl === "string" && d.documentUrl && (
+                    {typeof d.documentUrl === "string" && d.documentUrl && (
                       <p className="mt-1 text-xs text-slate-600">
                         Existing file:{" "}
                         <a
@@ -1821,6 +1987,24 @@ function Modal({ title, form, setForm, errors, setErrors, onClose, onSubmit, sub
               <h3 className="text-sm font-semibold">Salary</h3>
 
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+
+
+                <Field
+                  label="totalCtc"
+                  name="salary.totalCtc"
+                  type="number"
+                  placeholder="900000"
+                  value={form.salary.totalCtc}
+                  onChange={(v) => {
+                    setForm({
+                      ...form,
+                      salary: { ...form.salary, totalCtc: v },
+                    });
+                    setErrors({ ...errors, "salary.totalCtc": "" });
+                  }}
+                  errors={errors}
+                />
+
 
                 <Field
                   label="Basic Salary"
@@ -2092,6 +2276,7 @@ function Field({
         )}
 
         <input
+        name={name}
           type={type}
           placeholder={placeholder}
           value={value}
@@ -2104,8 +2289,8 @@ function Field({
             ${error
               ? "border-red-400 focus:ring-red-100"
               : isFocused
-              ? "border-blue-500 ring-4 ring-blue-100"
-              : "border-slate-200 focus:border-blue-400 focus:ring-blue-100"
+                ? "border-blue-500 ring-4 ring-blue-100"
+                : "border-slate-200 focus:border-blue-400 focus:ring-blue-100"
             }
 
             focus:outline-none`}

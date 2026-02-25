@@ -1,4 +1,5 @@
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 import {
     FiFilter,
     FiDownload,
@@ -15,131 +16,50 @@ import {
     FiCheck,
     FiList
 } from "react-icons/fi";
+import managerOrgChartThunk from '../Redux/thunks/ManagerOrgChartThunk';
 
-const MOCK_EMPLOYEES = [
-    {
-        id: 'emp001',
-        name: 'Rajesh Kumar',
-        designation: 'Chief Executive Officer',
-        department: 'Executive',
-        companyEmail: 'rajesh.kumar@ritshr.com',
-        phone: '+91-9876543210',
-        status: 'Active',
-        joiningDate: '2020-01-15',
-        avatar: 'https://ui-avatars.com/api/?name=Rajesh+Kumar&background=1e40af&color=fff',
-        reportingManager: null
-    },
-    {
-        id: 'emp002',
-        name: 'Priya Sharma',
-        designation: 'HR Director',
-        department: 'Human Resources',
-        companyEmail: 'priya.sharma@ritshr.com',
-        phone: '+91-9876543211',
-        status: 'Active',
-        joiningDate: '2020-06-10',
-        avatar: 'https://ui-avatars.com/api/?name=Priya+Sharma&background=1e40af&color=fff',
-        reportingManager: 'Rajesh Kumar'
-    },
-    {
-        id: 'emp003',
-        name: 'Amit Patel',
-        designation: 'Finance Manager',
-        department: 'Finance',
-        companyEmail: 'amit.patel@ritshr.com',
-        phone: '+91-9876543212',
-        status: 'Active',
-        joiningDate: '2020-08-20',
-        avatar: 'https://ui-avatars.com/api/?name=Amit+Patel&background=1e40af&color=fff',
-        reportingManager: 'Rajesh Kumar'
-    },
-    {
-        id: 'emp004',
-        name: 'Sneha Gupta',
-        designation: 'Recruitment Manager',
-        department: 'Human Resources',
-        companyEmail: 'sneha.gupta@ritshr.com',
-        phone: '+91-9876543213',
-        status: 'Active',
-        joiningDate: '2021-02-14',
-        avatar: 'https://ui-avatars.com/api/?name=Sneha+Gupta&background=1e40af&color=fff',
-        reportingManager: 'Priya Sharma'
-    },
-    {
-        id: 'emp005',
-        name: 'Vikram Singh',
-        designation: 'Senior HR Executive',
-        department: 'Human Resources',
-        companyEmail: 'vikram.singh@ritshr.com',
-        phone: '+91-9876543214',
-        status: 'Active',
-        joiningDate: '2021-04-10',
-        avatar: 'https://ui-avatars.com/api/?name=Vikram+Singh&background=1e40af&color=fff',
-        reportingManager: 'Priya Sharma'
-    },
-    {
-        id: 'emp006',
-        name: 'Neha Reddy',
-        designation: 'Accountant',
-        department: 'Finance',
-        companyEmail: 'neha.reddy@ritshr.com',
-        phone: '+91-9876543215',
-        status: 'Active',
-        joiningDate: '2021-05-20',
-        avatar: 'https://ui-avatars.com/api/?name=Neha+Reddy&background=1e40af&color=fff',
-        reportingManager: 'Amit Patel'
-    },
-    {
-        id: 'emp007',
-        name: 'Arjun Verma',
-        designation: 'Finance Analyst',
-        department: 'Finance',
-        companyEmail: 'arjun.verma@ritshr.com',
-        phone: '+91-9876543216',
-        status: 'Active',
-        joiningDate: '2021-07-15',
-        avatar: 'https://ui-avatars.com/api/?name=Arjun+Verma&background=1e40af&color=fff',
-        reportingManager: 'Amit Patel'
-    },
-    {
-        id: 'emp008',
-        name: 'Divya Nair',
-        designation: 'HR Executive',
-        department: 'Human Resources',
-        companyEmail: 'divya.nair@ritshr.com',
-        phone: '+91-9876543217',
-        status: 'Active',
-        joiningDate: '2022-01-10',
-        avatar: 'https://ui-avatars.com/api/?name=Divya+Nair&background=1e40af&color=fff',
-        reportingManager: 'Sneha Gupta'
-    },
-    {
-        id: 'emp009',
-        name: 'Rohan Das',
-        designation: 'Operations Manager',
-        department: 'Operations',
-        companyEmail: 'rohan.das@ritshr.com',
-        phone: '+91-9876543218',
-        status: 'Active',
-        joiningDate: '2020-09-05',
-        avatar: 'https://ui-avatars.com/api/?name=Rohan+Das&background=1e40af&color=fff',
-        reportingManager: 'Rajesh Kumar'
-    },
-    {
-        id: 'emp010',
-        name: 'Kavya Menon',
-        designation: 'Operations Executive',
-        department: 'Operations',
-        companyEmail: 'kavya.menon@ritshr.com',
-        phone: '+91-9876543219',
-        status: 'Active',
-        joiningDate: '2022-03-15',
-        avatar: 'https://ui-avatars.com/api/?name=Kavya+Menon&background=1e40af&color=fff',
-        reportingManager: 'Rohan Das'
-    }
-];
+const ManagerOrgChart = () => {
+    const dispatch = useDispatch();
+    const { getOrgChartLoading: loading, orgChartData: data, getOrgChartError: error } = useSelector((state) => state.manager.orgChart);
 
-const SuperAdminOrgChart = ({ employees = MOCK_EMPLOYEES }) => {
+    useEffect(() => {
+        dispatch(managerOrgChartThunk.getOrgChartThunk());
+    }, [dispatch]);
+
+    const countEmployees = (nodes = []) => {
+        let count = 0;
+        const walk = (arr) => {
+            arr.forEach((n) => {
+                count++;
+                if (n.children && n.children.length > 0) {
+                    walk(n.children);
+                }
+            });
+        };
+        walk(nodes);
+        return count;
+    };
+
+    // API employees mapping
+    const employees = useMemo(() => {
+        if (!Array.isArray(data)) return [];
+
+        const mapNode = (emp) => ({
+            id: emp.employeeNo || emp.id,
+            name: emp.employeeName || emp.name,
+            designation: emp.designation,
+            department: emp.department,
+            status: emp.status?.toLowerCase() === "active" ? "Active" : "Inactive",
+            reportingManager: emp.reportingManager,
+            role: emp.role,
+            avatar: emp.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(emp.employeeName || emp.name)}`,
+            children: (emp.children || []).map(mapNode),
+        });
+
+        return data.map(mapNode);
+    }, [data]);
+
+
     const [selectedEmployee, setSelectedEmployee] = useState(null);
     const [zoom, setZoom] = useState(1);
     const [viewMode, setViewMode] = useState('chart');
@@ -166,64 +86,20 @@ const SuperAdminOrgChart = ({ employees = MOCK_EMPLOYEES }) => {
         return ['All', ...new Set(employees.map(e => e.department))];
     }, [employees]);
 
-    const handleDownload = () => {
-        const headers = ['ID', 'Name', 'Designation', 'Department', 'Email', 'Phone', 'Status', 'Joining Date'];
-        const csvContent = [
-            headers.join(','),
-            ...filteredEmployees.map(e => [
-                e.id,
-                `"${e.name}"`,
-                `"${e.designation}"`,
-                e.department,
-                e.companyEmail,
-                e.phone || '',
-                e.status,
-                e.joiningDate
-            ].join(','))
-        ].join('\n');
-
-        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-        const link = document.createElement('a');
-        if (link.download !== undefined) {
-            const url = URL.createObjectURL(blob);
-            link.setAttribute('href', url);
-            link.setAttribute('download', `ritshr_org_data_${filterDept.toLowerCase()}.csv`);
-            link.style.visibility = 'hidden';
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-        }
-    };
-
     const hierarchy = useMemo(() => {
-        const roots = employees.filter(emp =>
-            !emp.reportingManager ||
-            !employees.some(e => e.name === emp.reportingManager)
-        );
-
-        if (roots.length === 0) return null;
-
-        const buildNode = (emp) => {
-            const directReports = employees.filter(e => e.reportingManager === emp.name);
-            return {
-                ...emp,
-                children: directReports.map(r => buildNode(r))
-            };
-        };
-
-        if (roots.length === 1) {
-            return buildNode(roots[0]);
-        } else {
-            return {
-                id: 'ROOT',
-                name: 'RitsHR Organization',
-                designation: 'Corporate Hierarchy',
-                department: 'Global',
-                avatar: 'https://ui-avatars.com/api/?name=Rits+HR&background=1e3a8a&color=fff',
-                status: 'Active',
-                children: roots.map(r => buildNode(r))
-            };
+        if (!employees.length) return null;
+        if (employees.length === 1) {
+            return employees[0];
         }
+        return {
+            id: "ROOT",
+            name: "Organization Chart",
+            designation: "Team Structure",
+            department: "Global",
+            status: "Active",
+            avatar: "https://ui-avatars.com/api/?name=Team&background=1e3a8a&color=fff",
+            children: employees,
+        };
     }, [employees]);
 
     const renderNode = (node) => {
@@ -233,7 +109,7 @@ const SuperAdminOrgChart = ({ employees = MOCK_EMPLOYEES }) => {
         const isVirtualRoot = node.id === 'ROOT';
 
         return (
-            <div className={`flex flex-col items-center`}>
+            <div className={`flex flex-col items-center`} key={node.id}>
                 <div className={`relative z-10 w-64 transition-all duration-300 ${opacityClass}`}>
                     <div
                         onClick={() => !isVirtualRoot && setSelectedEmployee(node)}
@@ -288,11 +164,11 @@ const SuperAdminOrgChart = ({ employees = MOCK_EMPLOYEES }) => {
                                 <div key={child.id} className="flex flex-col items-center relative">
                                     {!isSingle && (
                                         <>
-                                            <div className={`absolute top-0 right-1/2 h-px bg-blue-100 ${isFirst ? 'hidden' : 'w-[calc(50%+1rem)]'}`}></div>
-                                            <div className={`absolute top-0 left-1/2 h-px bg-blue-100 ${isLast ? 'hidden' : 'w-[calc(50%+1rem)]'}`}></div>
+                                            <div className={`absolute top-0 right-1/2 h-px bg-blue-200 ${isFirst ? 'hidden' : 'w-[calc(50%+1rem)]'}`}></div>
+                                            <div className={`absolute top-0 left-1/2 h-px bg-blue-200 ${isLast ? 'hidden' : 'w-[calc(50%+1rem)]'}`}></div>
                                         </>
                                     )}
-                                    <div className="w-px h-6 bg-blue-100"></div>
+                                    <div className="w-px h-6 bg-blue-200"></div>
                                     {renderNode(child)}
                                 </div>
                             );
@@ -315,7 +191,12 @@ const SuperAdminOrgChart = ({ employees = MOCK_EMPLOYEES }) => {
                         }`}
                 >
                     <div className="relative mb-4">
-                        <img src={emp.avatar} className="w-20 h-20 rounded-2xl object-cover shadow-lg group-hover:scale-105 transition-transform border-4 border-white" alt={emp.name} />
+                        <img
+                            src={emp.avatar}
+                            className="w-20 h-20 rounded-2xl object-cover shadow-lg"
+                            alt={emp.name}
+                        />
+
                         <div className={`absolute -bottom-1 -right-1 px-2.5 py-1 rounded-lg text-[9px] font-bold uppercase border border-white ${emp.status === 'Active' ? 'bg-emerald-500 text-white shadow-emerald-200' : 'bg-slate-400 text-white'}`}>
                             {emp.status}
                         </div>
@@ -332,16 +213,20 @@ const SuperAdminOrgChart = ({ employees = MOCK_EMPLOYEES }) => {
         </div>
     );
 
+    if (loading) {
+        return <div className="p-10 text-lg">Loading organization...</div>;
+    }
+
+    if (error) {
+        return <div className="p-10 text-red-500">{error}</div>;
+    }
+
     return (
         <div className="flex flex-col h-[calc(100vh-3rem)] w-full overflow-hidden bg-gradient-to-br from-slate-100 via-blue-50 to-indigo-100 rounded-[2rem] border border-blue-100 shadow-[0_20px_50px_rgba(0,0,0,0.05)] relative">
-
             <div className="h-20 border-b flex items-center justify-between px-8 bg-white/90 backdrop-blur-xl z-20 border-blue-50 shrink-0">
                 <div className="flex items-center gap-6">
                     <div>
-                        <h1 className="text-[24px] font-bold bg-gradient-to-r from-blue-700 to-indigo-600 bg-clip-text text-transparent tracking-tight">Organization Chart</h1>
-                        <p className="text-[11px] font-semibold text-gray-500 uppercase tracking-[0.2em] mt-0.5">
-                            {filteredEmployees.length} Displaying • {employees.length} Members
-                        </p>
+                        <h1 className="text-[24px] font-bold bg-gradient-to-r from-blue-700 to-indigo-600 bg-clip-text text-transparent tracking-tight">Manager Org Chart</h1>
                     </div>
                     <div className="h-8 w-px bg-slate-200 mx-2 hidden md:block"></div>
                 </div>
@@ -361,41 +246,11 @@ const SuperAdminOrgChart = ({ employees = MOCK_EMPLOYEES }) => {
                             <FiList size={14} /> List
                         </button>
                     </div>
-
-                    <div className="relative">
-                        <button
-                            onClick={() => setIsFilterOpen(!isFilterOpen)}
-                            className={`flex items-center gap-2 px-6 py-2.5 rounded-xl text-[11px] font-bold uppercase tracking-widest shadow-md hover:scale-[1.03] transition-all border border-transparent ${filterDept !== 'All'
-                                ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white'
-                                : 'bg-white text-gray-700 border-gray-200'}`}
-                        >
-                            <FiFilter size={14} /> {filterDept === 'All' ? 'Filter' : filterDept}
-                        </button>
-                        {isFilterOpen && (
-                            <>
-                                <div className="fixed inset-0 z-30" onClick={() => setIsFilterOpen(false)}></div>
-                                <div className={`absolute right-0 mt-2 w-52 rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.1)] border border-blue-100 overflow-hidden z-40 animate-in fade-in zoom-in-95 bg-white`}>
-                                    <div className="p-2 space-y-1">
-                                        {departments.map(dept => (
-                                            <button key={dept} onClick={() => { setFilterDept(dept); setIsFilterOpen(false); }} className={`w-full text-left px-4 py-2.5 rounded-xl text-[10px] font-semibold uppercase tracking-wider transition-colors ${filterDept === dept ? 'bg-blue-50 text-blue-700 font-bold' : 'text-gray-500 hover:bg-slate-50'}`}>{dept}</button>
-                                        ))}
-                                    </div>
-                                </div>
-                            </>
-                        )}
-                    </div>
-
-                    <button
-                        onClick={handleDownload}
-                        className="p-2.5 bg-gradient-to-r from-blue-500 to-indigo-500 text-white rounded-xl shadow-lg hover:scale-105 active:scale-95 transition-all"
-                    >
-                        <FiDownload size={16} />
-                    </button>
                 </div>
             </div>
 
             <div className="flex-1 relative overflow-hidden flex bg-transparent">
-                <div className={`flex-1 relative overflow-auto custom-scrollbar ${viewMode === 'chart' ? 'bg-[radial-gradient(#cbd5e1_1px,transparent_1px)] [background-size:20px_20px]' : ''}`}>
+                <div className={`flex-1 relative overflow-auto custom-scrollbar ${viewMode === 'chart' ? 'bg-[radial-gradient(#14202e_1px,transparent_1px)] [background-size:20px_20px]' : ''}`}>
                     {viewMode === 'chart' ? (
                         <div className="absolute inset-0 p-20 min-w-max min-h-max flex justify-center items-start">
                             <div className="transition-all duration-300 origin-top h-fit" style={{ zoom: zoom }}>
@@ -413,7 +268,6 @@ const SuperAdminOrgChart = ({ employees = MOCK_EMPLOYEES }) => {
                 {viewMode === 'chart' && (
                     <div className="absolute bottom-8 left-8 flex flex-col items-center bg-white/70 backdrop-blur-xl rounded-2xl shadow-[0_10px_30px_rgba(0,0,0,0.08)] border border-blue-100 p-1.5 z-[70]">
                         <button onClick={() => setZoom(z => Math.min(z + 0.1, 1.5))} className="p-2.5 bg-white text-blue-600 rounded-xl hover:bg-blue-50 hover:shadow-inner transition-all border border-blue-50"><FiPlus size={14} strokeWidth={3} /></button>
-                        <div className="py-2.5 text-[10px] font-black text-gray-500 w-full text-center tracking-tighter">{Math.round(zoom * 100)}%</div>
                         <button onClick={() => setZoom(z => Math.max(z - 0.1, 0.5))} className="p-2.5 bg-white text-blue-600 rounded-xl hover:bg-blue-50 hover:shadow-inner transition-all border border-blue-50"><FiMinus size={14} strokeWidth={3} /></button>
                     </div>
                 )}
@@ -423,27 +277,26 @@ const SuperAdminOrgChart = ({ employees = MOCK_EMPLOYEES }) => {
                 <>
                     <div onClick={() => setSelectedEmployee(null)} className="fixed  bg-slate-900/40 backdrop-blur-sm z-[999] animate-in fade-in duration-500" />
                     <div className="fixed top-0 right-0 bottom-0 w-full sm:w-[480px] bg-white shadow-[-20px_0_60px_rgba(0,0,0,0.1)] animate-in slide-in-from-right duration-500 cubic-bezier(0.4, 0, 0.2, 1) z-[1000] flex flex-col overflow-hidden">
-
                         <div className="p-8 border-b border-blue-50 relative bg-gradient-to-r from-blue-50/50 to-indigo-50/50">
                             <button onClick={() => setSelectedEmployee(null)} className="absolute top-6 right-6 p-2.5 bg-white text-gray-400 hover:text-blue-600 rounded-xl transition-all shadow-sm border border-transparent hover:border-blue-100"><FiX size={18} /></button>
                             <div className="flex flex-col items-center text-center mt-4">
                                 <div className="relative mb-5 scale-110">
-                                    <img src={selectedEmployee.avatar} className="w-20 h-20 rounded-[2rem] object-cover border-4 border-white shadow-2xl" alt={selectedEmployee.name} />
+                                    <img
+                                        src={selectedEmployee.avatar}
+                                        className="w-20 h-20 rounded-[2rem]"
+                                        alt={selectedEmployee.name}
+                                    />
                                     <div className={`absolute bottom-0 right-0 w-7 h-7 rounded-full border-4 border-white shadow-sm flex items-center justify-center ${selectedEmployee.status === 'Active' ? 'bg-emerald-500' : 'bg-slate-400'}`}>
                                         {selectedEmployee.status === 'Active' && <FiCheck size={12} strokeWidth={4} className="text-white" />}
                                     </div>
                                 </div>
                                 <h2 className="text-[26px] font-bold bg-gradient-to-r from-blue-800 to-indigo-700 bg-clip-text text-transparent tracking-tight leading-tight">{selectedEmployee.name}</h2>
                                 <p className="text-[11px] font-bold text-blue-600 uppercase tracking-[0.2em] mt-2">{selectedEmployee.designation}</p>
-                                <div className="flex gap-2 mt-8">
-                                    <button className="flex items-center gap-2.5 px-6 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-2xl text-[11px] font-bold uppercase tracking-widest shadow-xl hover:scale-[1.03] transition-all">View Profile</button>
-                                    <button className="p-3 bg-white text-blue-600 border border-blue-100 rounded-2xl shadow-lg hover:bg-blue-50 transition-all"><FiMail size={16} /></button>
-                                </div>
                             </div>
                         </div>
 
                         <div className="flex border-b border-blue-50 bg-white">
-                            {[{ id: 'details', label: 'Overview' }, { id: 'history', label: 'Experience' }].map(tab => (
+                            {[{ id: 'details', label: 'Overview' }].map(tab => (
                                 <button key={tab.id} onClick={() => setActiveTab(tab.id)} className={`flex-1 py-4 text-[11px] font-bold uppercase tracking-widest transition-all relative ${activeTab === tab.id ? 'text-blue-700' : 'text-gray-400 hover:text-gray-600'}`}>
                                     {tab.label}
                                     {activeTab === tab.id && <div className="absolute bottom-0 left-1/4 right-1/4 h-1 bg-blue-600 rounded-t-full shadow-[0_-4px_10px_rgba(37,99,235,0.4)]" />}
@@ -452,39 +305,43 @@ const SuperAdminOrgChart = ({ employees = MOCK_EMPLOYEES }) => {
                         </div>
 
                         <div className="flex-1 p-8 space-y-8 overflow-y-auto custom-scrollbar bg-white">
-                            {activeTab === 'details' ? (
+                            {activeTab === 'details' && (
                                 <div className="space-y-5">
-                                    <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2 border-b border-slate-50 pb-2">Employee Information</p>
+                                    <p className="text-[11px] font-bold text-gray-700 uppercase tracking-widest mb-2 border-b border-slate-100 pb-2 font-['Inter']">
+                                        Member Information
+                                    </p>
+
                                     {[
-                                        { label: 'Department', value: selectedEmployee.department, color: 'text-blue-600' },
-                                        { label: 'Employee ID', value: selectedEmployee.id, color: 'text-indigo-600' },
-                                        { label: 'Reporting Manager', value: selectedEmployee.reportingManager || 'N/A' },
-                                        { label: 'Work Location', value: 'Corporate HQ, Floor 4' },
-                                        { label: 'Start Date', value: selectedEmployee.joiningDate },
-                                        { label: 'Work Email', value: selectedEmployee.companyEmail },
-                                        { label: 'Contact Number', value: selectedEmployee.phone || 'N/A' },
-                                        { label: 'Employment', value: 'Full-Time', color: 'text-emerald-700' },
+                                        { label: "Name", value: selectedEmployee.name },
+                                        { label: "ID", value: selectedEmployee.id },
+                                        { label: "Department", value: selectedEmployee.department },
+                                        { label: "Designation", value: selectedEmployee.designation },
+                                        { label: "Status", value: selectedEmployee.status, isStatus: true },
+                                        {
+                                            label: "Reporting Manager",
+                                            value: selectedEmployee.reportingManager || "N/A",
+                                        },
                                     ].map((item, i) => (
-                                        <div key={i} className="flex justify-between items-center py-3.5 border-b border-slate-50 last:border-0 group hover:px-2 transition-all">
-                                            <span className="text-[11px] font-semibold text-gray-400 uppercase tracking-tight">{item.label}</span>
-                                            <span className={`text-[13px] font-bold text-right max-w-[65%] truncate group-hover:scale-105 transition-all ${item.color || 'text-gray-800'}`}>{item.value}</span>
-                                        </div>
-                                    ))}
-                                </div>
-                            ) : (
-                                <div className="space-y-8 mt-2">
-                                    <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-4 border-b border-slate-50 pb-2">Work History</p>
-                                    {[
-                                        { role: selectedEmployee.designation, company: 'RitsHR Services', period: '2022 - Present', desc: 'Current specialized leadership role.' },
-                                        { role: 'Senior Consultant', company: 'Global Tech Solutions', period: '2019 - 2022', desc: 'Optimized internal processes and resource workflows.' },
-                                        { role: 'Unit Lead', company: 'Alliance Group', period: '2016 - 2019', desc: 'Led a cross-functional team of 15 members.' }
-                                    ].map((job, i) => (
-                                        <div key={i} className="relative pl-8 border-l-2 border-blue-50 pb-10 last:pb-0">
-                                            <div className="absolute -left-[9px] top-0 w-4 h-4 rounded-full bg-white border-4 border-blue-600 shadow-md ring-4 ring-blue-50" />
-                                            <p className="text-[11px] font-black text-blue-600 uppercase tracking-tighter">{job.period}</p>
-                                            <h4 className="text-[15px] font-bold text-gray-900 mt-2">{job.role}</h4>
-                                            <p className="text-[11px] font-semibold text-indigo-500 uppercase mt-0.5">{job.company}</p>
-                                            <p className="text-[12px] text-gray-500 mt-3 leading-relaxed font-medium">{job.desc}</p>
+                                        <div
+                                            key={i}
+                                            className="flex justify-between items-center py-3.5 border-b border-slate-100 last:border-0 font-['Inter']"
+                                        >
+                                            <span className="w-1/2 text-[11px] font-extrabold text-gray-700 uppercase tracking-widest">
+                                                {item.label}
+                                            </span>
+
+                                            <span
+                                                className={`w-1/2 text-[14px] font-normal text-right break-all
+                                                ${item.isStatus && item.value === "Active"
+                                                        ? "text-emerald-600"
+                                                        : item.isStatus && item.value === "Inactive"
+                                                            ? "text-red-500"
+                                                            : "text-gray-800"
+                                                    }
+                                              `}
+                                            >
+                                                {item.value}
+                                            </span>
                                         </div>
                                     ))}
                                 </div>
@@ -497,4 +354,4 @@ const SuperAdminOrgChart = ({ employees = MOCK_EMPLOYEES }) => {
     );
 };
 
-export default SuperAdminOrgChart;
+export default ManagerOrgChart;

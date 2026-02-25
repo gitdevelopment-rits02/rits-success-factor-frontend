@@ -11,7 +11,8 @@ import employeePolicyDocumentsReducer from "./slices/EmployeePolicyDocumentsSlic
 import employeeRequestTimeOffReducer from "./slices/EmployeeRequestTimeOffSlice.js";
 import employeeTimeSheetReducer from "./slices/EmployeeTimeSheetSlice.js";
 import employeeViewMyProfileReducer from "./slices/EmployeeViewMyProfileSlice.js";
-import employeeViewOrgChartReducer from "./slices/EmployeeViewOrgChartSlice.js";
+import employeeOrgChartReducer from "./slices/EmployeeOrgChartSlice.js";
+
 
 const employeeRootReducer = combineReducers({
   clockMyTime: employeeClockMyTimeReducer,
@@ -25,7 +26,8 @@ const employeeRootReducer = combineReducers({
   requestTimeOff: employeeRequestTimeOffReducer,
   timeSheet: employeeTimeSheetReducer,
   viewMyProfile: employeeViewMyProfileReducer,
-  viewOrgChart: employeeViewOrgChartReducer,
+  orgChart: employeeOrgChartReducer,
+
 });
 
 export default employeeRootReducer;

@@ -101,6 +101,7 @@
 // }
 
 import { Routes, Route } from "react-router-dom";
+import LandingRedirect from "./guards/LandingRedirect";
 import authRoutes from "./modules/auth.routes";
 import { superAdminRoutes } from "./modules/superadmin.routes";
 import { employeeRoutes } from "./modules/employee.routes";
@@ -112,6 +113,7 @@ import ManagerLayout from "../layouts/managerLayout";
 import EmployeeLayout from "../layouts/employeeLayout";
 import HrLayout from "../layouts/hrLayout";
 import ChiefLayout from "../layouts/ChiefLayout";
+import NotFound from "../features/Auth/Pages/NotFound";
 import { chiefRoutes } from "./modules/chief.routes";
 
 export default function AppRouter() {
@@ -124,6 +126,7 @@ export default function AppRouter() {
       {authRoutes.map((r) => (
         <Route key={r.path} path={r.path} element={r.element} />
       ))}
+      <Route path="/redirect" element={<LandingRedirect />} />
 
       {/* Chief Routes */}
       <Route path="/chief" element={<ChiefLayout />}>
@@ -178,6 +181,7 @@ export default function AppRouter() {
           />
         ))}
       </Route>
+      <Route path="*" element={<NotFound />} />
     </Routes>
   );
 }
