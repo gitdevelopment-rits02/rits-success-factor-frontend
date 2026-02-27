@@ -97,7 +97,7 @@ const ChiefLayout = () => {
             icon: HiOutlineClock,
         },
         {
-            name: "Payroll",
+            name: "Payslip",
             path: "/chief/payroll",
             icon: HiOutlineClock,
         },
