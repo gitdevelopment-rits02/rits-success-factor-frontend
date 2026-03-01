@@ -11,36 +11,83 @@ const exportExcelStub = () => alert("Excel export — connect SheetJS.");
 
 /* ─── data ─── */
 const RECORDS_INIT = [
-  { name:"John Doe",      role:"Sales (ID: 1023)",     department:"Sales",    location:"Office",  date:"2026-02-12", clockIn:"09:05", clockOut:"17:30", status:"Late"     },
-  { name:"Jane Smith",    role:"Sales (ID: 1024)",     department:"Sales",    location:"Remote",  date:"2026-02-12", clockIn:"09:00", clockOut:"17:15", status:"On Time"  },
-  { name:"Mike Brown",    role:"HR (ID: 1025)",        department:"HR",       location:"Office",  date:"2026-02-12", clockIn:"--",    clockOut:"--",    status:"Absent"   },
-  { name:"Anna Lee",      role:"IT (ID: 1026)",        department:"IT",       location:"On-Site", date:"2026-02-12", clockIn:"08:45", clockOut:"19:35", status:"On Time"  },
-  { name:"David Clark",   role:"IT (ID: 1027)",        department:"IT",       location:"Remote",  date:"2026-02-12", clockIn:"09:00", clockOut:"18:00", status:"On Time"  },
-  { name:"Sophia Wilson", role:"HR (ID: 1028)",        department:"HR",       location:"Office",  date:"2026-02-12", clockIn:"09:10", clockOut:"17:10", status:"Late"     },
-  { name:"Robert King",   role:"Finance (ID: 1029)",   department:"Finance",  location:"Office",  date:"2026-02-09", clockIn:"09:00", clockOut:"17:30", status:"On Time"  },
-  { name:"Emily Davis",   role:"Marketing (ID: 1030)", department:"Marketing",location:"Remote",  date:"2026-02-09", clockIn:"09:15", clockOut:"16:45", status:"Late"     },
-  { name:"John Doe",      role:"Sales (ID: 1023)",     department:"Sales",    location:"Office",  date:"2026-02-10", clockIn:"09:00", clockOut:"17:00", status:"On Time"  },
-  { name:"Jane Smith",    role:"Sales (ID: 1024)",     department:"Sales",    location:"Remote",  date:"2026-02-10", clockIn:"08:55", clockOut:"17:20", status:"On Time"  },
-  { name:"Mike Brown",    role:"HR (ID: 1025)",        department:"HR",       location:"Office",  date:"2026-02-10", clockIn:"09:05", clockOut:"17:05", status:"Late"     },
-  { name:"Anna Lee",      role:"IT (ID: 1026)",        department:"IT",       location:"On-Site", date:"2026-02-11", clockIn:"08:50", clockOut:"18:00", status:"On Time"  },
-  { name:"David Clark",   role:"IT (ID: 1027)",        department:"IT",       location:"Remote",  date:"2026-02-11", clockIn:"09:00", clockOut:"17:30", status:"On Time"  },
-  { name:"Sophia Wilson", role:"HR (ID: 1028)",        department:"HR",       location:"Office",  date:"2026-02-11", clockIn:"09:20", clockOut:"17:00", status:"Late"     },
-  { name:"Robert King",   role:"Finance (ID: 1029)",   department:"Finance",  location:"Office",  date:"2026-02-11", clockIn:"--",    clockOut:"--",    status:"Absent"   },
-  { name:"Emily Davis",   role:"Marketing (ID: 1030)", department:"Marketing",location:"Remote",  date:"2026-02-01", clockIn:"09:00", clockOut:"17:00", status:"Approved" },
-  { name:"John Doe",      role:"Sales (ID: 1023)",     department:"Sales",    location:"Office",  date:"2026-02-01", clockIn:"09:10", clockOut:"17:30", status:"Pending"  },
-  { name:"Jane Smith",    role:"Sales (ID: 1024)",     department:"Sales",    location:"Remote",  date:"2026-02-02", clockIn:"09:00", clockOut:"18:00", status:"Approved" },
-  { name:"Mike Brown",    role:"HR (ID: 1025)",        department:"HR",       location:"Office",  date:"2026-02-02", clockIn:"09:00", clockOut:"17:00", status:"Approved" },
-  { name:"Anna Lee",      role:"IT (ID: 1026)",        department:"IT",       location:"On-Site", date:"2026-02-03", clockIn:"08:45", clockOut:"19:00", status:"Pending"  },
-  { name:"David Clark",   role:"IT (ID: 1027)",        department:"IT",       location:"Remote",  date:"2026-02-03", clockIn:"09:00", clockOut:"17:30", status:"Approved" },
-  { name:"Sophia Wilson", role:"HR (ID: 1028)",        department:"HR",       location:"Office",  date:"2026-02-04", clockIn:"09:15", clockOut:"17:00", status:"Pending"  },
-  { name:"Robert King",   role:"Finance (ID: 1029)",   department:"Finance",  location:"Office",  date:"2026-02-04", clockIn:"09:00", clockOut:"17:30", status:"Approved" },
-  { name:"Emily Davis",   role:"Marketing (ID: 1030)", department:"Marketing",location:"Remote",  date:"2026-02-05", clockIn:"09:05", clockOut:"17:00", status:"Pending"  },
-  { name:"John Doe",      role:"Sales (ID: 1023)",     department:"Sales",    location:"Office",  date:"2026-02-05", clockIn:"09:00", clockOut:"17:00", status:"Approved" },
-  { name:"Jane Smith",    role:"Sales (ID: 1024)",     department:"Sales",    location:"Remote",  date:"2026-02-06", clockIn:"--",    clockOut:"--",    status:"Absent"   },
-  { name:"Mike Brown",    role:"HR (ID: 1025)",        department:"HR",       location:"Office",  date:"2026-02-06", clockIn:"09:00", clockOut:"17:00", status:"Approved" },
-  { name:"Anna Lee",      role:"IT (ID: 1026)",        department:"IT",       location:"On-Site", date:"2026-02-07", clockIn:"08:50", clockOut:"18:30", status:"Pending"  },
-  { name:"David Clark",   role:"IT (ID: 1027)",        department:"IT",       location:"Remote",  date:"2026-02-07", clockIn:"09:00", clockOut:"17:00", status:"Approved" },
-  { name:"Sophia Wilson", role:"HR (ID: 1028)",        department:"HR",       location:"Office",  date:"2026-02-08", clockIn:"09:10", clockOut:"17:10", status:"Pending"  },
+  /* ── today: 2026-03-01 ── */
+  { name:"John Doe",      role:"Sales (ID: 1023)",       department:"Sales",       location:"Office",  date:"2026-03-01", clockIn:"09:05", clockOut:"17:30", status:"Late"     },
+  { name:"Jane Smith",    role:"Sales (ID: 1024)",       department:"Sales",       location:"Remote",  date:"2026-03-01", clockIn:"09:00", clockOut:"17:15", status:"On Time"  },
+  { name:"Mike Brown",    role:"HR (ID: 1025)",          department:"HR",          location:"Office",  date:"2026-03-01", clockIn:"--",    clockOut:"--",    status:"Absent"   },
+  { name:"Anna Lee",      role:"IT (ID: 1026)",          department:"IT",          location:"On-Site", date:"2026-03-01", clockIn:"08:45", clockOut:"19:35", status:"On Time"  },
+  { name:"David Clark",   role:"IT (ID: 1027)",          department:"IT",          location:"Remote",  date:"2026-03-01", clockIn:"09:00", clockOut:"18:00", status:"On Time"  },
+  { name:"Sophia Wilson", role:"HR (ID: 1028)",          department:"HR",          location:"Office",  date:"2026-03-01", clockIn:"09:10", clockOut:"17:10", status:"Late"     },
+  { name:"Robert King",   role:"Finance (ID: 1029)",     department:"Finance",     location:"Office",  date:"2026-03-01", clockIn:"09:00", clockOut:"17:30", status:"On Time"  },
+  { name:"Emily Davis",   role:"Marketing (ID: 1030)",   department:"Marketing",   location:"Remote",  date:"2026-03-01", clockIn:"09:15", clockOut:"16:45", status:"Late"     },
+  { name:"Carlos Mendez", role:"Engineering (ID: 1031)", department:"Engineering", location:"Remote",  date:"2026-03-01", clockIn:"08:30", clockOut:"17:30", status:"On Time"  },
+  { name:"Priya Patel",   role:"Engineering (ID: 1032)", department:"Engineering", location:"Office",  date:"2026-03-01", clockIn:"09:20", clockOut:"18:00", status:"Late"     },
+  { name:"Tom Harris",    role:"Finance (ID: 1033)",     department:"Finance",     location:"Office",  date:"2026-03-01", clockIn:"--",    clockOut:"--",    status:"Absent"   },
+  { name:"Lisa Nguyen",   role:"Marketing (ID: 1034)",   department:"Marketing",   location:"Remote",  date:"2026-03-01", clockIn:"08:55", clockOut:"17:10", status:"On Time"  },
+  { name:"James O'Brien", role:"HR (ID: 1035)",          department:"HR",          location:"On-Site", date:"2026-03-01", clockIn:"09:00", clockOut:"17:00", status:"On Time"  },
+  { name:"Natalie Ford",  role:"IT (ID: 1036)",          department:"IT",          location:"Remote",  date:"2026-03-01", clockIn:"09:05", clockOut:"20:15", status:"On Time"  },
+  { name:"Kevin Zhang",   role:"Sales (ID: 1037)",       department:"Sales",       location:"Office",  date:"2026-03-01", clockIn:"09:30", clockOut:"17:30", status:"Late"     },
+  { name:"Amara Osei",    role:"Finance (ID: 1038)",     department:"Finance",     location:"Office",  date:"2026-03-01", clockIn:"08:45", clockOut:"17:45", status:"On Time"  },
+
+  /* ── this week: Sun Feb 26 ── */
+  { name:"Anna Lee",      role:"IT (ID: 1026)",          department:"IT",          location:"On-Site", date:"2026-02-26", clockIn:"08:50", clockOut:"18:00", status:"On Time"  },
+  { name:"David Clark",   role:"IT (ID: 1027)",          department:"IT",          location:"Remote",  date:"2026-02-26", clockIn:"09:00", clockOut:"17:30", status:"On Time"  },
+  { name:"Robert King",   role:"Finance (ID: 1029)",     department:"Finance",     location:"Office",  date:"2026-02-26", clockIn:"09:00", clockOut:"17:30", status:"On Time"  },
+  { name:"Emily Davis",   role:"Marketing (ID: 1030)",   department:"Marketing",   location:"Remote",  date:"2026-02-26", clockIn:"09:15", clockOut:"16:45", status:"Late"     },
+  { name:"Carlos Mendez", role:"Engineering (ID: 1031)", department:"Engineering", location:"Remote",  date:"2026-02-26", clockIn:"08:30", clockOut:"17:00", status:"On Time"  },
+  { name:"Natalie Ford",  role:"IT (ID: 1036)",          department:"IT",          location:"Remote",  date:"2026-02-26", clockIn:"08:40", clockOut:"19:00", status:"On Time"  },
+  { name:"Kevin Zhang",   role:"Sales (ID: 1037)",       department:"Sales",       location:"Office",  date:"2026-02-26", clockIn:"09:00", clockOut:"17:00", status:"On Time"  },
+
+  /* ── this week: Mon Feb 27 ── */
+  { name:"Sophia Wilson", role:"HR (ID: 1028)",          department:"HR",          location:"Office",  date:"2026-02-27", clockIn:"09:20", clockOut:"17:00", status:"Late"     },
+  { name:"Robert King",   role:"Finance (ID: 1029)",     department:"Finance",     location:"Office",  date:"2026-02-27", clockIn:"--",    clockOut:"--",    status:"Absent"   },
+  { name:"Priya Patel",   role:"Engineering (ID: 1032)", department:"Engineering", location:"Office",  date:"2026-02-27", clockIn:"09:00", clockOut:"18:30", status:"On Time"  },
+  { name:"Amara Osei",    role:"Finance (ID: 1038)",     department:"Finance",     location:"Office",  date:"2026-02-27", clockIn:"09:10", clockOut:"17:30", status:"On Time"  },
+  { name:"Lisa Nguyen",   role:"Marketing (ID: 1034)",   department:"Marketing",   location:"Remote",  date:"2026-02-27", clockIn:"08:50", clockOut:"17:20", status:"On Time"  },
+  { name:"James O'Brien", role:"HR (ID: 1035)",          department:"HR",          location:"On-Site", date:"2026-02-27", clockIn:"--",    clockOut:"--",    status:"Absent"   },
+
+  /* ── this week: Tue Feb 28 ── */
+  { name:"John Doe",      role:"Sales (ID: 1023)",       department:"Sales",       location:"Office",  date:"2026-02-28", clockIn:"09:00", clockOut:"17:00", status:"On Time"  },
+  { name:"Jane Smith",    role:"Sales (ID: 1024)",       department:"Sales",       location:"Remote",  date:"2026-02-28", clockIn:"08:55", clockOut:"17:20", status:"On Time"  },
+  { name:"Mike Brown",    role:"HR (ID: 1025)",          department:"HR",          location:"Office",  date:"2026-02-28", clockIn:"09:05", clockOut:"17:05", status:"Late"     },
+  { name:"Tom Harris",    role:"Finance (ID: 1033)",     department:"Finance",     location:"Office",  date:"2026-02-28", clockIn:"09:00", clockOut:"17:00", status:"On Time"  },
+  { name:"Kevin Zhang",   role:"Sales (ID: 1037)",       department:"Sales",       location:"Office",  date:"2026-02-28", clockIn:"09:25", clockOut:"17:00", status:"On Time"  },
+  { name:"Natalie Ford",  role:"IT (ID: 1036)",          department:"IT",          location:"Remote",  date:"2026-02-28", clockIn:"08:45", clockOut:"18:45", status:"On Time"  },
+
+  /* ── this month (March): earlier records for "This Month" view ── */
+  { name:"Emily Davis",   role:"Marketing (ID: 1030)",   department:"Marketing",   location:"Remote",  date:"2026-03-01", clockIn:"09:00", clockOut:"17:00", status:"Approved" },
+  { name:"John Doe",      role:"Sales (ID: 1023)",       department:"Sales",       location:"Office",  date:"2026-03-01", clockIn:"09:10", clockOut:"17:30", status:"Pending"  },
+
+  /* ── this month (Feb): bulk of historical records ── */
+  { name:"Jane Smith",    role:"Sales (ID: 1024)",       department:"Sales",       location:"Remote",  date:"2026-02-25", clockIn:"09:00", clockOut:"18:00", status:"Approved" },
+  { name:"Mike Brown",    role:"HR (ID: 1025)",          department:"HR",          location:"Office",  date:"2026-02-25", clockIn:"09:00", clockOut:"17:00", status:"Approved" },
+  { name:"Anna Lee",      role:"IT (ID: 1026)",          department:"IT",          location:"On-Site", date:"2026-02-24", clockIn:"08:45", clockOut:"19:00", status:"Pending"  },
+  { name:"David Clark",   role:"IT (ID: 1027)",          department:"IT",          location:"Remote",  date:"2026-02-24", clockIn:"09:00", clockOut:"17:30", status:"Approved" },
+  { name:"Sophia Wilson", role:"HR (ID: 1028)",          department:"HR",          location:"Office",  date:"2026-02-23", clockIn:"09:15", clockOut:"17:00", status:"Pending"  },
+  { name:"Robert King",   role:"Finance (ID: 1029)",     department:"Finance",     location:"Office",  date:"2026-02-23", clockIn:"09:00", clockOut:"17:30", status:"Approved" },
+  { name:"Emily Davis",   role:"Marketing (ID: 1030)",   department:"Marketing",   location:"Remote",  date:"2026-02-22", clockIn:"09:05", clockOut:"17:00", status:"Pending"  },
+  { name:"John Doe",      role:"Sales (ID: 1023)",       department:"Sales",       location:"Office",  date:"2026-02-22", clockIn:"09:00", clockOut:"17:00", status:"Approved" },
+  { name:"Jane Smith",    role:"Sales (ID: 1024)",       department:"Sales",       location:"Remote",  date:"2026-02-21", clockIn:"--",    clockOut:"--",    status:"Absent"   },
+  { name:"Mike Brown",    role:"HR (ID: 1025)",          department:"HR",          location:"Office",  date:"2026-02-21", clockIn:"09:00", clockOut:"17:00", status:"Approved" },
+  { name:"Anna Lee",      role:"IT (ID: 1026)",          department:"IT",          location:"On-Site", date:"2026-02-20", clockIn:"08:50", clockOut:"18:30", status:"Pending"  },
+  { name:"David Clark",   role:"IT (ID: 1027)",          department:"IT",          location:"Remote",  date:"2026-02-20", clockIn:"09:00", clockOut:"17:00", status:"Approved" },
+  { name:"Sophia Wilson", role:"HR (ID: 1028)",          department:"HR",          location:"Office",  date:"2026-02-19", clockIn:"09:10", clockOut:"17:10", status:"Pending"  },
+  { name:"Carlos Mendez", role:"Engineering (ID: 1031)", department:"Engineering", location:"Remote",  date:"2026-02-25", clockIn:"08:30", clockOut:"17:30", status:"Approved" },
+  { name:"Priya Patel",   role:"Engineering (ID: 1032)", department:"Engineering", location:"Office",  date:"2026-02-25", clockIn:"09:00", clockOut:"17:00", status:"Approved" },
+  { name:"Tom Harris",    role:"Finance (ID: 1033)",     department:"Finance",     location:"Office",  date:"2026-02-25", clockIn:"--",    clockOut:"--",    status:"Absent"   },
+  { name:"Lisa Nguyen",   role:"Marketing (ID: 1034)",   department:"Marketing",   location:"Remote",  date:"2026-02-24", clockIn:"09:00", clockOut:"17:00", status:"Approved" },
+  { name:"James O'Brien", role:"HR (ID: 1035)",          department:"HR",          location:"On-Site", date:"2026-02-24", clockIn:"09:05", clockOut:"17:00", status:"Pending"  },
+  { name:"Natalie Ford",  role:"IT (ID: 1036)",          department:"IT",          location:"Remote",  date:"2026-02-23", clockIn:"08:40", clockOut:"20:00", status:"Pending"  },
+  { name:"Kevin Zhang",   role:"Sales (ID: 1037)",       department:"Sales",       location:"Office",  date:"2026-02-23", clockIn:"09:00", clockOut:"17:00", status:"Approved" },
+  { name:"Amara Osei",    role:"Finance (ID: 1038)",     department:"Finance",     location:"Office",  date:"2026-02-22", clockIn:"09:10", clockOut:"17:10", status:"Approved" },
+  { name:"Carlos Mendez", role:"Engineering (ID: 1031)", department:"Engineering", location:"Remote",  date:"2026-02-22", clockIn:"08:30", clockOut:"17:00", status:"Approved" },
+  { name:"Priya Patel",   role:"Engineering (ID: 1032)", department:"Engineering", location:"Office",  date:"2026-02-21", clockIn:"09:00", clockOut:"18:00", status:"Pending"  },
+  { name:"Tom Harris",    role:"Finance (ID: 1033)",     department:"Finance",     location:"Office",  date:"2026-02-21", clockIn:"09:00", clockOut:"17:00", status:"Approved" },
+  { name:"Lisa Nguyen",   role:"Marketing (ID: 1034)",   department:"Marketing",   location:"Remote",  date:"2026-02-20", clockIn:"08:50", clockOut:"17:00", status:"Approved" },
+  { name:"James O'Brien", role:"HR (ID: 1035)",          department:"HR",          location:"On-Site", date:"2026-02-20", clockIn:"09:00", clockOut:"17:00", status:"Approved" },
+  { name:"Natalie Ford",  role:"IT (ID: 1036)",          department:"IT",          location:"Remote",  date:"2026-02-19", clockIn:"08:45", clockOut:"18:45", status:"Pending"  },
+  { name:"Kevin Zhang",   role:"Sales (ID: 1037)",       department:"Sales",       location:"Office",  date:"2026-02-19", clockIn:"09:25", clockOut:"17:00", status:"Pending"  },
+  { name:"Amara Osei",    role:"Finance (ID: 1038)",     department:"Finance",     location:"Office",  date:"2026-02-19", clockIn:"09:00", clockOut:"17:30", status:"Approved" },
 ];
 
 /* ─── helpers ─── */
@@ -169,7 +216,6 @@ export default function SuperAdminTimeSheet() {
           font-family: 'Inter', system-ui, sans-serif; color: #1e293b; }
         .ts-wrap { max-width: 1300px; margin: 0 auto; display: flex; flex-direction: column; gap: 20px; }
 
-        /* ── header ── */
         .ts-header { background: #fff; border-radius: 16px; padding: 22px 28px;
           display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 14px;
           box-shadow: 0 1px 4px rgba(37,99,235,.08); border: 1px solid #e0eaff; }
@@ -179,7 +225,6 @@ export default function SuperAdminTimeSheet() {
           background: #2563eb; color: #fff; border-radius: 40px;
           font-size: 13px; font-weight: 600; border: none; cursor: default; white-space: nowrap; }
 
-        /* ── stat cards ── */
         .ts-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; }
         .ts-stat  { border-radius: 14px; padding: 18px 20px; border: 1px solid transparent;
           display: flex; align-items: center; justify-content: space-between;
@@ -191,7 +236,6 @@ export default function SuperAdminTimeSheet() {
         .ts-stat-value { font-size: 30px; font-weight: 700; color: #1e293b; line-height: 1; }
         .ts-stat-sub   { font-size: 11px; color: #94a3b8; margin-top: 3px; }
 
-        /* ── toolbar ── */
         .ts-toolbar { background: #fff; border-radius: 14px; padding: 13px 18px;
           display: flex; align-items: center; gap: 9px; flex-wrap: wrap;
           box-shadow: 0 1px 3px rgba(37,99,235,.07); border: 1px solid #e0eaff; }
@@ -228,7 +272,6 @@ export default function SuperAdminTimeSheet() {
           cursor: not-allowed; }
         .ts-btn-dis:hover { opacity: 1; transform: none; }
 
-        /* ── table card ── */
         .ts-card { background: #fff; border-radius: 16px; overflow: hidden;
           box-shadow: 0 1px 4px rgba(37,99,235,.08); border: 1px solid #e0eaff; }
         .ts-scroll { overflow-x: auto; }
@@ -415,7 +458,6 @@ export default function SuperAdminTimeSheet() {
                             )} />
                         </td>}
 
-                        {/* employee */}
                         <td>
                           <div style={{ display:"flex", alignItems:"center", gap:10 }}>
                             <div className="ts-av" style={{ background:a.bg, color:a.color }}>
@@ -464,7 +506,6 @@ export default function SuperAdminTimeSheet() {
                           </span>
                         </td>
 
-                        {/* actions */}
                         <td>
                           <div style={{ display:"flex", alignItems:"center", gap:5, position:"relative" }}>
                             <button
