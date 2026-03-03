@@ -1,8 +1,8 @@
 import { useSelector } from "react-redux";
 import { Navigate, useLocation } from "react-router-dom";
-import { roleRoutes } from "../configs/roleRoutes.config";
+import { roleRoutes } from "../configs/role.Routes.config";
 
-export default function RoleRoute({ children }) {
+export default function RoleRoute({ children, requiredRole }) {
   const location = useLocation();
 
   const { user, isAuthenticated } = useSelector((state) => state.auth.main);
@@ -11,10 +11,17 @@ export default function RoleRoute({ children }) {
     return <Navigate to="/login" replace />;
   }
 
-  const allowedRoutes = roleRoutes[user.role] || [];
+  // If a specific role is required for this route branch
+  if (requiredRole && user.role !== requiredRole) {
+    return <Navigate to="/notfound" replace />;
+  }
 
-  if (!allowedRoutes.includes(location.pathname)) {
-    return <Navigate to="/not-found" replace />;
+  // Fallback to specific path checking if no branch role is specified
+  if (!requiredRole) {
+    const allowedRoutes = roleRoutes[user.role] || [];
+    if (!allowedRoutes.includes(location.pathname)) {
+      return <Navigate to="/notfound" replace />;
+    }
   }
 
   return children;

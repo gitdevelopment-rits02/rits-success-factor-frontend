@@ -107,7 +107,7 @@ import { superAdminRoutes } from "./modules/superadmin.routes";
 import { employeeRoutes } from "./modules/employee.routes";
 import { managerRoutes } from "./modules/manager.routes"; // Added this import
 import { landingRoutes } from "./modules/landing.routes";
-import  hrRoutes  from "./modules/hr.routes";
+import hrRoutes from "./modules/hr.routes";
 import AdminLayout from "../layouts/adminLayout";
 import ManagerLayout from "../layouts/managerLayout";
 import EmployeeLayout from "../layouts/employeeLayout";
@@ -115,6 +115,9 @@ import HrLayout from "../layouts/hrLayout";
 import ChiefLayout from "../layouts/ChiefLayout";
 import NotFound from "../features/Auth/Pages/NotFound";
 import { chiefRoutes } from "./modules/chief.routes";
+import ProtectedRoute from "./guards/ProtectedRoutes";
+import RoleRoute from "./guards/RoleRoutes";
+import { ROLES } from "./configs/roles.config";
 
 export default function AppRouter() {
   return (
@@ -129,7 +132,16 @@ export default function AppRouter() {
       <Route path="/redirect" element={<LandingRedirect />} />
 
       {/* Chief Routes */}
-      <Route path="/chief" element={<ChiefLayout />}>
+      <Route
+        path="/chief"
+        element={
+          <ProtectedRoute>
+            <RoleRoute requiredRole={ROLES.CHIEF}>
+              <ChiefLayout />
+            </RoleRoute>
+          </ProtectedRoute>
+        }
+      >
         {chiefRoutes.map((r) => (
           <Route
             key={r.path}
@@ -139,8 +151,17 @@ export default function AppRouter() {
         ))}
       </Route>
 
-      {/* Super Admin - Using relative paths in the map if possible */}
-      <Route path="/superadmin" element={<AdminLayout />}>
+      {/* Super Admin */}
+      <Route
+        path="/superadmin"
+        element={
+          <ProtectedRoute>
+            <RoleRoute requiredRole={ROLES.SUPERADMIN}>
+              <AdminLayout />
+            </RoleRoute>
+          </ProtectedRoute>
+        }
+      >
         {superAdminRoutes.map((r) => (
           <Route
             key={r.path}
@@ -150,8 +171,17 @@ export default function AppRouter() {
         ))}
       </Route>
 
-      {/* Manager - Fixed to use managerRoutes */}
-      <Route path="/manager" element={<ManagerLayout />}>
+      {/* Manager */}
+      <Route
+        path="/manager"
+        element={
+          <ProtectedRoute>
+            <RoleRoute requiredRole={ROLES.MANAGER}>
+              <ManagerLayout />
+            </RoleRoute>
+          </ProtectedRoute>
+        }
+      >
         {managerRoutes.map((r) => (
           <Route
             key={r.path}
@@ -161,7 +191,17 @@ export default function AppRouter() {
         ))}
       </Route>
 
-      <Route path="/hr" element={<HrLayout />}>
+      {/* HR */}
+      <Route
+        path="/hr"
+        element={
+          <ProtectedRoute>
+            <RoleRoute requiredRole={ROLES.HR}>
+              <HrLayout />
+            </RoleRoute>
+          </ProtectedRoute>
+        }
+      >
         {hrRoutes.map((r) => (
           <Route
             key={r.path}
@@ -172,11 +212,20 @@ export default function AppRouter() {
       </Route>
 
       {/* Employee */}
-      <Route path="/employee" element={<EmployeeLayout />}>
+      <Route
+        path="/employee"
+        element={
+          <ProtectedRoute>
+            <RoleRoute requiredRole={ROLES.EMPLOYEE}>
+              <EmployeeLayout />
+            </RoleRoute>
+          </ProtectedRoute>
+        }
+      >
         {employeeRoutes.map((r) => (
           <Route
             key={r.path}
-            path={r.path.replace("/employee/", "")} // Added replacement for consistency
+            path={r.path.replace("/employee/", "")}
             element={r.element}
           />
         ))}
