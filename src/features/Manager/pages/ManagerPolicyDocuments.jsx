@@ -50,7 +50,7 @@ export default function EmployeePoliciesPage() {
   if (error) {
     return <div className="p-6 text-red-500">Error: {error}</div>;
   }
-  
+
   return (
     <div className="min-h-screen w-full bg-gradient-to-br from-slate-100 via-blue-50 to-indigo-100 py-6 px-4">
       <div className="max-w-6xl mx-auto">
@@ -170,3 +170,4 @@ export default function EmployeePoliciesPage() {
     </div>
   );
 }
+ 
