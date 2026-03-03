@@ -1,8 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import {
-    FiFilter,
-    FiDownload,
+
     FiChevronDown,
     FiMapPin,
     FiMail,
@@ -17,163 +16,88 @@ import {
     FiList
 } from "react-icons/fi";
 import hrOrgChartThunk from '../Redux/thunks/HrOrgChartThunk';
-
-const MOCK_EMPLOYEES = [
-    {
-        id: 'emp001',
-        name: 'Rajesh Kumar',
-        designation: 'Chief Executive Officer',
-        department: 'Executive',
-        companyEmail: 'rajesh.kumar@ritshr.com',
-        phone: '+91-9876543210',
-        status: 'Active',
-        joiningDate: '2020-01-15',
-        avatar: 'https://ui-avatars.com/api/?name=Rajesh+Kumar&background=1e40af&color=fff',
-        reportingManager: null
-    },
-    {
-        id: 'emp002',
-        name: 'Priya Sharma',
-        designation: 'HR Director',
-        department: 'Human Resources',
-        companyEmail: 'priya.sharma@ritshr.com',
-        phone: '+91-9876543211',
-        status: 'Active',
-        joiningDate: '2020-06-10',
-        avatar: 'https://ui-avatars.com/api/?name=Priya+Sharma&background=1e40af&color=fff',
-        reportingManager: 'Rajesh Kumar'
-    },
-    {
-        id: 'emp003',
-        name: 'Amit Patel',
-        designation: 'Finance Manager',
-        department: 'Finance',
-        companyEmail: 'amit.patel@ritshr.com',
-        phone: '+91-9876543212',
-        status: 'Active',
-        joiningDate: '2020-08-20',
-        avatar: 'https://ui-avatars.com/api/?name=Amit+Patel&background=1e40af&color=fff',
-        reportingManager: 'Rajesh Kumar'
-    },
-    {
-        id: 'emp004',
-        name: 'Sneha Gupta',
-        designation: 'Recruitment Manager',
-        department: 'Human Resources',
-        companyEmail: 'sneha.gupta@ritshr.com',
-        phone: '+91-9876543213',
-        status: 'Active',
-        joiningDate: '2021-02-14',
-        avatar: 'https://ui-avatars.com/api/?name=Sneha+Gupta&background=1e40af&color=fff',
-        reportingManager: 'Priya Sharma'
-    },
-    {
-        id: 'emp005',
-        name: 'Vikram Singh',
-        designation: 'Senior HR Executive',
-        department: 'Human Resources',
-        companyEmail: 'vikram.singh@ritshr.com',
-        phone: '+91-9876543214',
-        status: 'Active',
-        joiningDate: '2021-04-10',
-        avatar: 'https://ui-avatars.com/api/?name=Vikram+Singh&background=1e40af&color=fff',
-        reportingManager: 'Priya Sharma'
-    },
-    {
-        id: 'emp006',
-        name: 'Neha Reddy',
-        designation: 'Accountant',
-        department: 'Finance',
-        companyEmail: 'neha.reddy@ritshr.com',
-        phone: '+91-9876543215',
-        status: 'Active',
-        joiningDate: '2021-05-20',
-        avatar: 'https://ui-avatars.com/api/?name=Neha+Reddy&background=1e40af&color=fff',
-        reportingManager: 'Amit Patel'
-    },
-    {
-        id: 'emp007',
-        name: 'Arjun Verma',
-        designation: 'Finance Analyst',
-        department: 'Finance',
-        companyEmail: 'arjun.verma@ritshr.com',
-        phone: '+91-9876543216',
-        status: 'Active',
-        joiningDate: '2021-07-15',
-        avatar: 'https://ui-avatars.com/api/?name=Arjun+Verma&background=1e40af&color=fff',
-        reportingManager: 'Amit Patel'
-    },
-    {
-        id: 'emp008',
-        name: 'Divya Nair',
-        designation: 'HR Executive',
-        department: 'Human Resources',
-        companyEmail: 'divya.nair@ritshr.com',
-        phone: '+91-9876543217',
-        status: 'Active',
-        joiningDate: '2022-01-10',
-        avatar: 'https://ui-avatars.com/api/?name=Divya+Nair&background=1e40af&color=fff',
-        reportingManager: 'Sneha Gupta'
-    },
-    {
-        id: 'emp009',
-        name: 'Rohan Das',
-        designation: 'Operations Manager',
-        department: 'Operations',
-        companyEmail: 'rohan.das@ritshr.com',
-        phone: '+91-9876543218',
-        status: 'Active',
-        joiningDate: '2020-09-05',
-        avatar: 'https://ui-avatars.com/api/?name=Rohan+Das&background=1e40af&color=fff',
-        reportingManager: 'Rajesh Kumar'
-    },
-    {
-        id: 'emp010',
-        name: 'Kavya Menon',
-        designation: 'Operations Executive',
-        department: 'Operations',
-        companyEmail: 'kavya.menon@ritshr.com',
-        phone: '+91-9876543219',
-        status: 'Active',
-        joiningDate: '2022-03-15',
-        avatar: 'https://ui-avatars.com/api/?name=Kavya+Menon&background=1e40af&color=fff',
-        reportingManager: 'Rohan Das'
-    }
-];
+import HrOrgChartSkeleton from "./HrOrgChartSkeleton";
 
 const HrOrgChart = ({ employees: initialEmployees }) => {
     const dispatch = useDispatch();
-    const { getOrgChartLoading: loading, orgChartData: data, getOrgChartError: error } = useSelector((state) => state.hr.orgChart);
+    const { getOrgChartLoading, orgChartData, getOrgChartError } = useSelector((state) => state.hr.orgChart);
+    console.log("Org Chart Data from Redux:", orgChartData);
 
     useEffect(() => {
         dispatch(hrOrgChartThunk.getOrgChartThunk());
     }, [dispatch]);
 
-    // Use Redux data if available, otherwise fallback to existing logic
-    // Merge all data sources from localStorage for a complete view
-    const allEmployees = useMemo(() => {
-        const superAdminRaw = localStorage.getItem('successfactor_superadmin');
-        const adminsRaw = localStorage.getItem('successfactor_admins');
-        const employeesRaw = localStorage.getItem('successfactor_employees');
 
-        const superAdmin = superAdminRaw ? [JSON.parse(superAdminRaw)] : [];
-        const admins = adminsRaw ? JSON.parse(adminsRaw) : [];
-        const employees = employeesRaw ? JSON.parse(employeesRaw) : initialEmployees || MOCK_EMPLOYEES;
+       const hierarchy = useMemo(() => {
+    if (!orgChartData?.length) return null;
 
-        // Combine all and ensure no duplicates by name (or ID)
-        return [...superAdmin, ...admins, ...employees];
-    }, [initialEmployees]);
+    const buildNode = (emp) => ({
+        id: emp.employeeNo,
+        name: emp.employeeName,
+        designation: emp.designation,
+        department: emp.department,
+        status: emp.status === "active" ? "Active" : "Inactive",
+        companyEmail: emp.companyEmail,
+        phone: emp.phone,
+        joiningDate: emp.joiningDate,
+        avatar: `https://ui-avatars.com/api/?name=${encodeURIComponent(emp.employeeName)}&background=1e40af&color=fff`,
+        children: emp.children?.map(buildNode) || []
+    });
+
+    const roots = orgChartData.map(buildNode);
+
+    if (roots.length === 1) return roots[0];
+
+    return {
+        id: "ROOT",
+        name: "Organization",
+        designation: "Company Structure",
+        department: "",
+        status: "Active",
+        avatar: "",
+        children: roots
+    };
+}, [orgChartData]);
+
+    const employees = useMemo(() => {
+    if (!hierarchy) return [];
+
+    const flatten = (node, manager = null) => {
+        const result = [{
+            id: node.id,
+            name: node.name,
+            designation: node.designation,
+            department: node.department,
+            status: node.status,
+            companyEmail: node.companyEmail,
+            phone: node.phone,
+            joiningDate: node.joiningDate,
+            reportingManager: manager,
+            avatar: node.avatar
+        }];
+
+        node.children?.forEach(child => {
+            result.push(...flatten(child, node.name));
+        });
+
+        return result;
+    };
+
+    if (hierarchy.id === "ROOT") {
+        return hierarchy.children.flatMap(child => flatten(child));
+    }
+
+    return flatten(hierarchy);
+
+}, [hierarchy]);
+
 
     const [selectedEmployee, setSelectedEmployee] = useState(null);
     const [zoom, setZoom] = useState(1);
     const [viewMode, setViewMode] = useState('chart');
-    const [filterDept, setFilterDept] = useState('All');
-    const [isFilterOpen, setIsFilterOpen] = useState(false);
     const [collapsedNodes, setCollapsedNodes] = useState(new Set());
     const [activeTab, setActiveTab] = useState('details');
 
-    // Use the combined list for all logic
-    const employees = allEmployees;
 
     const toggleNode = (nodeId) => {
         setCollapsedNodes(prev => {
@@ -184,79 +108,10 @@ const HrOrgChart = ({ employees: initialEmployees }) => {
         });
     };
 
-    const filteredEmployees = useMemo(() => {
-        if (filterDept === 'All') return employees;
-        return employees.filter(e => e.department === filterDept);
-    }, [employees, filterDept]);
-
-    const departments = useMemo(() => {
-        return ['All', ...new Set(employees.map(e => e.department))];
-    }, [employees]);
-
-    const handleDownload = () => {
-        const headers = ['ID', 'Name', 'Designation', 'Department', 'Email', 'Phone', 'Status', 'Joining Date'];
-        const csvContent = [
-            headers.join(','),
-            ...filteredEmployees.map(e => [
-                e.id,
-                `"${e.name}"`,
-                `"${e.designation}"`,
-                e.department,
-                e.companyEmail,
-                e.phone || '',
-                e.status,
-                e.joiningDate
-            ].join(','))
-        ].join('\n');
-
-        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-        const link = document.createElement('a');
-        if (link.download !== undefined) {
-            const url = URL.createObjectURL(blob);
-            link.setAttribute('href', url);
-            link.setAttribute('download', `ritshr_org_data_${filterDept.toLowerCase()}.csv`);
-            link.style.visibility = 'hidden';
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-        }
-    };
-
-    const hierarchy = useMemo(() => {
-        const roots = employees.filter(emp =>
-            !emp.reportingManager ||
-            !employees.some(e => e.name === emp.reportingManager)
-        );
-
-        if (roots.length === 0) return null;
-
-        const buildNode = (emp) => {
-            const directReports = employees.filter(e => e.reportingManager === emp.name);
-            return {
-                ...emp,
-                children: directReports.map(r => buildNode(r))
-            };
-        };
-
-        if (roots.length === 1) {
-            return buildNode(roots[0]);
-        } else {
-            return {
-                id: 'ROOT',
-                name: 'RitsHR Organization',
-                designation: 'Corporate Hierarchy',
-                department: 'Global',
-                avatar: 'https://ui-avatars.com/api/?name=Rits+HR&background=1e3a8a&color=fff',
-                status: 'Active',
-                children: roots.map(r => buildNode(r))
-            };
-        }
-    }, [employees]);
-
     const renderNode = (node) => {
         const hasChildren = node.children && node.children.length > 0;
-        const isMatch = filterDept === 'All' || node.department === filterDept;
-        const opacityClass = filterDept !== 'All' && !isMatch ? 'opacity-30 grayscale' : 'opacity-100';
+
+        const opacityClass = 'opacity-100';
         const isVirtualRoot = node.id === 'ROOT';
 
         return (
@@ -274,10 +129,16 @@ const HrOrgChart = ({ employees: initialEmployees }) => {
                         <div className="p-4 flex items-center gap-4">
                             <div className="relative">
                                 <img
-                                    src={node.avatar}
-                                    className={`w-12 h-12 rounded-xl object-cover border-2 shadow-sm ${isVirtualRoot ? 'border-white' : 'border-blue-50'}`}
-                                    alt={node.name}
-                                />
+    src={
+        node.avatar
+            ? node.avatar
+            : `https://ui-avatars.com/api/?name=${node.name || "User"}&background=1e40af&color=fff`
+    }
+    className={`w-12 h-12 rounded-xl object-cover border-2 shadow-sm ${
+        isVirtualRoot ? 'border-white' : 'border-blue-50'
+    }`}
+    alt={node.name}
+/>
                                 {!isVirtualRoot && (
                                     <span className={`absolute -bottom-1 -right-1 w-3 h-3 rounded-full border-2 border-white ${node.status === 'Active' ? 'bg-emerald-500' : 'bg-slate-400'}`}></span>
                                 )}
@@ -332,7 +193,7 @@ const HrOrgChart = ({ employees: initialEmployees }) => {
 
     const renderListView = () => (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 p-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
-            {filteredEmployees.map(emp => (
+           {employees.map(emp => (
                 <div
                     key={emp.id}
                     onClick={() => setSelectedEmployee(emp)}
@@ -359,6 +220,11 @@ const HrOrgChart = ({ employees: initialEmployees }) => {
         </div>
     );
 
+
+if (getOrgChartLoading) {
+    return <HrOrgChartSkeleton />;
+}
+
     return (
         <div className="flex flex-col h-[calc(100vh-3rem)] w-full overflow-hidden bg-gradient-to-br from-slate-100 via-blue-50 to-indigo-100 rounded-[2rem] border border-blue-100 shadow-[0_20px_50px_rgba(0,0,0,0.05)] relative">
 
@@ -367,7 +233,9 @@ const HrOrgChart = ({ employees: initialEmployees }) => {
                     <div>
                         <h1 className="text-[24px] font-bold bg-gradient-to-r from-blue-700 to-indigo-600 bg-clip-text text-transparent tracking-tight">Organization Chart</h1>
                         <p className="text-[11px] font-semibold text-gray-500 uppercase tracking-[0.2em] mt-0.5">
-                            {filteredEmployees.length} Displaying • {employees.length} Members
+                            {/* {filteredEmployees.length} Displaying • {employees.length} Members */}
+                            {/* {employees.length} Members */}
+                             Total Employees • {employees.length}
                         </p>
                     </div>
                     <div className="h-8 w-px bg-slate-200 mx-2 hidden md:block"></div>
@@ -389,35 +257,6 @@ const HrOrgChart = ({ employees: initialEmployees }) => {
                         </button>
                     </div>
 
-                    <div className="relative">
-                        <button
-                            onClick={() => setIsFilterOpen(!isFilterOpen)}
-                            className={`flex items-center gap-2 px-6 py-2.5 rounded-xl text-[11px] font-bold uppercase tracking-widest shadow-md hover:scale-[1.03] transition-all border border-transparent ${filterDept !== 'All'
-                                ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white'
-                                : 'bg-white text-gray-700 border-gray-200'}`}
-                        >
-                            <FiFilter size={14} /> {filterDept === 'All' ? 'Filter' : filterDept}
-                        </button>
-                        {isFilterOpen && (
-                            <>
-                                <div className="fixed inset-0 z-30" onClick={() => setIsFilterOpen(false)}></div>
-                                <div className={`absolute right-0 mt-2 w-52 rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.1)] border border-blue-100 overflow-hidden z-40 animate-in fade-in zoom-in-95 bg-white`}>
-                                    <div className="p-2 space-y-1">
-                                        {departments.map(dept => (
-                                            <button key={dept} onClick={() => { setFilterDept(dept); setIsFilterOpen(false); }} className={`w-full text-left px-4 py-2.5 rounded-xl text-[10px] font-semibold uppercase tracking-wider transition-colors ${filterDept === dept ? 'bg-blue-50 text-blue-700 font-bold' : 'text-gray-500 hover:bg-slate-50'}`}>{dept}</button>
-                                        ))}
-                                    </div>
-                                </div>
-                            </>
-                        )}
-                    </div>
-
-                    <button
-                        onClick={handleDownload}
-                        className="p-2.5 bg-gradient-to-r from-blue-500 to-indigo-500 text-white rounded-xl shadow-lg hover:scale-105 active:scale-95 transition-all"
-                    >
-                        <FiDownload size={16} />
-                    </button>
                 </div>
             </div>
 
@@ -426,12 +265,20 @@ const HrOrgChart = ({ employees: initialEmployees }) => {
                     {viewMode === 'chart' ? (
                         <div className="absolute inset-0 p-20 min-w-max min-h-max flex justify-center items-start">
                             <div className="transition-all duration-300 origin-top h-fit" style={{ zoom: zoom }}>
-                                {hierarchy ? renderNode(hierarchy) : (
-                                    <div className="flex flex-col items-center justify-center opacity-50 mt-20">
-                                        <FiLayers size={48} className="text-blue-200 mb-4" />
-                                        <p className="text-[12px] font-bold text-slate-400 uppercase tracking-[0.3em]">Mapping Structure...</p>
-                                    </div>
-                                )}
+                                {getOrgChartLoading ? (
+    <div className="flex flex-col items-center justify-center mt-20">
+        <FiLayers size={48} className="text-blue-200 mb-4 animate-pulse" />
+        <p className="text-[12px] font-bold text-blue-500 uppercase tracking-[0.3em]">
+            Loading Organization...
+        </p>
+    </div>
+) : getOrgChartError ? (
+    <div className="text-red-500 font-semibold mt-20">
+        Failed to load organization structure
+    </div>
+) : hierarchy ? (
+    renderNode(hierarchy)
+) : null}
                             </div>
                         </div>
                     ) : renderListView()}
@@ -462,15 +309,13 @@ const HrOrgChart = ({ employees: initialEmployees }) => {
                                 </div>
                                 <h2 className="text-[26px] font-bold bg-gradient-to-r from-blue-800 to-indigo-700 bg-clip-text text-transparent tracking-tight leading-tight">{selectedEmployee.name}</h2>
                                 <p className="text-[11px] font-bold text-blue-600 uppercase tracking-[0.2em] mt-2">{selectedEmployee.designation}</p>
-                                <div className="flex gap-2 mt-8">
-                                    <button className="flex items-center gap-2.5 px-6 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-2xl text-[11px] font-bold uppercase tracking-widest shadow-xl hover:scale-[1.03] transition-all">View Profile</button>
-                                    <button className="p-3 bg-white text-blue-600 border border-blue-100 rounded-2xl shadow-lg hover:bg-blue-50 transition-all"><FiMail size={16} /></button>
-                                </div>
+                                
                             </div>
                         </div>
 
                         <div className="flex border-b border-blue-50 bg-white">
-                            {[{ id: 'details', label: 'Overview' }, { id: 'history', label: 'Experience' }].map(tab => (
+    {[{ id: 'details', label: 'Overview' }].map(tab => (
+           
                                 <button key={tab.id} onClick={() => setActiveTab(tab.id)} className={`flex-1 py-4 text-[11px] font-bold uppercase tracking-widest transition-all relative ${activeTab === tab.id ? 'text-blue-700' : 'text-gray-400 hover:text-gray-600'}`}>
                                     {tab.label}
                                     {activeTab === tab.id && <div className="absolute bottom-0 left-1/4 right-1/4 h-1 bg-blue-600 rounded-t-full shadow-[0_-4px_10px_rgba(37,99,235,0.4)]" />}
@@ -479,41 +324,33 @@ const HrOrgChart = ({ employees: initialEmployees }) => {
                         </div>
 
                         <div className="flex-1 p-8 space-y-8 overflow-y-auto custom-scrollbar bg-white">
-                            {activeTab === 'details' ? (
-                                <div className="space-y-5">
+{activeTab === 'details' && (                                <div className="space-y-5">
                                     <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2 border-b border-slate-50 pb-2">Employee Information</p>
                                     {[
-                                        { label: 'Department', value: selectedEmployee.department, color: 'text-blue-600' },
-                                        { label: 'Employee ID', value: selectedEmployee.id, color: 'text-indigo-600' },
-                                        { label: 'Reporting Manager', value: selectedEmployee.reportingManager || 'N/A' },
-                                        { label: 'Work Location', value: 'Corporate HQ, Floor 4' },
-                                        { label: 'Start Date', value: selectedEmployee.joiningDate },
-                                        { label: 'Work Email', value: selectedEmployee.companyEmail },
-                                        { label: 'Contact Number', value: selectedEmployee.phone || 'N/A' },
-                                        { label: 'Employment', value: 'Full-Time', color: 'text-emerald-700' },
-                                    ].map((item, i) => (
-                                        <div key={i} className="flex justify-between items-center py-3.5 border-b border-slate-50 last:border-0 group hover:px-2 transition-all">
-                                            <span className="text-[11px] font-semibold text-gray-400 uppercase tracking-tight">{item.label}</span>
-                                            <span className={`text-[13px] font-bold text-right max-w-[65%] truncate group-hover:scale-105 transition-all ${item.color || 'text-gray-800'}`}>{item.value}</span>
-                                        </div>
-                                    ))}
-                                </div>
-                            ) : (
-                                <div className="space-y-8 mt-2">
-                                    <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-4 border-b border-slate-50 pb-2">Work History</p>
-                                    {[
-                                        { role: selectedEmployee.designation, company: 'RitsHR Services', period: '2022 - Present', desc: 'Current specialized leadership role.' },
-                                        { role: 'Senior Consultant', company: 'Global Tech Solutions', period: '2019 - 2022', desc: 'Optimized internal processes and resource workflows.' },
-                                        { role: 'Unit Lead', company: 'Alliance Group', period: '2016 - 2019', desc: 'Led a cross-functional team of 15 members.' }
-                                    ].map((job, i) => (
-                                        <div key={i} className="relative pl-8 border-l-2 border-blue-50 pb-10 last:pb-0">
-                                            <div className="absolute -left-[9px] top-0 w-4 h-4 rounded-full bg-white border-4 border-blue-600 shadow-md ring-4 ring-blue-50" />
-                                            <p className="text-[11px] font-black text-blue-600 uppercase tracking-tighter">{job.period}</p>
-                                            <h4 className="text-[15px] font-bold text-gray-900 mt-2">{job.role}</h4>
-                                            <p className="text-[11px] font-semibold text-indigo-500 uppercase mt-0.5">{job.company}</p>
-                                            <p className="text-[12px] text-gray-500 mt-3 leading-relaxed font-medium">{job.desc}</p>
-                                        </div>
-                                    ))}
+    { label: 'Department', value: selectedEmployee.department },
+    { label: 'Employee ID', value: selectedEmployee.id },
+    { label: 'Reporting Manager', value: selectedEmployee.reportingManager || 'N/A' },
+    { label: 'Work Location', value: 'Corporate HQ, Floor 4' },
+    { label: 'Start Date', value: selectedEmployee.joiningDate },
+    { label: 'Work Email', value: selectedEmployee.companyEmail },
+    { label: 'Contact Number', value: selectedEmployee.phone || 'N/A' },
+    { label: 'Employment', value: 'Full-Time' },
+].map((item, i) => (
+    <div
+        key={i}
+        className="flex justify-between items-center py-3.5 border-b border-slate-50 last:border-0"
+    >
+        <span 
+        style={{ fontFamily: "Times New Roman, serif" }} className="text-[11px] font-semibold text-[#1E293B] uppercase tracking-tight">
+            {item.label}
+        </span>
+
+        <span 
+        style={{ fontFamily: "Times New Roman, serif" }} className="text-[13px] text-[#1E293B] text-right max-w-[65%] truncate">
+            {item.value}
+        </span>
+    </div>
+))}
                                 </div>
                             )}
                         </div>
@@ -525,3 +362,4 @@ const HrOrgChart = ({ employees: initialEmployees }) => {
 };
 
 export default HrOrgChart;
+ 

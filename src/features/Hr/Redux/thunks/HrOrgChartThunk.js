@@ -8,7 +8,7 @@ hrOrgChartThunk.getOrgChartThunk = createAsyncThunk(
     async (_, { rejectWithValue }) => {
         try {
             const response = await hrOrgChartApi.getOrgChartApi();
-            return response.data.data;
+            return response.data.data;  // assumes API returns { success, data: [...] }
         } catch (error) {
             return rejectWithValue(
                 error.response?.data || "Failed to fetch organization chart"
