@@ -12,13 +12,13 @@ export default function RoleRoute({ children, requiredRole }) {
   }
 
   // If a specific role is required for this route branch
-  if (requiredRole && user.role !== requiredRole) {
+  if (requiredRole && user.role?.toLowerCase() !== requiredRole) {
     return <Navigate to="/notfound" replace />;
   }
 
   // Fallback to specific path checking if no branch role is specified
   if (!requiredRole) {
-    const allowedRoutes = roleRoutes[user.role] || [];
+    const allowedRoutes = roleRoutes[user.role?.toLowerCase()] || [];
     if (!allowedRoutes.includes(location.pathname)) {
       return <Navigate to="/notfound" replace />;
     }
@@ -26,3 +26,4 @@ export default function RoleRoute({ children, requiredRole }) {
 
   return children;
 }
+ 
