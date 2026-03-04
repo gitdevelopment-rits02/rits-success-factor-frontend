@@ -1,627 +1,566 @@
-
 import { useState, useEffect, useMemo } from "react";
-
 import {
-    FaSearch,
-    FaCheckCircle,
-    FaTimesCircle,
-    FaClock,
-    FaExclamationTriangle,
-    FaBolt,
-    FaClipboardCheck,
-    FaFileAlt,
-    FaFileExcel,
-    FaUser,
-} from "react-icons/fa";
+  FiSearch, FiCheckCircle, FiXCircle, FiClock,
+  FiAlertTriangle, FiZap, FiClipboard, FiUser,
+  FiMoreVertical, FiFileText, FiDownload,
+} from "react-icons/fi";
 
-import jsPDF from "jspdf";
-import autoTable from "jspdf-autotable";
-import * as XLSX from "xlsx";
-//import timesheetBg from "./timesheet-bg.png";
+/* ─── export stubs — swap with real jsPDF / SheetJS imports ─── */
+const exportPDFStub   = () => alert("PDF export — connect jsPDF.");
+const exportExcelStub = () => alert("Excel export — connect SheetJS.");
 
-export default function ChiefTimeSheetApproval() {
+/* ─── data ─── */
+const RECORDS_INIT = [
+  /* ── today: 2026-03-01 ── */
+  { name:"John Doe",      role:"Sales (ID: 1023)",       department:"Sales",       location:"Office",  date:"2026-03-01", clockIn:"09:05", clockOut:"17:30", status:"Late"     },
+  { name:"Jane Smith",    role:"Sales (ID: 1024)",       department:"Sales",       location:"Remote",  date:"2026-03-01", clockIn:"09:00", clockOut:"17:15", status:"On Time"  },
+  { name:"Mike Brown",    role:"HR (ID: 1025)",          department:"HR",          location:"Office",  date:"2026-03-01", clockIn:"--",    clockOut:"--",    status:"Absent"   },
+  { name:"Anna Lee",      role:"IT (ID: 1026)",          department:"IT",          location:"On-Site", date:"2026-03-01", clockIn:"08:45", clockOut:"19:35", status:"On Time"  },
+  { name:"David Clark",   role:"IT (ID: 1027)",          department:"IT",          location:"Remote",  date:"2026-03-01", clockIn:"09:00", clockOut:"18:00", status:"On Time"  },
+  { name:"Sophia Wilson", role:"HR (ID: 1028)",          department:"HR",          location:"Office",  date:"2026-03-01", clockIn:"09:10", clockOut:"17:10", status:"Late"     },
+  { name:"Robert King",   role:"Finance (ID: 1029)",     department:"Finance",     location:"Office",  date:"2026-03-01", clockIn:"09:00", clockOut:"17:30", status:"On Time"  },
+  { name:"Emily Davis",   role:"Marketing (ID: 1030)",   department:"Marketing",   location:"Remote",  date:"2026-03-01", clockIn:"09:15", clockOut:"16:45", status:"Late"     },
+  { name:"Carlos Mendez", role:"Engineering (ID: 1031)", department:"Engineering", location:"Remote",  date:"2026-03-01", clockIn:"08:30", clockOut:"17:30", status:"On Time"  },
+  { name:"Priya Patel",   role:"Engineering (ID: 1032)", department:"Engineering", location:"Office",  date:"2026-03-01", clockIn:"09:20", clockOut:"18:00", status:"Late"     },
+  { name:"Tom Harris",    role:"Finance (ID: 1033)",     department:"Finance",     location:"Office",  date:"2026-03-01", clockIn:"--",    clockOut:"--",    status:"Absent"   },
+  { name:"Lisa Nguyen",   role:"Marketing (ID: 1034)",   department:"Marketing",   location:"Remote",  date:"2026-03-01", clockIn:"08:55", clockOut:"17:10", status:"On Time"  },
+  { name:"James O'Brien", role:"HR (ID: 1035)",          department:"HR",          location:"On-Site", date:"2026-03-01", clockIn:"09:00", clockOut:"17:00", status:"On Time"  },
+  { name:"Natalie Ford",  role:"IT (ID: 1036)",          department:"IT",          location:"Remote",  date:"2026-03-01", clockIn:"09:05", clockOut:"20:15", status:"On Time"  },
+  { name:"Kevin Zhang",   role:"Sales (ID: 1037)",       department:"Sales",       location:"Office",  date:"2026-03-01", clockIn:"09:30", clockOut:"17:30", status:"Late"     },
+  { name:"Amara Osei",    role:"Finance (ID: 1038)",     department:"Finance",     location:"Office",  date:"2026-03-01", clockIn:"08:45", clockOut:"17:45", status:"On Time"  },
 
-    const [filter, setFilter] = useState("Today");
-    const [search, setSearch] = useState("");
-    const [departmentFilter, setDepartmentFilter] = useState("All");
-    const [statusFilter, setStatusFilter] = useState("All");
-    const [bulkApproved, setBulkApproved] = useState(false);
-    useEffect(() => {
-        const timer = setInterval(() => {
-            setNow(new Date());
-        }, 60000); // every 1 minute
+  /* ── this week: Sun Feb 26 ── */
+  { name:"Anna Lee",      role:"IT (ID: 1026)",          department:"IT",          location:"On-Site", date:"2026-02-26", clockIn:"08:50", clockOut:"18:00", status:"On Time"  },
+  { name:"David Clark",   role:"IT (ID: 1027)",          department:"IT",          location:"Remote",  date:"2026-02-26", clockIn:"09:00", clockOut:"17:30", status:"On Time"  },
+  { name:"Robert King",   role:"Finance (ID: 1029)",     department:"Finance",     location:"Office",  date:"2026-02-26", clockIn:"09:00", clockOut:"17:30", status:"On Time"  },
+  { name:"Emily Davis",   role:"Marketing (ID: 1030)",   department:"Marketing",   location:"Remote",  date:"2026-02-26", clockIn:"09:15", clockOut:"16:45", status:"Late"     },
+  { name:"Carlos Mendez", role:"Engineering (ID: 1031)", department:"Engineering", location:"Remote",  date:"2026-02-26", clockIn:"08:30", clockOut:"17:00", status:"On Time"  },
+  { name:"Natalie Ford",  role:"IT (ID: 1036)",          department:"IT",          location:"Remote",  date:"2026-02-26", clockIn:"08:40", clockOut:"19:00", status:"On Time"  },
+  { name:"Kevin Zhang",   role:"Sales (ID: 1037)",       department:"Sales",       location:"Office",  date:"2026-02-26", clockIn:"09:00", clockOut:"17:00", status:"On Time"  },
 
-        return () => clearInterval(timer);
-    }, []);
+  /* ── this week: Mon Feb 27 ── */
+  { name:"Sophia Wilson", role:"HR (ID: 1028)",          department:"HR",          location:"Office",  date:"2026-02-27", clockIn:"09:20", clockOut:"17:00", status:"Late"     },
+  { name:"Robert King",   role:"Finance (ID: 1029)",     department:"Finance",     location:"Office",  date:"2026-02-27", clockIn:"--",    clockOut:"--",    status:"Absent"   },
+  { name:"Priya Patel",   role:"Engineering (ID: 1032)", department:"Engineering", location:"Office",  date:"2026-02-27", clockIn:"09:00", clockOut:"18:30", status:"On Time"  },
+  { name:"Amara Osei",    role:"Finance (ID: 1038)",     department:"Finance",     location:"Office",  date:"2026-02-27", clockIn:"09:10", clockOut:"17:30", status:"On Time"  },
+  { name:"Lisa Nguyen",   role:"Marketing (ID: 1034)",   department:"Marketing",   location:"Remote",  date:"2026-02-27", clockIn:"08:50", clockOut:"17:20", status:"On Time"  },
+  { name:"James O'Brien", role:"HR (ID: 1035)",          department:"HR",          location:"On-Site", date:"2026-02-27", clockIn:"--",    clockOut:"--",    status:"Absent"   },
 
-    const [records, setRecords] = useState([
-        {
-            name: "John Doe",
-            id: "1023",
-            designation: "COO",
-            date: "2026-01-22",
-            clockIn: "09:00",
-            clockOut: "17:30",
-            break: "00:30",
-            status: "Approved",
-        },
-        {
-            name: "Jane Smith",
-            id: "1024",
-            designation: "CMO",
-            date: "2026-01-22",
-            clockIn: "09:10",
-            clockOut: "17:15",
-            break: "00:30",
-            status: "Pending",
-        },
-        {
-            name: "Mike Brown",
-            id: "1025",
-            designation: "CFO",
-            date: "2026-01-22",
-            clockIn: "09:20",
-            clockOut: "17:00",
-            break: "00:30",
-            status: "Late",
-        },
-    ]);
+  /* ── this week: Tue Feb 28 ── */
+  { name:"John Doe",      role:"Sales (ID: 1023)",       department:"Sales",       location:"Office",  date:"2026-02-28", clockIn:"09:00", clockOut:"17:00", status:"On Time"  },
+  { name:"Jane Smith",    role:"Sales (ID: 1024)",       department:"Sales",       location:"Remote",  date:"2026-02-28", clockIn:"08:55", clockOut:"17:20", status:"On Time"  },
+  { name:"Mike Brown",    role:"HR (ID: 1025)",          department:"HR",          location:"Office",  date:"2026-02-28", clockIn:"09:05", clockOut:"17:05", status:"Late"     },
+  { name:"Tom Harris",    role:"Finance (ID: 1033)",     department:"Finance",     location:"Office",  date:"2026-02-28", clockIn:"09:00", clockOut:"17:00", status:"On Time"  },
+  { name:"Kevin Zhang",   role:"Sales (ID: 1037)",       department:"Sales",       location:"Office",  date:"2026-02-28", clockIn:"09:25", clockOut:"17:00", status:"On Time"  },
+  { name:"Natalie Ford",  role:"IT (ID: 1036)",          department:"IT",          location:"Remote",  date:"2026-02-28", clockIn:"08:45", clockOut:"18:45", status:"On Time"  },
 
-    const [now, setNow] = useState(new Date());
+  /* ── this month (March): earlier records for "This Month" view ── */
+  { name:"Emily Davis",   role:"Marketing (ID: 1030)",   department:"Marketing",   location:"Remote",  date:"2026-03-01", clockIn:"09:00", clockOut:"17:00", status:"Approved" },
+  { name:"John Doe",      role:"Sales (ID: 1023)",       department:"Sales",       location:"Office",  date:"2026-03-01", clockIn:"09:10", clockOut:"17:30", status:"Pending"  },
 
-    /* ---------------- HELPERS ---------------- */
+  /* ── this month (Feb): bulk of historical records ── */
+  { name:"Jane Smith",    role:"Sales (ID: 1024)",       department:"Sales",       location:"Remote",  date:"2026-02-25", clockIn:"09:00", clockOut:"18:00", status:"Approved" },
+  { name:"Mike Brown",    role:"HR (ID: 1025)",          department:"HR",          location:"Office",  date:"2026-02-25", clockIn:"09:00", clockOut:"17:00", status:"Approved" },
+  { name:"Anna Lee",      role:"IT (ID: 1026)",          department:"IT",          location:"On-Site", date:"2026-02-24", clockIn:"08:45", clockOut:"19:00", status:"Pending"  },
+  { name:"David Clark",   role:"IT (ID: 1027)",          department:"IT",          location:"Remote",  date:"2026-02-24", clockIn:"09:00", clockOut:"17:30", status:"Approved" },
+  { name:"Sophia Wilson", role:"HR (ID: 1028)",          department:"HR",          location:"Office",  date:"2026-02-23", clockIn:"09:15", clockOut:"17:00", status:"Pending"  },
+  { name:"Robert King",   role:"Finance (ID: 1029)",     department:"Finance",     location:"Office",  date:"2026-02-23", clockIn:"09:00", clockOut:"17:30", status:"Approved" },
+  { name:"Emily Davis",   role:"Marketing (ID: 1030)",   department:"Marketing",   location:"Remote",  date:"2026-02-22", clockIn:"09:05", clockOut:"17:00", status:"Pending"  },
+  { name:"John Doe",      role:"Sales (ID: 1023)",       department:"Sales",       location:"Office",  date:"2026-02-22", clockIn:"09:00", clockOut:"17:00", status:"Approved" },
+  { name:"Jane Smith",    role:"Sales (ID: 1024)",       department:"Sales",       location:"Remote",  date:"2026-02-21", clockIn:"--",    clockOut:"--",    status:"Absent"   },
+  { name:"Mike Brown",    role:"HR (ID: 1025)",          department:"HR",          location:"Office",  date:"2026-02-21", clockIn:"09:00", clockOut:"17:00", status:"Approved" },
+  { name:"Anna Lee",      role:"IT (ID: 1026)",          department:"IT",          location:"On-Site", date:"2026-02-20", clockIn:"08:50", clockOut:"18:30", status:"Pending"  },
+  { name:"David Clark",   role:"IT (ID: 1027)",          department:"IT",          location:"Remote",  date:"2026-02-20", clockIn:"09:00", clockOut:"17:00", status:"Approved" },
+  { name:"Sophia Wilson", role:"HR (ID: 1028)",          department:"HR",          location:"Office",  date:"2026-02-19", clockIn:"09:10", clockOut:"17:10", status:"Pending"  },
+  { name:"Carlos Mendez", role:"Engineering (ID: 1031)", department:"Engineering", location:"Remote",  date:"2026-02-25", clockIn:"08:30", clockOut:"17:30", status:"Approved" },
+  { name:"Priya Patel",   role:"Engineering (ID: 1032)", department:"Engineering", location:"Office",  date:"2026-02-25", clockIn:"09:00", clockOut:"17:00", status:"Approved" },
+  { name:"Tom Harris",    role:"Finance (ID: 1033)",     department:"Finance",     location:"Office",  date:"2026-02-25", clockIn:"--",    clockOut:"--",    status:"Absent"   },
+  { name:"Lisa Nguyen",   role:"Marketing (ID: 1034)",   department:"Marketing",   location:"Remote",  date:"2026-02-24", clockIn:"09:00", clockOut:"17:00", status:"Approved" },
+  { name:"James O'Brien", role:"HR (ID: 1035)",          department:"HR",          location:"On-Site", date:"2026-02-24", clockIn:"09:05", clockOut:"17:00", status:"Pending"  },
+  { name:"Natalie Ford",  role:"IT (ID: 1036)",          department:"IT",          location:"Remote",  date:"2026-02-23", clockIn:"08:40", clockOut:"20:00", status:"Pending"  },
+  { name:"Kevin Zhang",   role:"Sales (ID: 1037)",       department:"Sales",       location:"Office",  date:"2026-02-23", clockIn:"09:00", clockOut:"17:00", status:"Approved" },
+  { name:"Amara Osei",    role:"Finance (ID: 1038)",     department:"Finance",     location:"Office",  date:"2026-02-22", clockIn:"09:10", clockOut:"17:10", status:"Approved" },
+  { name:"Carlos Mendez", role:"Engineering (ID: 1031)", department:"Engineering", location:"Remote",  date:"2026-02-22", clockIn:"08:30", clockOut:"17:00", status:"Approved" },
+  { name:"Priya Patel",   role:"Engineering (ID: 1032)", department:"Engineering", location:"Office",  date:"2026-02-21", clockIn:"09:00", clockOut:"18:00", status:"Pending"  },
+  { name:"Tom Harris",    role:"Finance (ID: 1033)",     department:"Finance",     location:"Office",  date:"2026-02-21", clockIn:"09:00", clockOut:"17:00", status:"Approved" },
+  { name:"Lisa Nguyen",   role:"Marketing (ID: 1034)",   department:"Marketing",   location:"Remote",  date:"2026-02-20", clockIn:"08:50", clockOut:"17:00", status:"Approved" },
+  { name:"James O'Brien", role:"HR (ID: 1035)",          department:"HR",          location:"On-Site", date:"2026-02-20", clockIn:"09:00", clockOut:"17:00", status:"Approved" },
+  { name:"Natalie Ford",  role:"IT (ID: 1036)",          department:"IT",          location:"Remote",  date:"2026-02-19", clockIn:"08:45", clockOut:"18:45", status:"Pending"  },
+  { name:"Kevin Zhang",   role:"Sales (ID: 1037)",       department:"Sales",       location:"Office",  date:"2026-02-19", clockIn:"09:25", clockOut:"17:00", status:"Pending"  },
+  { name:"Amara Osei",    role:"Finance (ID: 1038)",     department:"Finance",     location:"Office",  date:"2026-02-19", clockIn:"09:00", clockOut:"17:30", status:"Approved" },
+];
 
-    const calcHours = (inTime, outTime, breakTime, date) => {
-        if (inTime === "--") return 0;
+/* ─── helpers ─── */
+const calcHours = (inT, outT, date) => {
+  if (inT === "--") return 0;
+  const [ih, im] = inT.split(":").map(Number);
+  const start = new Date(date); start.setHours(ih, im, 0, 0);
+  let end;
+  if (outT === "--" || new Date(date).toDateString() === new Date().toDateString()) end = new Date();
+  else { const [oh, om] = outT.split(":").map(Number); end = new Date(date); end.setHours(oh, om, 0, 0); }
+  return Math.max((end - start) / 3_600_000, 0);
+};
 
-        const [ih, im] = inTime.split(":").map(Number);
-        const [bh, bm] = breakTime.split(":").map(Number);
+const initials = n => n.split(" ").map(w => w[0]).join("").slice(0, 2).toUpperCase();
 
-        const start = new Date(date);
-        start.setHours(ih, im, 0, 0);
+const AVATAR_PAL = [
+  { bg:"#e8f0fe", color:"#1d4ed8" },
+  { bg:"#fce7f3", color:"#be185d" },
+  { bg:"#d1fae5", color:"#065f46" },
+  { bg:"#fef3c7", color:"#92400e" },
+  { bg:"#ede9fe", color:"#5b21b6" },
+  { bg:"#ffedd5", color:"#9a3412" },
+];
+const av = name => AVATAR_PAL[name.charCodeAt(0) % AVATAR_PAL.length];
 
-        let end;
+const STATUS_STYLE = {
+  "Approved" : { bg:"#dcfce7", color:"#15803d" },
+  "On Time"  : { bg:"#dcfce7", color:"#15803d" },
+  "Pending"  : { bg:"#fef9c3", color:"#a16207" },
+  "Late"     : { bg:"#fef3c7", color:"#b45309" },
+  "Absent"   : { bg:"#fee2e2", color:"#b91c1c" },
+};
 
-        // ✅ LIVE calculation for TODAY
-        if (
-            outTime === "--" ||
-            new Date(date).toDateString() === now.toDateString()
-        ) {
-            end = now;
-        } else {
-            const [oh, om] = outTime.split(":").map(Number);
-            end = new Date(date);
-            end.setHours(oh, om, 0, 0);
+const DEPT_STYLE = {
+  "Sales"    : { bg:"#dbeafe", color:"#1e40af" },
+  "HR"       : { bg:"#fce7f3", color:"#9d174d" },
+  "IT"       : { bg:"#ede9fe", color:"#4c1d95" },
+  "Finance"  : { bg:"#fef3c7", color:"#78350f" },
+  "Marketing": { bg:"#ffedd5", color:"#7c2d12" },
+  "Engineering":{ bg:"#d1fae5", color:"#064e3b" },
+};
+
+/* ─── component ─── */
+export default function SuperAdminTimeSheet() {
+  const [filter,       setFilter]       = useState("Today");
+  const [search,       setSearch]       = useState("");
+  const [statusFilter, setStatusFilter] = useState("All");
+  const [selectedRows, setSelectedRows] = useState([]);
+  const [openAction,   setOpenAction]   = useState(null);
+  const [bulkFlash,    setBulkFlash]    = useState(false);
+  const [records,      setRecords]      = useState(RECORDS_INIT);
+
+  const matchDate = dateStr => {
+    const d = new Date(dateStr), today = new Date();
+    if (filter === "Today")     return d.toDateString() === today.toDateString();
+    if (filter === "This Week") {
+      const s = new Date(today); s.setDate(today.getDate() - today.getDay());
+      const e = new Date(s);     e.setDate(s.getDate() + 6);
+      return d >= s && d <= e;
+    }
+    return d.getMonth() === today.getMonth() && d.getFullYear() === today.getFullYear();
+  };
+
+  const filtered = useMemo(() => records.filter(r => {
+    const q = `${r.name} ${r.role} ${r.department}`.toLowerCase();
+    return q.includes(search.toLowerCase())
+      && (statusFilter === "All" || r.status === statusFilter)
+      && matchDate(r.date);
+  }), [records, search, statusFilter, filter]);
+
+  const stats = useMemo(() => {
+    let hrs = 0, ot = 0, disc = 0, pend = 0;
+    filtered.forEach(r => {
+      const h = calcHours(r.clockIn, r.clockOut, r.date);
+      hrs += h; if (h > 8) ot += h - 8;
+      if (["Late","Absent"].includes(r.status)) disc++;
+      if (r.status === "Pending") pend++;
+    });
+    return [
+      { label:"Total Hours Worked",   value:hrs.toFixed(1), sub:"hrs",   Icon:FiClock,         bg:"#eef4ff", iconBg:"#dbeafe", iconColor:"#2563eb" },
+      { label:"Active Discrepancies", value:disc,           sub:"flags",  Icon:FiAlertTriangle, bg:"#fff8f0", iconBg:"#ffedd5", iconColor:"#ea580c" },
+      { label:"Overtime Hours",       value:ot.toFixed(1),  sub:"hrs",   Icon:FiZap,           bg:"#f6f2ff", iconBg:"#ede9fe", iconColor:"#7c3aed" },
+      { label:"Pending Approvals",    value:pend,           sub:"tasks",  Icon:FiClipboard,     bg:"#f0fdf4", iconBg:"#dcfce7", iconColor:"#16a34a" },
+    ];
+  }, [filtered]);
+
+  const isMonthly = filter === "This Month";
+  const isToday   = filter === "Today";
+
+  const updateStatus = (idx, status) => {
+    const rec = filtered[idx];
+    setRecords(prev => prev.map(r =>
+      r.name===rec.name && r.date===rec.date && r.role===rec.role ? { ...r, status } : r
+    ));
+  };
+
+  const bulkApprove = () => {
+    if (!isMonthly || !selectedRows.length) return;
+    setRecords(prev => {
+      const next = [...prev];
+      selectedRows.forEach(i => {
+        const rec = filtered[i];
+        const j = next.findIndex(r => r.name===rec.name && r.date===rec.date && r.role===rec.role);
+        if (next[j].status !== "Absent") next[j] = { ...next[j], status:"Approved" };
+      });
+      return next;
+    });
+    setSelectedRows([]);
+    setBulkFlash(true);
+    setTimeout(() => setBulkFlash(false), 2000);
+  };
+
+  useEffect(() => {
+    const close = () => setOpenAction(null);
+    document.addEventListener("click", close);
+    return () => document.removeEventListener("click", close);
+  }, []);
+
+  return (
+    <>
+      <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        .ts-root { min-height: 100vh; background: #f4f8ff; padding: 28px 20px;
+          font-family: 'Inter', system-ui, sans-serif; color: #1e293b; }
+        .ts-wrap { max-width: 1300px; margin: 0 auto; display: flex; flex-direction: column; gap: 20px; }
+
+        .ts-header { background: #fff; border-radius: 16px; padding: 22px 28px;
+          display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 14px;
+          box-shadow: 0 1px 4px rgba(37,99,235,.08); border: 1px solid #e0eaff; }
+        .ts-header-title { font-size: 24px; font-weight: 700; color: #1e293b; letter-spacing: -.3px; }
+        .ts-header-sub   { font-size: 13px; color: #64748b; margin-top: 3px; }
+        .ts-badge { display: inline-flex; align-items: center; gap: 7px; padding: 8px 18px;
+          background: #2563eb; color: #fff; border-radius: 40px;
+          font-size: 13px; font-weight: 600; border: none; cursor: default; white-space: nowrap; }
+
+        .ts-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; }
+        .ts-stat  { border-radius: 14px; padding: 18px 20px; border: 1px solid transparent;
+          display: flex; align-items: center; justify-content: space-between;
+          box-shadow: 0 1px 3px rgba(0,0,0,.06); transition: transform .18s, box-shadow .18s; }
+        .ts-stat:hover { transform: translateY(-3px); box-shadow: 0 6px 18px rgba(0,0,0,.1); }
+        .ts-stat-icon  { width: 46px; height: 46px; border-radius: 12px;
+          display: flex; align-items: center; justify-content: center; font-size: 19px; flex-shrink: 0; }
+        .ts-stat-label { font-size: 11.5px; color: #64748b; font-weight: 500; margin-bottom: 5px; }
+        .ts-stat-value { font-size: 30px; font-weight: 700; color: #1e293b; line-height: 1; }
+        .ts-stat-sub   { font-size: 11px; color: #94a3b8; margin-top: 3px; }
+
+        .ts-toolbar { background: #fff; border-radius: 14px; padding: 13px 18px;
+          display: flex; align-items: center; gap: 9px; flex-wrap: wrap;
+          box-shadow: 0 1px 3px rgba(37,99,235,.07); border: 1px solid #e0eaff; }
+
+        .ts-period { padding: 7px 16px; border-radius: 40px; font-size: 13px; font-weight: 600;
+          border: none; cursor: pointer; transition: all .15s; font-family: inherit; }
+        .ts-period.on  { background: #2563eb; color: #fff; box-shadow: 0 3px 10px rgba(37,99,235,.28); }
+        .ts-period.off { background: #eef4ff; color: #2563eb; }
+        .ts-period.off:hover { background: #dbeafe; }
+
+        .ts-search-wrap { flex: 1; min-width: 180px; position: relative; }
+        .ts-search-ico  { position: absolute; left: 12px; top: 50%; transform: translateY(-50%);
+          color: #94a3b8; pointer-events: none; font-size: 14px; }
+        .ts-search { width: 100%; padding: 8px 12px 8px 36px; border-radius: 40px;
+          border: 1.5px solid #e0eaff; font-size: 13px; color: #1e293b; background: #f8faff;
+          outline: none; font-family: inherit; transition: border-color .15s, box-shadow .15s; }
+        .ts-search:focus { border-color: #2563eb; box-shadow: 0 0 0 3px rgba(37,99,235,.1); }
+        .ts-search::placeholder { color: #94a3b8; }
+
+        .ts-select { padding: 8px 13px; border-radius: 40px; border: 1.5px solid #e0eaff;
+          font-size: 13px; color: #1e293b; background: #f8faff; outline: none;
+          cursor: pointer; font-family: inherit; }
+        .ts-select:focus { border-color: #2563eb; }
+
+        .ts-btn { display: inline-flex; align-items: center; gap: 6px; padding: 8px 16px;
+          border-radius: 40px; border: none; font-size: 13px; font-weight: 600;
+          cursor: pointer; transition: opacity .15s, transform .15s; font-family: inherit; white-space: nowrap; }
+        .ts-btn:hover { opacity: .86; transform: translateY(-1px); }
+        .ts-btn-blue  { background: #2563eb; color: #fff; }
+        .ts-btn-red   { background: #ef4444; color: #fff; }
+        .ts-btn-green { background: #16a34a; color: #fff; }
+        .ts-btn-outline { background: #f0f6ff; color: #2563eb; border: 1.5px solid #c7deff; }
+        .ts-btn-dis  { background: #f1f5f9; color: #94a3b8; border: 1.5px solid #e2e8f0;
+          cursor: not-allowed; }
+        .ts-btn-dis:hover { opacity: 1; transform: none; }
+
+        .ts-card { background: #fff; border-radius: 16px; overflow: hidden;
+          box-shadow: 0 1px 4px rgba(37,99,235,.08); border: 1px solid #e0eaff; }
+        .ts-scroll { overflow-x: auto; }
+        table { width: 100%; border-collapse: collapse; font-size: 13px; }
+
+        thead tr  { background: #f7faff; }
+        thead th  { padding: 11px 14px; text-align: left; font-size: 10.5px; font-weight: 700;
+          color: #64748b; letter-spacing: .06em; text-transform: uppercase; white-space: nowrap;
+          border-bottom: 2px solid #e0eaff; }
+
+        tbody tr  { border-bottom: 1px solid #f1f5f9; transition: background .1s; }
+        tbody tr:last-child { border-bottom: none; }
+        tbody tr:hover { background: #f5f9ff; }
+        tbody td  { padding: 11px 14px; color: #1e293b; vertical-align: middle; }
+
+        .ts-av { width: 34px; height: 34px; border-radius: 9px;
+          font-size: 12px; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+        .ts-name  { font-weight: 600; font-size: 13px; }
+        .ts-role  { font-size: 11px; color: #94a3b8; margin-top: 1px; }
+
+        .ts-pill  { display: inline-flex; align-items: center; padding: 3px 10px;
+          border-radius: 40px; font-size: 11px; font-weight: 600; white-space: nowrap; }
+
+        .ts-ib { width: 30px; height: 30px; border-radius: 8px; border: none;
+          display: flex; align-items: center; justify-content: center;
+          font-size: 15px; cursor: pointer; transition: background .12s, transform .12s; }
+        .ts-ib:hover { transform: scale(1.1); }
+        .ts-ib-ok  { background: #dcfce7; color: #16a34a; }
+        .ts-ib-ok:hover  { background: #bbf7d0; }
+        .ts-ib-pend{ background: #fef3c7; color: #b45309; }
+        .ts-ib-pend:hover { background: #fde68a; }
+        .ts-ib-more{ background: #eef4ff; color: #2563eb; }
+        .ts-ib-more:hover { background: #dbeafe; }
+        .ts-ib-off { background: #f1f5f9; color: #cbd5e1; cursor: not-allowed; }
+        .ts-ib-off:hover { transform: none; }
+
+        .ts-drop { position: absolute; right: 0; top: 34px; background: #fff;
+          border: 1px solid #e0eaff; border-radius: 10px;
+          box-shadow: 0 8px 24px rgba(37,99,235,.12); z-index: 100; min-width: 140px; overflow: hidden; }
+        .ts-drop-item { display: flex; align-items: center; gap: 8px; padding: 9px 13px;
+          font-size: 13px; cursor: pointer; color: #1e293b; transition: background .1s; }
+        .ts-drop-item:hover { background: #eef4ff; }
+        .ts-drop-item + .ts-drop-item { border-top: 1px solid #f1f5f9; }
+
+        .ts-footer { padding: 11px 16px; border-top: 1px solid #f1f5f9;
+          display: flex; align-items: center; justify-content: space-between;
+          font-size: 12px; color: #64748b; background: #fafcff; flex-wrap: wrap; gap: 6px; }
+
+        .ts-empty { padding: 60px 20px; text-align: center; color: #94a3b8; }
+        .ts-empty-ic { display: flex; justify-content: center; margin-bottom: 10px; font-size: 32px; color: #cbd5e1; }
+        .ts-empty p  { font-size: 14px; }
+
+        .ts-mono { font-family: 'Courier New', monospace; font-size: 12px; }
+
+        input[type="checkbox"] { width: 15px; height: 15px; cursor: pointer; accent-color: #2563eb; }
+
+        @media (max-width: 700px) {
+          .ts-root { padding: 14px 10px; }
+          .hide-sm { display: none !important; }
+          .ts-header-title { font-size: 20px; }
         }
+        @media (max-width: 960px) { .hide-md { display: none !important; } }
 
-        const workedMs = end - start;
-        const workedHrs = workedMs / (1000 * 60 * 60);
+        ::-webkit-scrollbar { height: 5px; width: 5px; }
+        ::-webkit-scrollbar-track { background: #f1f5f9; }
+        ::-webkit-scrollbar-thumb { background: #bfdbfe; border-radius: 10px; }
+      `}</style>
 
-        const breakHrs = bh + bm / 60;
+      <div className="ts-root">
+        <div className="ts-wrap">
 
-        return Math.max(workedHrs - breakHrs, 0);
-    };
+          {/* HEADER */}
+          <div className="ts-header">
+            <div>
+              <div className="ts-header-title">Time Sheet Dashboard</div>
+              <div className="ts-header-sub">Manage and approve attendance records</div>
+            </div>
+            <div className="ts-badge">
+              <FiUser size={13} /> Super Admin
+            </div>
+          </div>
 
-    const getTotalHoursFromRecords = (records) => {
-        return records
-            .reduce(
-                (sum, r) => sum + calcHours(r.clockIn, r.clockOut, r.break, r.date),
-                0
-            )
-            .toFixed(2);
-    };
-
-    const matchDateFilter = (dateStr) => {
-        const d = new Date(dateStr);
-        const today = new Date();
-
-        if (filter === "Today") return d.toDateString() === today.toDateString();
-
-        if (filter === "This Week") {
-            const start = new Date(today);
-            start.setDate(today.getDate() - today.getDay());
-            const end = new Date(start);
-            end.setDate(start.getDate() + 6);
-            return d >= start && d <= end;
-        }
-
-        if (filter === "This Month") {
-            return (
-                d.getMonth() === today.getMonth() &&
-                d.getFullYear() === today.getFullYear()
-            );
-        }
-        return true;
-    };
-
-    const filteredRecords = useMemo(() => {
-        return records.filter((r) => {
-            const matchSearch = `${r.name} ${r.id}`
-                .toLowerCase()
-                .includes(search.toLowerCase());
-
-            const matchStatus =
-                statusFilter === "All" || r.status === statusFilter;
-
-            const matchDate = matchDateFilter(r.date);
-
-            return matchSearch && matchStatus && matchDate;
-        });
-    }, [records, search, statusFilter, filter]);
-
-
-    const stats = useMemo(() => {
-        let totalHours = 0;
-        let overtime = 0;
-        let discrepancies = 0;
-        let pending = 0;
-
-        filteredRecords.forEach((r) => {
-            const hrs = calcHours(r.clockIn, r.clockOut, r.break, r.date);
-            totalHours += hrs;
-            if (hrs > 8) overtime += hrs - 8;
-            if (["Late", "Absent"].includes(r.status)) discrepancies++;
-            if (r.status === "Pending") pending++;
-        });
-
-        return [
-            {
-                title: "Total Hours Worked",
-                value: totalHours.toFixed(1),
-                unit: "hrs",
-                icon: FaClock,
-                bg: "bg-blue-100",
-                color: "text-blue-600",
-            },
-            {
-                title: "Active Discrepancies",
-                value: discrepancies,
-                unit: "Days",
-                icon: FaExclamationTriangle,
-                bg: "bg-orange-100",
-                color: "text-orange-600",
-            },
-            {
-                title: "Overtime Hours",
-                value: overtime.toFixed(1),
-                unit: "hrs",
-                icon: FaBolt,
-                bg: "bg-green-100",
-                color: "text-green-600",
-            },
-            {
-                title: "Pending Approvals",
-                value: pending,
-                unit: "Tasks",
-                icon: FaClipboardCheck,
-                bg: "bg-purple-100",
-                color: "text-purple-600",
-            },
-        ];
-    }, [filteredRecords]);
-
-    const updateStatus = (index, status) => {
-        const updated = [...records];
-        updated[index].status = status;
-        setRecords(updated);
-    };
-
-    const bulkApprove = () => {
-        setRecords(
-            records.map((r) =>
-                r.status === "Absent" ? r : { ...r, status: "Approved" }
-            )
-        );
-        setBulkApproved(true);
-    };
-
-
-
-    const exportExcel = () => {
-        const worksheetData = filteredRecords.map((r) => ({
-            Employee: r.name,
-            Department: r.department,
-            Location: r.location,
-            Date: r.date,
-            "Clock In": r.clockIn,
-            "Clock Out": r.clockOut,
-            Break: r.break,
-            "Total Hours": calcHours(r.clockIn, r.clockOut, r.break).toFixed(2),
-            Status: r.status,
-        }));
-
-        const worksheet = XLSX.utils.json_to_sheet(worksheetData);
-        const workbook = XLSX.utils.book_new();
-        XLSX.utils.book_append_sheet(workbook, worksheet, "Timesheet");
-
-        XLSX.writeFile(workbook, "timesheet.xlsx");
-    };
-
-
-    // ✅ Single PDF
-    const exportSinglePDF = (r) => {
-        const doc = new jsPDF();
-
-        // Filter only this employee & current month
-        const employeeMonthRecords = records.filter(
-            (rec) =>
-                rec.id === r.id &&
-                new Date(rec.date).getMonth() === new Date().getMonth() &&
-                new Date(rec.date).getFullYear() === new Date().getFullYear()
-        );
-
-        const monthName = new Date().toLocaleString("default", {
-            month: "long",
-            year: "numeric",
-        });
-
-        const totalMonthHours = getTotalHoursFromRecords(employeeMonthRecords);
-
-        doc.setFontSize(14);
-        doc.text(`Timesheet - ${r.name}`, 14, 15);
-
-        doc.setFontSize(10);
-        doc.text(`Month: ${monthName}`, 14, 22);
-        doc.text(`Total Hours (This Month): ${totalMonthHours} hrs`, 14, 28);
-
-        autoTable(doc, {
-            startY: 35,
-            head: [["Date", "Clock In", "Clock Out", "Break", "Hours", "Status"]],
-            body: employeeMonthRecords.map((rec) => [
-                rec.date,
-                rec.clockIn,
-                rec.clockOut,
-                rec.break,
-                calcHours(rec.clockIn, rec.clockOut, rec.break).toFixed(2),
-                rec.status,
-            ]),
-            styles: { fontSize: 9 },
-            headStyles: { fillColor: [37, 99, 235] },
-        });
-
-        const finalY = doc.lastAutoTable.finalY + 10;
-        doc.setFontSize(11);
-        doc.text(
-            `Grand Total Hours (${monthName}): ${totalMonthHours} hrs`,
-            14,
-            finalY
-        );
-
-        doc.save(`${r.name}_Monthly_Timesheet.pdf`);
-    };
-
-
-    // ✅ Single Excel
-    const exportSingleExcel = (r) => {
-        const worksheet = XLSX.utils.json_to_sheet([{
-            Name: r.name,
-            ID: r.id,
-            Designation: r.designation,
-            Date: r.date,
-            "Clock In": r.clockIn,
-            "Clock Out": r.clockOut,
-            Break: r.break,
-            "Total Hours": calcHours(r.clockIn, r.clockOut, r.break, r.date).toFixed(2),
-            Status: r.status,
-        }]);
-
-        const workbook = XLSX.utils.book_new();
-        XLSX.utils.book_append_sheet(workbook, worksheet, "Timesheet");
-        XLSX.writeFile(workbook, `${r.name}_Timesheet.xlsx`);
-    };
-
-
-
-    const exportPDF = () => {
-        const doc = new jsPDF();
-
-        const monthName =
-            filter === "This Month"
-                ? new Date().toLocaleString("default", { month: "long", year: "numeric" })
-                : filter;
-
-        const totalMonthHours = getTotalHoursFromRecords(filteredRecords);
-
-        doc.setFontSize(14);
-        doc.text("Employee Timesheet Report", 14, 15);
-
-        doc.setFontSize(10);
-        doc.text(`Period: ${monthName}`, 14, 22);
-        doc.text(`Total Hours (Entire Period): ${totalMonthHours} hrs`, 14, 28);
-
-        autoTable(doc, {
-            startY: 35,
-            head: [[
-                "Name",
-                "ID",
-                "Designation",
-                "Date",
-                "Clock In",
-                "Clock Out",
-                "Break",
-                "Hours",
-                "Status",
-            ]],
-            body: filteredRecords.map((r) => [
-                r.name,
-                r.id,
-                r.designation,
-                r.date,
-                r.clockIn,
-                r.clockOut,
-                r.break,
-                calcHours(r.clockIn, r.clockOut, r.break, r.date).toFixed(2),
-                r.status,
-            ]),
-            styles: { fontSize: 9 },
-            headStyles: { fillColor: [37, 99, 235] },
-        });
-
-        const finalY = doc.lastAutoTable.finalY + 10;
-        doc.setFontSize(11);
-        doc.text(
-            `Grand Total Hours (${monthName}): ${totalMonthHours} hrs`,
-            14,
-            finalY
-        );
-
-        doc.save("Timesheet_Monthly_Report.pdf");
-    };
-
-
-
-
-
-    const statusStyle = {
-        Approved: "bg-green-100 text-green-700",
-        Pending: "bg-orange-100 text-orange-600",
-        Late: "bg-yellow-100 text-yellow-700",
-        "On Time": "bg-green-100 text-green-600",
-        Absent: "bg-red-100 text-red-600",
-    };
-
-    return (
-        <div
-            className="min-h-screen bg-cover bg-center relative"
-        // style={{ backgroundImage: `url(${timesheetBg})` }}
-        >
-            <div className="absolute inset-0 bg-blue-70/90" />
-
-            <div className="relative z-10 p-6 max-w-7xl mx-auto">
-                {/* HEADER */}
-                <div className="flex justify-between items-start mb-6">
-                    <div className="mt-4">
-                        <h1 className="text-2xl font-semibold">Chief Time Sheet Dashboard</h1>
-                        <p className="text-sm text-gray-500 mt-1">
-                            Manage and approve attendance records
-                        </p>
-                    </div>
-
-
-                    <div className="flex flex-col items-end gap-3">
-                        <div className="flex items-center gap-3 bg-white px-6 py-3 rounded-xl shadow w-[220px]">
-                            <div className="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center">
-                                <FaUser className="text-white" size={18} />
-                            </div>
-                            <p className="text-sm font-semibold">Chief</p>
-                        </div>
-
-                        <div className="flex gap-3 mt-2">
-                            <button
-                                onClick={bulkApprove}
-                                className={`px-4 py-2 rounded-lg text-sm flex items-center gap-2 ${bulkApproved
-                                        ? "bg-green-600 text-white"
-                                        : "bg-blue-600 text-white"
-                                    }`}
-                            >
-                                {bulkApproved && <FaCheckCircle size={16} className="mt-[1px]" />}
-
-                                {bulkApproved ? "Approved" : "Bulk Approve"}
-                            </button>
-
-
-                            <button
-                                onClick={exportPDF}
-                                className="border px-4 py-2 rounded-lg text-sm flex gap-2"
-                            >
-                                <FaFileAlt size={17} className="mt-0.5" /> PDF
-                            </button>
-
-                            <button
-                                onClick={exportExcel}
-                                className="border px-4 py-2 rounded-lg text-sm flex gap-2"
-                            >
-                                <FaFileExcel size={17} className="mt-0.5" /> Excel
-                            </button>
-                        </div>
-                    </div>
+          {/* STAT CARDS */}
+          <div className="ts-stats">
+            {stats.map((st, i) => (
+              <div key={i} className="ts-stat" style={{ background: st.bg }}>
+                <div>
+                  <div className="ts-stat-label">{st.label}</div>
+                  <div className="ts-stat-value">{st.value}</div>
+                  <div className="ts-stat-sub">{st.sub}</div>
                 </div>
-
-
-
-
-
-
-
-                {/* FILTER BAR */}
-                <div className="flex flex-wrap gap-3 mb-4">
-                    {["Today", "This Week", "This Month"].map((f) => (
-                        <button
-                            key={f}
-                            onClick={() => setFilter(f)}
-                            className={`px-4 py-2 rounded-lg text-sm ${filter === f ? "bg-blue-600 text-white" : "bg-white border"
-                                }`}
-                        >
-                            {f}
-                        </button>
-                    ))}
-
-
-
-                    <select
-                        value={statusFilter}
-                        onChange={(e) => setStatusFilter(e.target.value)}
-                        className="px-4 py-2 border rounded-lg text-sm"
-                    >
-                        <option value="All">All Status</option>
-                        <option value="Approved">Approved</option>
-                        <option value="Pending">Pending</option>
-                        <option value="Late">Late</option>
-                        <option value="On Time">On Time</option>
-                        <option value="Absent">Absent</option>
-                    </select>
-
-                    <div className="relative">
-                        <FaSearch className="absolute left-3 top-2.5 text-gray-400" size={16} />
-                        <input
-                            className="pl-9 pr-4 py-2 border rounded-lg text-sm"
-                            placeholder="Search employee or ID"
-                            value={search}
-                            onChange={(e) => setSearch(e.target.value)}
-                        />
-                    </div>
+                <div className="ts-stat-icon" style={{ background: st.iconBg, color: st.iconColor }}>
+                  <st.Icon />
                 </div>
+              </div>
+            ))}
+          </div>
 
-                {/* STATS */}
-                <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
-                    {stats.map((s, i) => (
-                        <div key={i} className="bg-white rounded-xl p-5 shadow border flex items-center gap-4">
-                            <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${s.bg}`}>
-                                <s.icon className={s.color} size={22} />
+          {/* TOOLBAR */}
+          <div className="ts-toolbar">
+            <div style={{ display:"flex", gap:6, flexWrap:"wrap" }}>
+              {["Today","This Week","This Month"].map(f => (
+                <button key={f} className={`ts-period ${filter===f?"on":"off"}`}
+                  onClick={() => { setFilter(f); setSelectedRows([]); }}>
+                  {f}
+                </button>
+              ))}
+            </div>
+
+            <div className="ts-search-wrap">
+              <FiSearch className="ts-search-ico" />
+              <input className="ts-search" placeholder="Search by name, ID or department…"
+                value={search} onChange={e => setSearch(e.target.value)} />
+            </div>
+
+            <select className="ts-select" value={statusFilter} onChange={e => setStatusFilter(e.target.value)}>
+              {["All","Approved","Pending","Late","On Time","Absent"].map(v => (
+                <option key={v} value={v}>{v === "All" ? "All Status" : v}</option>
+              ))}
+            </select>
+
+            {isMonthly && (
+              <button
+                className={`ts-btn ${selectedRows.length ? "ts-btn-outline" : "ts-btn-dis"}`}
+                onClick={bulkApprove} disabled={!selectedRows.length}>
+                <FiCheckCircle size={13} />
+                {bulkFlash ? "Approved!" : `Bulk Approve (${selectedRows.length})`}
+              </button>
+            )}
+
+            <button className="ts-btn ts-btn-red" onClick={exportPDFStub}>
+              <FiFileText size={13} /> PDF
+            </button>
+            <button className="ts-btn ts-btn-green" onClick={exportExcelStub}>
+              <FiDownload size={13} /> Excel
+            </button>
+          </div>
+
+          {/* TABLE */}
+          <div className="ts-card">
+            <div className="ts-scroll">
+              <table>
+                <thead>
+                  <tr>
+                    {isMonthly && <th style={{ width:36 }}>
+                      <input type="checkbox"
+                        checked={selectedRows.length === filtered.length && filtered.length > 0}
+                        onChange={e => setSelectedRows(e.target.checked ? filtered.map((_,i)=>i) : [])} />
+                    </th>}
+                    <th>Employee</th>
+                    <th className="hide-sm">Department</th>
+                    <th className="hide-md">Location</th>
+                    <th>Date</th>
+                    {isToday && <>
+                      <th className="hide-sm">Clock In</th>
+                      <th className="hide-sm">Clock Out</th>
+                    </>}
+                    <th>Total Hrs</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {filtered.length === 0 ? (
+                    <tr>
+                      <td colSpan={12}>
+                        <div className="ts-empty">
+                          <div className="ts-empty-ic"><FiSearch /></div>
+                          <p>No records match your filters</p>
+                        </div>
+                      </td>
+                    </tr>
+                  ) : filtered.map((r, i) => {
+                    const hrs = calcHours(r.clockIn, r.clockOut, r.date);
+                    const a  = av(r.name);
+                    const sp = STATUS_STYLE[r.status] || { bg:"#f1f5f9", color:"#475569" };
+                    const dp = DEPT_STYLE[r.department] || { bg:"#f1f5f9", color:"#475569" };
+                    return (
+                      <tr key={i}>
+                        {isMonthly && <td>
+                          <input type="checkbox" checked={selectedRows.includes(i)}
+                            onChange={e => setSelectedRows(prev =>
+                              prev.includes(i) ? prev.filter(x=>x!==i) : [...prev,i]
+                            )} />
+                        </td>}
+
+                        <td>
+                          <div style={{ display:"flex", alignItems:"center", gap:10 }}>
+                            <div className="ts-av" style={{ background:a.bg, color:a.color }}>
+                              {initials(r.name)}
                             </div>
                             <div>
-                                <p className="text-sm text-gray-500">{s.title}</p>
-                                <h2 className="text-2xl font-semibold">
-                                    {s.value} <span className="text-sm text-gray-400">{s.unit}</span>
-                                </h2>
+                              <div className="ts-name">{r.name}</div>
+                              <div className="ts-role">{r.role}</div>
                             </div>
-                        </div>
-                    ))}
-                </div>
+                          </div>
+                        </td>
 
-                {/* TABLE */}
-                <div className="bg-white rounded-xl shadow border overflow-x-auto">
-                    <table className="w-full text-sm">
-                        <thead className="bg-gray-50">
-                            <tr>
-                                <th className="px-4 py-3 text-left font-medium">Employee</th>
-                                <th className="px-4 py-3 text-center font-medium">Designation</th>
-                                <th className="px-4 py-3 text-center font-medium">Date</th>
-                                <th className="px-4 py-3 text-center font-medium">Clock In</th>
-                                <th className="px-4 py-3 text-center font-medium">Clock Out</th>
-                                <th className="px-4 py-3 text-center font-medium">Break</th>
-                                <th className="px-4 py-3 text-center font-medium">Total Hrs</th>
-                                <th className="px-4 py-3 text-center font-medium">Status</th>
-                                <th className="px-4 py-3 text-center font-medium">Actions</th>
-                            </tr>
-                        </thead>
+                        <td className="hide-sm">
+                          <span className="ts-pill" style={{ background:dp.bg, color:dp.color }}>
+                            {r.department}
+                          </span>
+                        </td>
 
-                        <tbody>
-                            {filteredRecords.map((r, i) => (
-                                <tr key={i} className="border-t hover:bg-gray-50 transition">
+                        <td className="hide-md" style={{ fontSize:12, color:"#64748b", fontWeight:500 }}>
+                          {r.location}
+                        </td>
 
-                                    {/* Employee (Name + ID) */}
-                                    <td className="px-4 py-3">
-                                        <p className="font-medium">{r.name}</p>
-                                        <p className="text-xs text-gray-400">ID: {r.id}</p>
-                                    </td>
+                        <td style={{ fontSize:12, color:"#64748b" }}>{r.date}</td>
 
-                                    {/* Designation (COO / CMO / CFO) */}
-                                    <td className="px-4 py-3 text-center font-medium">
-                                        {r.designation}
-                                    </td>
+                        {isToday && <>
+                          <td className="ts-mono hide-sm"
+                            style={{ color: r.clockIn==="--" ? "#cbd5e1" : "#334155" }}>
+                            {r.clockIn}
+                          </td>
+                          <td className="ts-mono hide-sm"
+                            style={{ color: r.clockOut==="--" ? "#cbd5e1" : "#334155" }}>
+                            {r.clockOut}
+                          </td>
+                        </>}
 
-                                    {/* Date */}
-                                    <td className="px-4 py-3 text-center tabular-nums">
-                                        {r.date}
-                                    </td>
+                        <td style={{
+                          fontWeight: 700, fontSize: 13,
+                          color: r.clockIn==="--" ? "#cbd5e1" : hrs > 8 ? "#7c3aed" : "#1e293b"
+                        }}>
+                          {r.clockIn==="--" ? "\u2014" : hrs.toFixed(2)}
+                        </td>
 
-                                    {/* Clock In */}
-                                    <td className="px-4 py-3 text-center tabular-nums">
-                                        {r.clockIn}
-                                    </td>
+                        <td>
+                          <span className="ts-pill" style={{ background:sp.bg, color:sp.color }}>
+                            {r.status}
+                          </span>
+                        </td>
 
-                                    {/* Clock Out */}
-                                    <td className="px-4 py-3 text-center tabular-nums">
-                                        {r.clockOut}
-                                    </td>
-
-                                    {/* Break */}
-                                    <td className="px-4 py-3 text-center tabular-nums">
-                                        {r.break}
-                                    </td>
-
-                                    {/* Total Hours */}
-                                    <td className="px-4 py-3 text-center font-medium tabular-nums">
-                                        {calcHours(r.clockIn, r.clockOut, r.break, r.date).toFixed(2)}
-                                    </td>
-
-
-                                    {/* Status */}
-                                    <td className="px-4 py-3 text-center">
-                                        <span
-                                            className={`inline-flex items-center justify-center px-3 py-1 rounded-full text-xs ${statusStyle[r.status]}`}
-                                        >
-                                            {r.status}
-                                        </span>
-                                    </td>
-
-                                    {/* Actions */}
-                                    {/* Actions */}
-                                    <td className="px-4 py-3 text-center">
-                                        <div className="flex justify-center gap-3">
-
-                                            {/* Approve */}
-                                            <FaCheckCircle
-                                                size={18}
-                                                className="text-green-600 cursor-pointer"
-                                                onClick={() => updateStatus(i, "Approved")}
-                                            />
-
-                                            {/* Mark Pending */}
-                                            <FaTimesCircle
-                                                size={18}
-                                                className="text-orange-500 cursor-pointer"
-                                                onClick={() => updateStatus(i, "Pending")}
-                                            />
-
-                                            {/* Download PDF */}
-                                            <FaFileAlt
-
-                                                size={18}
-                                                className="text-blue-600 cursor-pointer"
-                                                title="Download PDF"
-                                                onClick={() => exportSinglePDF(r)}
-                                            />
-
-                                            {/* Download Excel */}
-                                            <FaFileExcel
-                                                size={18}
-                                                className="text-green-700 cursor-pointer"
-                                                title="Download Excel"
-                                                onClick={() => exportSingleExcel(r)}
-                                            />
-
-                                        </div>
-                                    </td>
-
-
-                                </tr>
-                            ))}
-
-                            {filteredRecords.length === 0 && (
-                                <tr>
-                                    <td colSpan="9" className="px-4 py-6 text-center text-gray-400">
-                                        No records found
-                                    </td>
-                                </tr>
-                            )}
-                        </tbody>
-
-
-                    </table>
-                </div>
+                        <td>
+                          <div style={{ display:"flex", alignItems:"center", gap:5, position:"relative" }}>
+                            <button
+                              className={`ts-ib ${isMonthly ? "ts-ib-ok" : "ts-ib-off"}`}
+                              onClick={() => isMonthly && updateStatus(i,"Approved")}
+                              title="Approve">
+                              <FiCheckCircle />
+                            </button>
+                            <button
+                              className={`ts-ib ${isMonthly ? "ts-ib-pend" : "ts-ib-off"}`}
+                              onClick={() => isMonthly && updateStatus(i,"Pending")}
+                              title="Mark Pending">
+                              <FiXCircle />
+                            </button>
+                            <div style={{ position:"relative" }}>
+                              <button
+                                className={`ts-ib ${isMonthly ? "ts-ib-more" : "ts-ib-off"}`}
+                                onClick={e => { e.stopPropagation(); isMonthly && setOpenAction(openAction===i ? null : i); }}
+                                title="More">
+                                <FiMoreVertical />
+                              </button>
+                              {openAction === i && isMonthly && (
+                                <div className="ts-drop" onClick={e => e.stopPropagation()}>
+                                  <div className="ts-drop-item"
+                                    onClick={() => { exportPDFStub(); setOpenAction(null); }}>
+                                    <FiFileText style={{ color:"#ef4444" }} /> Export PDF
+                                  </div>
+                                  <div className="ts-drop-item"
+                                    onClick={() => { exportExcelStub(); setOpenAction(null); }}>
+                                    <FiDownload style={{ color:"#16a34a" }} /> Export Excel
+                                  </div>
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
             </div>
+
+            {filtered.length > 0 && (
+              <div className="ts-footer">
+                <span>Showing <strong>{filtered.length}</strong> record{filtered.length !== 1 ? "s" : ""}</span>
+                <span style={{ color:"#2563eb", fontWeight:600 }}>
+                  {filter} &middot; {statusFilter !== "All" ? statusFilter : "All Statuses"}
+                </span>
+              </div>
+            )}
+          </div>
+
         </div>
-    );
-} 
+      </div>
+    </>
+  );
+}

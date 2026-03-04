@@ -6,6 +6,7 @@ import superAdminRootReducer from "../features/SuperAdmin/Redux/superadminRootRe
 import employeeRootReducer from "../features/Employee/Redux/employeeRootReducer";
 import managerRootReducer from "../features/Manager/Redux/managerRootReducer";
 import hrRootReducer from "../features/Hr/Redux/hrRootReducer";
+import chiefRootReducer from "../features/Chief/Redux/chiefRootReducer";
 console.log("SuperAdmin Root Reducer:", superAdminRootReducer);
 
 const rootReducer = combineReducers({
@@ -14,6 +15,7 @@ const rootReducer = combineReducers({
   employee: employeeRootReducer,
   manager: managerRootReducer,
   hr: hrRootReducer,
+  chief: chiefRootReducer,
 });
 
 

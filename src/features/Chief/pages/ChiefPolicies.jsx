@@ -1,486 +1,438 @@
 
 import React, { useState, useRef } from "react";
 import {
-    FiSearch,
+  FiSearch,
+  FiArrowRight,
+  FiArrowLeft,
 } from "react-icons/fi";
 import {
-    MdAdd,
-    MdEdit,
-    MdDelete,
-    MdClose,
+  MdAdd,
+  MdEdit,
+  MdDelete,
+  MdClose,
+  MdPictureAsPdf,
 } from "react-icons/md";
 import {
-    HiOutlineDocumentText,
-    HiOutlineShieldCheck,
+  HiOutlineDocumentText,
+  HiOutlineCalendar,
+  HiOutlineShieldCheck,
 } from "react-icons/hi";
 
 /* ---------------- INITIAL DATA ---------------- */
 
 const initialPolicies = [
-    {
-        id: "policy-1",
-        type: "policy",
-        title: "New Security Policy on Data Sharing",
-        desc: "Security Rules",
-        icon: <HiOutlineShieldCheck />,
-        category: "Security",
-        effectiveDate: "2023-10-24",
-        status: "Active",
-        approvedBy: "Security Board",
-        pdf: null,
-        sections: [
-            {
-                number: 1,
-                title: "Purpose",
-                type: "paragraph",
-                content:
-                    "This policy establishes guidelines for secure and responsible data sharing.",
-            },
-            {
-                number: 2,
-                title: "Guidelines",
-                type: "list",
-                content: [
-                    "Classify all data",
-                    "Encrypt sensitive data",
-                    "Access on need-to-know basis",
-                ],
-            },
+  {
+    id: "policy-1",
+    type: "policy",
+    title: "New Security Policy on Data Sharing",
+    desc: "Security Rules",
+    icon: <HiOutlineShieldCheck />,
+    category: "Security",
+    effectiveDate: "2023-10-24",
+    status: "Active",
+    approvedBy: "Security Board",
+    pdf: null,
+    sections: [
+      {
+        number: 1,
+        title: "Purpose",
+        type: "paragraph",
+        content:
+          "This policy establishes guidelines for secure and responsible data sharing.",
+      },
+      {
+        number: 2,
+        title: "Guidelines",
+        type: "list",
+        content: [
+          "Classify all data",
+          "Encrypt sensitive data",
+          "Access on need-to-know basis",
         ],
-    },
+      },
+    ],
+  },
 ];
 
 /* ---------------- COMPONENT ---------------- */
 
-export default function ChiefPolicies() {
-    const [policies, setPolicies] = useState(initialPolicies);
-    const [selectedPolicy, setSelectedPolicy] = useState(null);
-    const [search, setSearch] = useState("");
+export default function EmployeePoliciesManager() {
+  const [policies, setPolicies] = useState(initialPolicies);
+  const [selectedPolicy, setSelectedPolicy] = useState(null);
+  const [search, setSearch] = useState("");
 
-    const [modalOpen, setModalOpen] = useState(false);
-    const [mode, setMode] = useState("add");
-    const [form, setForm] = useState(emptyForm());
+  const [modalOpen, setModalOpen] = useState(false);
+  const [mode, setMode] = useState("add");
+  const [form, setForm] = useState(emptyForm());
 
-    const fileRef = useRef(null);
+  const fileRef = useRef(null);
 
-    function emptyForm() {
-        return {
-            id: "",
-            type: "policy",
-            title: "",
-            desc: "",
-            category: "",
-            effectiveDate: "",
-            status: "Draft",
-            approvedBy: "",
-            pdf: null,
-            sections: [],
-        };
+  function emptyForm() {
+    return {
+      id: "",
+      type: "policy",
+      title: "",
+      desc: "",
+      category: "",
+      effectiveDate: "",
+      status: "Draft",
+      approvedBy: "",
+      pdf: null,
+      sections: [],
+    };
+  }
+
+  /* ---------------- FILTER ---------------- */
+
+  const filteredPolicies = policies.filter(
+    (p) =>
+      p.title.toLowerCase().includes(search.toLowerCase()) ||
+      p.desc.toLowerCase().includes(search.toLowerCase())
+  );
+
+  /* ---------------- CRUD ACTIONS ---------------- */
+
+  const openAdd = () => {
+    setMode("add");
+    setForm(emptyForm());
+    setModalOpen(true);
+  };
+
+  const openEdit = () => {
+    setMode("edit");
+    setForm(JSON.parse(JSON.stringify(selectedPolicy)));
+    setModalOpen(true);
+  };
+
+  const savePolicy = () => {
+    if (!form.title || form.sections.length === 0) {
+      alert("Title and at least one section required");
+      return;
     }
 
-    /* ---------------- FILTER ---------------- */
+    if (mode === "add") {
+      const newPolicy = {
+        ...form,
+        id: crypto.randomUUID(),
+        icon: <HiOutlineDocumentText />,
+      };
+      setPolicies([...policies, newPolicy]);
+      setSelectedPolicy(newPolicy);
+    } else {
+      setPolicies(
+        policies.map((p) => (p.id === form.id ? form : p))
+      );
+      setSelectedPolicy(form);
+    }
 
-    const filteredPolicies = policies.filter(
-        (p) =>
-            p.title.toLowerCase().includes(search.toLowerCase()) ||
-            p.desc.toLowerCase().includes(search.toLowerCase())
+    setModalOpen(false);
+  };
+
+  const deletePolicy = () => {
+    if (!window.confirm("Delete this policy?")) return;
+    const remaining = policies.filter(
+      (p) => p.id !== selectedPolicy.id
     );
+    setPolicies(remaining);
+    setSelectedPolicy(null);
+  };
 
-    /* ---------------- CRUD ACTIONS ---------------- */
+  /* ---------------- SECTION HANDLERS ---------------- */
 
-    const openAdd = () => {
-        setMode("add");
-        setForm(emptyForm());
-        setModalOpen(true);
-    };
+  const addSection = () => {
+    setForm({
+      ...form,
+      sections: [
+        ...form.sections,
+        {
+          number: form.sections.length + 1,
+          title: "",
+          type: "paragraph",
+          content: "",
+        },
+      ],
+    });
+  };
 
-    const openEdit = () => {
-        setMode("edit");
-        setForm(JSON.parse(JSON.stringify(selectedPolicy)));
-        setModalOpen(true);
-    };
+  const updateSection = (i, key, value) => {
+    const updated = [...form.sections];
+    updated[i][key] = value;
+    setForm({ ...form, sections: updated });
+  };
 
-    const savePolicy = () => {
-        if (!form.title || form.sections.length === 0) {
-            alert("Title and at least one section required");
-            return;
-        }
+  const addListItem = (i) => {
+    const updated = [...form.sections];
+    updated[i].content.push("");
+    setForm({ ...form, sections: updated });
+  };
 
-        if (mode === "add") {
-            const newPolicy = {
-                ...form,
-                id: crypto.randomUUID(),
-                icon: <HiOutlineDocumentText />,
-            };
-            setPolicies([...policies, newPolicy]);
-            setSelectedPolicy(newPolicy);
-        } else {
-            setPolicies(policies.map((p) => (p.id === form.id ? form : p)));
-            setSelectedPolicy(form);
-        }
-        setModalOpen(false);
-    };
+  const updateListItem = (i, j, value) => {
+    const updated = [...form.sections];
+    updated[i].content[j] = value;
+    setForm({ ...form, sections: updated });
+  };
 
-    const deletePolicy = () => {
-        if (!selectedPolicy) return;
-        setPolicies(policies.filter((p) => p.id !== selectedPolicy.id));
-        setSelectedPolicy(null);
-    };
+  /* ---------------- UI ---------------- */
 
-    /* ---------------- SECTIONS ---------------- */
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-slate-100 via-blue-50 to-indigo-100 p-6">
+      <div className="max-w-6xl mx-auto">
 
-    const addSection = () => {
-        setForm({
-            ...form,
-            sections: [
-                ...form.sections,
-                {
-                    number: form.sections.length + 1,
-                    title: "",
-                    type: "paragraph",
-                    content: "",
-                },
-            ],
-        });
-    };
+        {/* ================= LIST VIEW ================= */}
+        {!selectedPolicy && (
+          <>
+            <div className="flex justify-between items-center mb-8">
+              <div>
+                <h1 className="text-3xl font-semibold">
+                  Employee Policies & Insurance
+                </h1>
+                <p className="text-slate-500">
+                  Manage company-wide documents
+                </p>
+              </div>
 
-    const updateSection = (i, key, val) => {
-        const updated = [...form.sections];
-        updated[i][key] = val;
-        setForm({ ...form, sections: updated });
-    };
+              <div className="flex gap-3">
+                <button
+                  onClick={openAdd}
+                  className="bg-blue-600 text-white px-4 py-2 rounded-lg flex items-center gap-2"
+                >
+                  <MdAdd /> Add Policy / Insurance
+                </button>
+              </div>
+            </div>
 
-    const updateListItem = (secIdx, itemIdx, val) => {
-        const updated = [...form.sections];
-        updated[secIdx].content[itemIdx] = val;
-        setForm({ ...form, sections: updated });
-    };
+            <div className="relative mb-6">
+              <FiSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+              <input
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                placeholder="Search policies..."
+                className="w-full pl-10 pr-4 py-3 rounded-xl border"
+              />
+            </div>
 
-    const addListItem = (secIdx) => {
-        const updated = [...form.sections];
-        updated[secIdx].content.push("");
-        setForm({ ...form, sections: updated });
-    };
+            <div className="grid gap-4">
+              {filteredPolicies.map((item) => (
+                <div
+                  key={item.id}
+                  onClick={() => setSelectedPolicy(item)}
+                  className="cursor-pointer bg-white p-5 rounded-2xl border shadow-sm hover:shadow-md flex justify-between"
+                >
+                  <div className="flex gap-4">
+                    <div className="p-3 bg-blue-50 rounded-xl text-blue-600">
+                      {item.icon}
+                    </div>
+                    <div>
+                      <h3 className="font-semibold">{item.title}</h3>
+                      <p className="text-sm text-slate-500">{item.desc}</p>
+                    </div>
+                  </div>
+                  <FiArrowRight className="text-slate-400 text-xl" />
+                </div>
+              ))}
+            </div>
+          </>
+        )}
 
-    /* ---------------- PDF UPLOAD ---------------- */
+        {/* ================= DETAIL VIEW ================= */}
+        {selectedPolicy && (
+          <div className="max-w-4xl mx-auto">
+            <button
+              onClick={() => setSelectedPolicy(null)}
+              className="flex items-center gap-2 text-blue-600 mb-4"
+            >
+              <FiArrowLeft /> Back
+            </button>
 
-    const handlePdfUpload = (e) => {
-        const file = e.target.files[0];
-        if (file) {
-            const url = URL.createObjectURL(file);
-            setForm({ ...form, pdf: url });
-        }
-    };
-
-    return (
-        <div className="flex flex-col h-screen bg-slate-50">
-
-            {/* --- HEADER --- */}
-            <div className="bg-white border-b px-6 py-4 flex items-center justify-between">
+            <div className="bg-white rounded-2xl border shadow-lg p-6">
+              <div className="flex justify-between mb-6">
                 <div>
-                    <h1 className="text-xl font-bold text-slate-800">
-                        Chief Policies & Documents
-                    </h1>
-                    <p className="text-sm text-slate-500">
-                        Manage organization-wide policies
-                    </p>
+                  <h1 className="text-2xl font-semibold">
+                    {selectedPolicy.title}
+                  </h1>
+                  <p className="text-sm text-slate-500">
+                    {selectedPolicy.category} • {selectedPolicy.status}
+                  </p>
                 </div>
+
                 <div className="flex gap-3">
-                    <div className="relative">
-                        <FiSearch className="absolute left-3 top-2.5 text-gray-400" />
-                        <input
-                            placeholder="Search..."
-                            className="pl-9 pr-4 py-2 border rounded-full text-sm bg-slate-50 focus:bg-white focus:ring-2 focus:ring-blue-100"
-                            value={search}
-                            onChange={(e) => setSearch(e.target.value)}
-                        />
-                    </div>
-                    <button
-                        onClick={openAdd}
-                        className="flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-full text-sm font-medium hover:bg-blue-700 transition"
-                    >
-                        <MdAdd size={18} /> New Policy
-                    </button>
+                  <button onClick={openEdit} className="text-blue-600">
+                    <MdEdit size={22} />
+                  </button>
+                  <button onClick={deletePolicy} className="text-red-600">
+                    <MdDelete size={22} />
+                  </button>
                 </div>
+              </div>
+
+              {selectedPolicy.pdf && (
+                <div className="flex items-center gap-2 text-sm text-blue-600 mb-4">
+                  <MdPictureAsPdf /> {selectedPolicy.pdf}
+                </div>
+              )}
+
+              {selectedPolicy.sections.map((s) => (
+                <div key={s.number} className="mb-6">
+                  <h3 className="font-semibold mb-2">
+                    {s.number}. {s.title}
+                  </h3>
+                  {s.type === "paragraph" ? (
+                    <p className="text-sm text-slate-700">
+                      {s.content}
+                    </p>
+                  ) : (
+                    <ul className="list-disc ml-6 space-y-1 text-sm">
+                      {s.content.map((i, idx) => (
+                        <li key={idx}>{i}</li>
+                      ))}
+                    </ul>
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* ================= ADD / EDIT MODAL ================= */}
+      {modalOpen && (
+        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
+          <div className="bg-white w-full max-w-3xl rounded-2xl p-6 max-h-[90vh] overflow-y-auto">
+            <div className="flex justify-between mb-4">
+              <h2 className="text-xl font-semibold">
+                {mode === "add" ? "Add Policy" : "Edit Policy"}
+              </h2>
+              <button onClick={() => setModalOpen(false)}>
+                <MdClose size={22} />
+              </button>
             </div>
 
-            <div className="flex flex-1 overflow-hidden">
+            <div className="grid grid-cols-2 gap-4 mb-4">
+              <input
+                placeholder="Title"
+                className="border p-2 rounded"
+                value={form.title}
+                onChange={(e) =>
+                  setForm({ ...form, title: e.target.value })
+                }
+              />
+              <input
+                placeholder="Category"
+                className="border p-2 rounded"
+                value={form.category}
+                onChange={(e) =>
+                  setForm({ ...form, category: e.target.value })
+                }
+              />
+            </div>
 
-                {/* --- LIST SIDEBAR --- */}
-                <div className="w-80 bg-white border-r overflow-y-auto p-4 space-y-3">
-                    {filteredPolicies.length === 0 && (
-                        <p className="text-center text-sm text-gray-400 mt-10">
-                            No policies found.
-                        </p>
-                    )}
+            {/* PDF Upload */}
+            <div className="mb-4">
+              <button
+                onClick={() => fileRef.current.click()}
+                className="flex items-center gap-2 text-blue-600 text-sm"
+              >
+                <MdPictureAsPdf /> Upload PDF
+              </button>
+              <input
+                ref={fileRef}
+                type="file"
+                accept=".pdf"
+                hidden
+                onChange={(e) =>
+                  setForm({ ...form, pdf: e.target.files[0].name })
+                }
+              />
+              {form.pdf && (
+                <p className="text-xs text-slate-500 mt-1">
+                  Attached: {form.pdf}
+                </p>
+              )}
+            </div>
 
-                    {filteredPolicies.map((p) => (
-                        <div
-                            key={p.id}
-                            onClick={() => setSelectedPolicy(p)}
-                            className={`group p-4 rounded-xl border cursor-pointer transition-all ${selectedPolicy?.id === p.id
-                                    ? "bg-blue-50 border-blue-500 shadow-md transform scale-[1.02]"
-                                    : "bg-white border-gray-100 hover:border-blue-200 hover:bg-slate-50"
-                                }`}
-                        >
-                            <div className="flex items-start gap-3">
-                                <div
-                                    className={`p-2 rounded-lg text-xl ${selectedPolicy?.id === p.id
-                                            ? "bg-white text-blue-600"
-                                            : "bg-blue-50 text-blue-500"
-                                        }`}
-                                >
-                                    {p.icon || <HiOutlineDocumentText />}
-                                </div>
-                                <div>
-                                    <h3
-                                        className={`font-semibold text-sm ${selectedPolicy?.id === p.id
-                                                ? "text-blue-900"
-                                                : "text-slate-700"
-                                            }`}
-                                    >
-                                        {p.title}
-                                    </h3>
-                                    <span className="text-xs text-slate-400 mt-1 inline-block">
-                                        {p.category}
-                                    </span>
-                                </div>
-                            </div>
-                        </div>
+            {/* Sections */}
+            {form.sections.map((s, i) => (
+              <div key={i} className="border rounded-xl p-4 mb-4 bg-slate-50">
+                <input
+                  placeholder="Section Title"
+                  className="w-full border p-2 rounded mb-2"
+                  value={s.title}
+                  onChange={(e) =>
+                    updateSection(i, "title", e.target.value)
+                  }
+                />
+
+                <select
+                  className="border p-2 rounded mb-2"
+                  value={s.type}
+                  onChange={(e) =>
+                    updateSection(
+                      i,
+                      "type",
+                      e.target.value
+                    )
+                  }
+                >
+                  <option value="paragraph">Paragraph</option>
+                  <option value="list">Checklist</option>
+                </select>
+
+                {s.type === "paragraph" ? (
+                  <textarea
+                    rows={3}
+                    className="w-full border p-2 rounded"
+                    value={s.content}
+                    onChange={(e) =>
+                      updateSection(i, "content", e.target.value)
+                    }
+                  />
+                ) : (
+                  <>
+                    {s.content.map((item, j) => (
+                      <input
+                        key={j}
+                        className="w-full border p-2 rounded mb-2"
+                        value={item}
+                        onChange={(e) =>
+                          updateListItem(i, j, e.target.value)
+                        }
+                      />
                     ))}
-                </div>
+                    <button
+                      onClick={() => addListItem(i)}
+                      className="text-sm text-blue-600"
+                    >
+                      + Add Item
+                    </button>
+                  </>
+                )}
+              </div>
+            ))}
 
-                {/* --- DETAILS AREA --- */}
-                <div className="flex-1 bg-slate-50 p-8 overflow-y-auto">
-                    {selectedPolicy ? (
-                        <div className="max-w-4xl mx-auto bg-white min-h-[80vh] shadow-xl rounded-2xl p-10 relative">
+            <button
+              onClick={addSection}
+              className="w-full border-dashed border p-2 rounded mb-4"
+            >
+              + Add Section
+            </button>
 
-                            {/* Toolbar */}
-                            <div className="absolute top-6 right-6 flex gap-2">
-                                <button
-                                    onClick={openEdit}
-                                    className="p-2 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-full transition"
-                                    title="Edit"
-                                >
-                                    <MdEdit size={20} />
-                                </button>
-                                <button
-                                    onClick={deletePolicy}
-                                    className="p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-full transition"
-                                    title="Delete"
-                                >
-                                    <MdDelete size={20} />
-                                </button>
-                            </div>
-
-                            {/* Header */}
-                            <div className="text-center border-b pb-8 mb-8">
-                                <span className="bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wide">
-                                    {selectedPolicy.status}
-                                </span>
-                                <h1 className="text-3xl font-bold text-slate-800 mt-4 mb-2">
-                                    {selectedPolicy.title}
-                                </h1>
-                                <div className="flex justify-center gap-6 text-sm text-slate-500">
-                                    <span>Effective: {selectedPolicy.effectiveDate}</span>
-                                    <span>Approved By: {selectedPolicy.approvedBy}</span>
-                                </div>
-                            </div>
-
-                            {/* Content */}
-                            <div className="space-y-8">
-                                {selectedPolicy.sections.map((sec) => (
-                                    <div key={sec.number}>
-                                        <div className="flex items-center gap-3 mb-3">
-                                            <span className="flex items-center justify-center w-6 h-6 rounded-full bg-slate-800 text-white text-xs font-bold">
-                                                {sec.number}
-                                            </span>
-                                            <h2 className="text-lg font-bold text-slate-800">
-                                                {sec.title}
-                                            </h2>
-                                        </div>
-
-                                        {sec.type === "paragraph" ? (
-                                            <p className="text-slate-600 leading-relaxed ml-9 text-sm text-justify">
-                                                {sec.content}
-                                            </p>
-                                        ) : (
-                                            <ul className="ml-9 space-y-2">
-                                                {sec.content.map((li, idx) => (
-                                                    <li
-                                                        key={idx}
-                                                        className="flex items-start gap-2 text-sm text-slate-600"
-                                                    >
-                                                        <span className="mt-1.5 w-1.5 h-1.5 rounded-full bg-blue-500 shrink-0" />
-                                                        {li}
-                                                    </li>
-                                                ))}
-                                            </ul>
-                                        )}
-                                    </div>
-                                ))}
-                            </div>
-
-                        </div>
-                    ) : (
-                        <div className="flex flex-col items-center justify-center h-full text-slate-400">
-                            <HiOutlineDocumentText className="text-6xl mb-4 opacity-20" />
-                            <p>Select a policy to view details</p>
-                        </div>
-                    )}
-                </div>
+            <div className="flex gap-3">
+              <button
+                onClick={savePolicy}
+                className="flex-1 bg-blue-600 text-white py-2 rounded"
+              >
+                Save
+              </button>
+              <button
+                onClick={() => setModalOpen(false)}
+                className="flex-1 border py-2 rounded"
+              >
+                Cancel
+              </button>
             </div>
-
-            {/* --- ADD / EDIT MODAL --- */}
-            {modalOpen && (
-                <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-                    <div className="bg-white w-full max-w-2xl rounded-2xl shadow-2xl flex flex-col max-h-[90vh]">
-
-                        <div className="p-6 border-b flex justify-between items-center bg-slate-50 rounded-t-2xl">
-                            <h2 className="text-lg font-bold text-slate-800">
-                                {mode === "add" ? "Draft New Policy" : "Edit Policy"}
-                            </h2>
-                            <button
-                                onClick={() => setModalOpen(false)}
-                                className="text-slate-400 hover:text-slate-600"
-                            >
-                                <MdClose size={22} />
-                            </button>
-                        </div>
-
-                        <div className="p-6 overflow-y-auto space-y-4">
-                            <div className="space-y-3">
-                                <input
-                                    placeholder="Policy Title"
-                                    className="w-full border border-slate-300 rounded-lg px-4 py-2 text-sm focus:ring-2 focus:ring-blue-500 outline-none"
-                                    value={form.title}
-                                    onChange={(e) => setForm({ ...form, title: e.target.value })}
-                                />
-                                <div className="grid grid-cols-2 gap-4">
-                                    <input
-                                        placeholder="Category (e.g. HR, IT)"
-                                        className="border border-slate-300 rounded-lg px-4 py-2 text-sm outline-none"
-                                        value={form.category}
-                                        onChange={(e) =>
-                                            setForm({ ...form, category: e.target.value })
-                                        }
-                                    />
-                                    <input
-                                        type="date"
-                                        className="border border-slate-300 rounded-lg px-4 py-2 text-sm outline-none"
-                                        value={form.effectiveDate}
-                                        onChange={(e) =>
-                                            setForm({ ...form, effectiveDate: e.target.value })
-                                        }
-                                    />
-                                </div>
-                                <input
-                                    placeholder="Approved By"
-                                    className="w-full border border-slate-300 rounded-lg px-4 py-2 text-sm outline-none"
-                                    value={form.approvedBy}
-                                    onChange={(e) =>
-                                        setForm({ ...form, approvedBy: e.target.value })
-                                    }
-                                />
-                            </div>
-
-                            <div className="border-t pt-4">
-                                <h3 className="text-sm font-bold text-slate-700 mb-3">
-                                    Sections
-                                </h3>
-                                {form.sections.map((sec, i) => (
-                                    <div
-                                        key={i}
-                                        className="bg-slate-50 p-4 rounded-xl mb-3 border border-slate-200"
-                                    >
-                                        <div className="flex gap-2 mb-2">
-                                            <span className="bg-slate-200 text-slate-600 w-6 h-6 rounded flex items-center justify-center text-xs font-bold">
-                                                {i + 1}
-                                            </span>
-                                            <input
-                                                placeholder="Section Title"
-                                                className="flex-1 bg-transparent border-b border-transparent focus:border-blue-500 outline-none text-sm font-semibold"
-                                                value={sec.title}
-                                                onChange={(e) =>
-                                                    updateSection(i, "title", e.target.value)
-                                                }
-                                            />
-                                            <select
-                                                className="text-xs bg-white border rounded px-2"
-                                                value={sec.type}
-                                                onChange={(e) => {
-                                                    updateSection(i, "type", e.target.value);
-                                                    updateSection(
-                                                        i,
-                                                        "content",
-                                                        e.target.value === "list" ? [""] : ""
-                                                    );
-                                                }}
-                                            >
-                                                <option value="paragraph">Paragraph</option>
-                                                <option value="list">List</option>
-                                            </select>
-                                        </div>
-
-                                        {sec.type === "paragraph" ? (
-                                            <textarea
-                                                rows={3}
-                                                className="w-full text-sm bg-white border rounded-lg p-2 outline-none"
-                                                placeholder="Content..."
-                                                value={sec.content}
-                                                onChange={(e) =>
-                                                    updateSection(i, "content", e.target.value)
-                                                }
-                                            />
-                                        ) : (
-                                            <div className="space-y-2 pl-8">
-                                                {sec.content.map((item, idx) => (
-                                                    <input
-                                                        key={idx}
-                                                        className="w-full text-sm bg-white border rounded-lg p-2 outline-none"
-                                                        placeholder={`• Item ${idx + 1}`}
-                                                        value={item}
-                                                        onChange={(e) =>
-                                                            updateListItem(i, idx, e.target.value)
-                                                        }
-                                                    />
-                                                ))}
-                                                <button
-                                                    onClick={() => addListItem(i)}
-                                                    className="text-xs text-blue-600 hover:underline"
-                                                >
-                                                    + Add Item
-                                                </button>
-                                            </div>
-                                        )}
-                                    </div>
-                                ))}
-                                <button
-                                    onClick={addSection}
-                                    className="w-full py-2 border-2 border-dashed border-slate-300 rounded-xl text-slate-500 text-sm hover:border-blue-400 hover:text-blue-500 transition"
-                                >
-                                    + Add Section
-                                </button>
-                            </div>
-                        </div>
-
-                        <div className="p-6 border-t bg-slate-50 rounded-b-2xl flex justify-end gap-3">
-                            <button
-                                onClick={() => setModalOpen(false)}
-                                className="px-5 py-2 rounded-lg text-slate-600 font-medium hover:bg-slate-200 transition"
-                            >
-                                Cancel
-                            </button>
-                            <button
-                                onClick={savePolicy}
-                                className="px-6 py-2 rounded-lg bg-blue-600 text-white font-medium hover:bg-blue-700 shadow-lg shadow-blue-200 transition"
-                            >
-                                Save Policy
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            )}
+          </div>
         </div>
-    );
+      )}
+    </div>
+  );
 }
