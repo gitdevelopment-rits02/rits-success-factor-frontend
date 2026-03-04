@@ -42,3 +42,4 @@ export default function ManagerPolicyDocumentSkeleton({ count = 5 }) {
     </div>
   );
 }
+ 

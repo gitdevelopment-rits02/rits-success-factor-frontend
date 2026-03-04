@@ -1,45 +1,43 @@
-import React, { useMemo, useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import {
-  FiClipboard, FiCalendar, FiCheckCircle, FiXCircle,
-  FiMoreVertical, FiUser, FiSearch, FiCheck, FiRotateCcw,
+  FiUser,
+  FiClipboard,
+  FiCalendar,
+  FiCheckCircle,
+  FiXCircle,
+  FiSearch,
+  FiCheck,
+  FiMoreVertical,
+  FiRotateCcw,
 } from "react-icons/fi";
-
-/* ── data ── */
-const employees = [
-  { id:"EMP001", name:"Chaitanya",       initials:"CH" },
-  { id:"EMP002", name:"Aishwarya Patil", initials:"AP" },
-  { id:"EMP003", name:"Umashankar",      initials:"UM" },
-  { id:"EMP004", name:"Mahallapa",       initials:"MA" },
-  { id:"EMP005", name:"Rohit Sharma",    initials:"RS" },
-];
-
-const TODAY = "2026-01-21";
-
-const initialLeaves = [
-  { id:1, empId:"EMP001", type:"Sick",   start:"2026-01-21", end:"2026-01-22", reason:"Down with fever, need a couple of days",     status:"Pending",  rejectReason:"" },
-  { id:2, empId:"EMP002", type:"Casual", start:"2026-01-21", end:"2026-01-21", reason:"Some personal errands to sort out",           status:"Pending",  rejectReason:"" },
-  { id:3, empId:"EMP003", type:"Paid",   start:"2026-01-21", end:"2026-01-25", reason:"Family vacation, planned months in advance",  status:"Approved", rejectReason:"" },
-  { id:4, empId:"EMP004", type:"Sick",   start:"2026-01-21", end:"2026-01-21", reason:"Bad cold, doctor said rest at home",          status:"Rejected", rejectReason:"Team sprint this week, can't be spared" },
-  { id:5, empId:"EMP005", type:"Paid",   start:"2026-01-21", end:"2026-01-21", reason:"Sister's wedding reception",                  status:"Pending",  rejectReason:"" },
-];
+import {
+  fetchHrLeaves,
+  fetchHrSummary,
+  fetchOutToday,
+  updateLeaveStatus,
+} from "../Redux/thunks/HrLeaveApprovalThunk";
+import HrLeaveApprovalSkeleton from "./HrLeaveApprovalSkeleton";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 /* ── style maps ── */
 const STATUS = {
-  Pending  : { bg:"#fef9c3", color:"#a16207", dot:"#ca8a04"  },
-  Approved : { bg:"#dcfce7", color:"#15803d", dot:"#16a34a"  },
-  Rejected : { bg:"#fee2e2", color:"#b91c1c", dot:"#ef4444"  },
+  Pending: { bg: "#fef9c3", color: "#a16207", dot: "#ca8a04" },
+  Approved: { bg: "#dcfce7", color: "#15803d", dot: "#16a34a" },
+  Rejected: { bg: "#fee2e2", color: "#b91c1c", dot: "#ef4444" },
 };
 const TYPE = {
-  Sick   : { bg:"#ffedd5", color:"#9a3412" },
-  Casual : { bg:"#dbeafe", color:"#1e40af" },
-  Paid   : { bg:"#dcfce7", color:"#15803d" },
+  Sick: { bg: "#ffedd5", color: "#9a3412" },
+  Casual: { bg: "#dbeafe", color: "#1e40af" },
+  Paid: { bg: "#dcfce7", color: "#15803d" },
 };
 const AV_PAL = [
-  { bg:"#e8f0fe", color:"#1d4ed8" },
-  { bg:"#fce7f3", color:"#be185d" },
-  { bg:"#d1fae5", color:"#065f46" },
-  { bg:"#fef3c7", color:"#92400e" },
-  { bg:"#ede9fe", color:"#5b21b6" },
+  { bg: "#e8f0fe", color: "#1d4ed8" },
+  { bg: "#fce7f3", color: "#be185d" },
+  { bg: "#d1fae5", color: "#065f46" },
+  { bg: "#fef3c7", color: "#92400e" },
+  { bg: "#ede9fe", color: "#5b21b6" },
 ];
 const avStyle = name => AV_PAL[name.charCodeAt(0) % AV_PAL.length];
 
@@ -51,13 +49,45 @@ const daysBetween = (s, e) => {
 
 /* ── component ── */
 export default function SuperAdminLeaveRequests() {
-  const [leaves,      setLeaves]      = useState(initialLeaves);
-  const [tab,         setTab]         = useState("All");
-  const [search,      setSearch]      = useState("");
-  const [statusTab,   setStatusTab]   = useState("All");
-  const [openMenuId,  setOpenMenuId]  = useState(null);
+  const dispatch = useDispatch();
+
+
+  const hrState = useSelector((state) => state.hr?.leaveApproval);
+
+  const leaves = hrState?.leaves || [];
+  const summary = hrState?.summary || {};
+  const outToday = hrState?.outToday || [];
+  const loading = hrState?.loading || false;
+
+
+  useEffect(() => {
+    dispatch(fetchHrSummary());
+    dispatch(fetchOutToday());
+  }, [dispatch]);
+
+
+
+  const todaysLeaves = outToday || [];
+  const [tab, setTab] = useState("All");
+  const [search, setSearch] = useState("");
+  const [statusTab, setStatusTab] = useState("All");
+  const [openMenuId, setOpenMenuId] = useState(null);
   const [rejectModal, setRejectModal] = useState(null);
   const [rejectInput, setRejectInput] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 5;
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [tab, statusTab, search]);
+
+  const totalPages = Math.ceil(leaves.length / itemsPerPage);
+
+  const paginatedLeaves = useMemo(() => {
+    const start = (currentPage - 1) * itemsPerPage;
+    return leaves.slice(start, start + itemsPerPage);
+  }, [leaves, currentPage]);
+
 
   useEffect(() => {
     const close = () => setOpenMenuId(null);
@@ -65,33 +95,105 @@ export default function SuperAdminLeaveRequests() {
     return () => document.removeEventListener("click", close);
   }, []);
 
-  const filtered = useMemo(() => {
-    let list = [...leaves];
-    if (tab === "Today")     list = list.filter(l => l.start <= TODAY && l.end >= TODAY);
-    if (tab === "This Week") list = list.filter(l => l.start >= "2026-01-19" && l.start <= "2026-01-25");
-    if (statusTab !== "All") list = list.filter(l => l.status === statusTab);
-    if (search.trim())       list = list.filter(l => {
-      const emp = employees.find(e => e.id === l.empId);
-      return emp?.name.toLowerCase().includes(search.toLowerCase()) ||
-             l.type.toLowerCase().includes(search.toLowerCase()) ||
-             l.reason.toLowerCase().includes(search.toLowerCase());
-    });
-    return list;
-  }, [leaves, tab, statusTab, search]);
 
-  const todaysLeaves   = useMemo(() => leaves.filter(l => l.start <= TODAY && l.end >= TODAY), [leaves]);
-  const pendingCount   = leaves.filter(l => l.status === "Pending").length;
-  const approvedCount  = leaves.filter(l => l.status === "Approved").length;
-  const rejectedCount  = leaves.filter(l => l.status === "Rejected").length;
+  useEffect(() => {
+    const params = {};
 
-  const approve = id => setLeaves(p => p.map(l => l.id===id ? {...l, status:"Approved"} : l));
-  const undoToPending = id => setLeaves(p => p.map(l => l.id===id ? {...l, status:"Pending", rejectReason:""} : l));
-  const openReject = id => { setRejectModal({ id }); setRejectInput(""); };
-  const confirmReject = () => {
-    if (!rejectInput.trim()) return;
-    setLeaves(p => p.map(l => l.id===rejectModal.id ? {...l, status:"Rejected", rejectReason:rejectInput.trim()} : l));
-    setRejectModal(null);
+    if (tab === "Today") params.filter = "today";
+    if (tab === "This Week") params.filter = "week";
+    if (statusTab !== "All") params.status = statusTab;
+    if (search.trim()) params.search = search;
+
+    dispatch(fetchHrLeaves(params));
+  }, [tab, statusTab, search, dispatch]);
+  const approve = async (id) => {
+    if (!id) {
+      console.log("APPROVING ID:", id);
+      return;
+    }
+
+    try {
+      const res = await dispatch(updateLeaveStatus({
+        leaveId: id,
+        payload: { status: "Approved" }
+      })).unwrap();
+
+      console.log("UPDATE RESULT:", res);
+
+      if (!res) {
+        toast.error("Update failed from server");
+        return;
+      }
+
+      toast.success("Leave approved successfully");
+
+      // wait before refetch (important)
+      setTimeout(() => {
+        dispatch(fetchHrLeaves({}));
+        dispatch(fetchHrSummary());
+        dispatch(fetchOutToday());
+      }, 600);
+
+    } catch (err) {
+      console.error("APPROVE ERROR:", err);
+      toast.error("Failed to approve leave");
+    }
   };
+  const undoToPending = async (id) => {
+    try {
+      const res = await dispatch(updateLeaveStatus({
+        leaveId: id,
+        payload: { status: "Pending" }
+      })).unwrap();
+
+      console.log("PENDING RESULT:", res);
+
+      toast.success("Moved back to Pending");
+
+      setTimeout(() => {
+        dispatch(fetchHrLeaves({}));
+        dispatch(fetchHrSummary());
+        dispatch(fetchOutToday());
+      }, 600);
+
+    } catch (err) {
+      console.error("PENDING ERROR:", err);
+      toast.error("Update failed");
+    }
+  };
+  const openReject = id => { setRejectModal({ id }); setRejectInput(""); };
+  const confirmReject = async () => {
+    if (!rejectInput.trim() || !rejectModal?.id) return;
+
+    try {
+      const res = await dispatch(updateLeaveStatus({
+        leaveId: rejectModal.id,
+        payload: {
+          status: "Rejected",
+          rejectionReason: rejectInput.trim(),
+        }
+      })).unwrap();
+
+      console.log("REJECT RESULT:", res);
+
+      toast.success("Leave rejected successfully");
+
+      setTimeout(() => {
+        dispatch(fetchHrLeaves({}));
+        dispatch(fetchHrSummary());
+        dispatch(fetchOutToday());
+      }, 600);
+
+      setRejectModal(null);
+
+    } catch (err) {
+      console.error("REJECT ERROR:", err);
+      toast.error("Reject failed");
+    }
+  };
+  if (loading) {
+    return <HrLeaveApprovalSkeleton />;
+  }
 
   return (
     <>
@@ -257,24 +359,24 @@ export default function SuperAdminLeaveRequests() {
               <h1>Leave Requests</h1>
               <p>Keep track of who's in, who's out, and what's pending.</p>
             </div>
-            <div className="lr-badge"><FiUser size={13} /> Super Admin</div>
+            <div className="lr-badge"><FiUser size={22} /> HR </div>
           </div>
 
           {/* STAT CARDS */}
           <div className="lr-stats">
             {[
-              { label:"Waiting on you",       value:pendingCount,        sub:"pending",   Icon:FiClipboard,    bg:"#fefce8", iconBg:"#fef9c3", iconColor:"#a16207" },
-              { label:"Out today",             value:todaysLeaves.length, sub:"employees", Icon:FiCalendar,     bg:"#eef4ff", iconBg:"#dbeafe", iconColor:"#2563eb" },
-              { label:"Approved this month",   value:approvedCount,       sub:"requests",  Icon:FiCheckCircle,  bg:"#f0fdf4", iconBg:"#dcfce7", iconColor:"#16a34a" },
-              { label:"Rejected this month",   value:rejectedCount,       sub:"requests",  Icon:FiXCircle,      bg:"#fff5f5", iconBg:"#fee2e2", iconColor:"#b91c1c" },
+              { label: "Waiting on you", value: summary?.pending || 0, sub: "pending", Icon: FiClipboard, bg: "#fefce8", iconBg: "#fef9c3", iconColor: "#a16207" },
+              { label: "Out today", value: outToday?.length || 0, sub: "employees", Icon: FiCalendar, bg: "#eef4ff", iconBg: "#dbeafe", iconColor: "#2563eb" },
+              { label: "Approved this month", value: summary?.approved || 0, sub: "requests", Icon: FiCheckCircle, bg: "#f0fdf4", iconBg: "#dcfce7", iconColor: "#16a34a" },
+              { label: "Rejected this month", value: summary?.rejected || 0, sub: "requests", Icon: FiXCircle, bg: "#fff5f5", iconBg: "#fee2e2", iconColor: "#b91c1c" },
             ].map((st, i) => (
-              <div key={i} className="lr-stat" style={{ background:st.bg }}>
+              <div key={i} className="lr-stat" style={{ background: st.bg }}>
                 <div>
                   <div className="lr-stat-label">{st.label}</div>
-                  <div className="lr-stat-val">{String(st.value).padStart(2,"0")}</div>
+                  <div className="lr-stat-val">{String(st.value).padStart(2, "0")}</div>
                   <div className="lr-stat-sub">{st.sub}</div>
                 </div>
-                <div className="lr-stat-ico" style={{ background:st.iconBg, color:st.iconColor }}>
+                <div className="lr-stat-ico" style={{ background: st.iconBg, color: st.iconColor }}>
                   <st.Icon />
                 </div>
               </div>
@@ -284,25 +386,25 @@ export default function SuperAdminLeaveRequests() {
           {/* TOOLBAR */}
           <div className="lr-toolbar">
             {/* period tabs */}
-            <div style={{ display:"flex", gap:6, flexWrap:"wrap" }}>
-              {["All","Today","This Week"].map(t => (
-                <button key={t} className={`lr-tab ${tab===t?"on":"off"}`} onClick={() => setTab(t)}>{t}</button>
+            <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
+              {["All", "Today", "This Week"].map(t => (
+                <button key={t} className={`lr-tab ${tab === t ? "on" : "off"}`} onClick={() => setTab(t)}>{t}</button>
               ))}
             </div>
 
-            <div className="lr-divider" style={{ width:1, height:22, background:"#e0eaff", margin:"0 4px" }} />
+            <div className="lr-divider" style={{ width: 1, height: 22, background: "#e0eaff", margin: "0 4px" }} />
 
             {/* status filter */}
             <div className="lr-status-filters">
               {[
-                { key:"All",      label:"All",      bg:"#eef4ff", color:"#2563eb" },
-                { key:"Pending",  label:"Pending",  bg:"#fef9c3", color:"#a16207" },
-                { key:"Approved", label:"Approved", bg:"#dcfce7", color:"#15803d" },
-                { key:"Rejected", label:"Rejected", bg:"#fee2e2", color:"#b91c1c" },
+                { key: "All", label: "All", bg: "#eef4ff", color: "#2563eb" },
+                { key: "Pending", label: "Pending", bg: "#fef9c3", color: "#a16207" },
+                { key: "Approved", label: "Approved", bg: "#dcfce7", color: "#15803d" },
+                { key: "Rejected", label: "Rejected", bg: "#fee2e2", color: "#b91c1c" },
               ].map(sf => (
                 <button key={sf.key}
-                  className={`lr-sf ${statusTab===sf.key?"active":""}`}
-                  style={{ background:sf.bg, color:sf.color }}
+                  className={`lr-sf ${statusTab === sf.key ? "active" : ""}`}
+                  style={{ background: sf.bg, color: sf.color }}
                   onClick={() => setStatusTab(sf.key)}>
                   {sf.label}
                 </button>
@@ -328,88 +430,93 @@ export default function SuperAdminLeaveRequests() {
                     <th>Type</th>
                     <th className="hide-md">Why they're out</th>
                     <th>Status</th>
-                    <th style={{ textAlign:"right" }}>Actions</th>
+                    <th style={{ textAlign: "right" }}>Actions</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {filtered.length === 0 ? (
+                  {(leaves?.length || 0) === 0 ? (
                     <tr><td colSpan={6}>
                       <div className="lr-empty">
                         <div className="lr-empty-ic"><FiSearch /></div>
-                        <p style={{ fontSize:14 }}>Nothing here — try adjusting your filters</p>
+                        <p style={{ fontSize: 14 }}>Nothing here — try adjusting your filters</p>
                       </div>
                     </td></tr>
-                  ) : filtered.map(l => {
-                    const emp = employees.find(e => e.id === l.empId);
-                    const a   = avStyle(emp.name);
-                    const sp  = STATUS[l.status]  || STATUS.Pending;
-                    const tp  = TYPE[l.type]      || { bg:"#f1f5f9", color:"#475569" };
+                  ) : paginatedLeaves?.map((l, index) => {
+                    const empName = l.employee?.name || "Unknown";
+                    const empId = l.employee?.employeeId || "-";
+                    const initials = empName.split(" ").map(n => n[0]).join("").slice(0, 2);
+                    const a = avStyle(empName);
+                    const sp = STATUS[l.approvalStatus] || STATUS.Pending;
+
+                    const tp = TYPE[l.type] || { bg: "#f1f5f9", color: "#475569" };
                     return (
-                      <React.Fragment key={l.id}>
+                      <React.Fragment key={l._id || index}>
                         <tr>
                           {/* employee */}
                           <td>
-                            <div style={{ display:"flex", alignItems:"center", gap:10 }}>
-                              <div className="lr-av" style={{ background:a.bg, color:a.color }}>
-                                {emp.initials}
+                            <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                              <div className="lr-av" style={{ background: a.bg, color: a.color }}>
+                                {initials}
                               </div>
                               <div>
-                                <div style={{ fontWeight:600, fontSize:13 }}>{emp.name}</div>
-                                <div style={{ fontSize:11, color:"#94a3b8" }}>{emp.id}</div>
+                                <div style={{ fontWeight: 600, fontSize: 13 }}>{empName}</div>
+                                <div style={{ fontSize: 11, color: "#94a3b8" }}>{empId}</div>
                               </div>
                             </div>
                           </td>
 
                           {/* duration */}
                           <td className="hide-sm">
-                            <div style={{ fontSize:12, color:"#334155" }}>
-                              {l.start === l.end
-                                ? l.start
-                                : <>{l.start} <span style={{ color:"#94a3b8" }}>→</span> {l.end}</>}
+                            <div style={{ fontSize: 12, color: "#334155" }}>
+                              {l.startDate === l.endDate
+                                ? l.startDate
+                                : <>{l.startDate} → {l.endDate}</>}
                             </div>
-                            <div style={{ fontSize:11, color:"#94a3b8", marginTop:2 }}>
-                              {daysBetween(l.start, l.end)}
+                            <div style={{ fontSize: 11, color: "#94a3b8", marginTop: 2 }}>
+                              {daysBetween(l.startDate, l.endDate)}
                             </div>
                           </td>
 
                           {/* type */}
                           <td>
-                            <span className="pill" style={{ background:tp.bg, color:tp.color }}>{l.type}</span>
+                            <span className="pill" style={{ background: tp.bg, color: tp.color }}>{l.type}</span>
                           </td>
 
                           {/* reason */}
-                          <td className="hide-md" style={{ fontSize:12, color:"#64748b", maxWidth:200, overflow:"hidden", textOverflow:"ellipsis", whiteSpace:"nowrap" }}>
+                          <td className="hide-md" style={{ fontSize: 12, color: "#64748b", maxWidth: 200, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
                             {l.reason}
                           </td>
 
                           {/* status */}
                           <td>
-                            <span className="pill" style={{ background:sp.bg, color:sp.color }}>
-                              <span className="pill-dot" style={{ background:sp.dot }} />
-                              {l.status}
+                            <span className="pill" style={{ background: sp.bg, color: sp.color }}>
+                              <span className="pill-dot" style={{ background: sp.dot }} />
+                              {l.approvalStatus}
                             </span>
                           </td>
 
                           {/* actions */}
-                          <td style={{ textAlign:"right" }}>
-                            <div style={{ display:"flex", alignItems:"center", gap:5, justifyContent:"flex-end", position:"relative" }}>
-                              <button className="lb lb-ok"  onClick={() => approve(l.id)}    title="Approve"><FiCheck /></button>
-                              <button className="lb lb-rej" onClick={() => openReject(l.id)} title="Reject"><FiXCircle /></button>
-                              <div style={{ position:"relative" }}>
+                          <td style={{ textAlign: "right" }}>
+                            <div style={{ display: "flex", alignItems: "center", gap: 5, justifyContent: "flex-end", position: "relative" }}>
+                              <button className="lb lb-ok" onClick={() => approve(l._id)
+                              } title="Approve"><FiCheck /></button>
+                              <button className="lb lb-rej" onClick={() => openReject(l._id)
+                              } title="Reject"><FiXCircle /></button>
+                              <div style={{ position: "relative" }}>
                                 <button className="lb lb-more"
-                                  onClick={e => { e.stopPropagation(); setOpenMenuId(openMenuId===l.id?null:l.id); }}
+                                  onClick={e => { e.stopPropagation(); setOpenMenuId(openMenuId === l._id ? null : l._id); }}
                                   title="More">
                                   <FiMoreVertical />
                                 </button>
-                                {openMenuId === l.id && (
+                                {openMenuId === l._id && (
                                   <div className="lr-drop" onClick={e => e.stopPropagation()}>
-                                    {l.status !== "Pending" && (
-                                      <div className="lr-di" onClick={() => { undoToPending(l.id); setOpenMenuId(null); }}>
-                                        <FiRotateCcw size={13} style={{ color:"#64748b" }} /> Undo to Pending
+                                    {l.approvalStatus !== "Pending" && (
+                                      <div className="lr-di" onClick={() => { undoToPending(l._id); setOpenMenuId(null); }}>
+                                        <FiRotateCcw size={13} style={{ color: "#64748b" }} /> Undo to Pending
                                       </div>
                                     )}
-                                    {l.status === "Pending" && (
-                                      <div style={{ padding:"10px 14px", fontSize:12, color:"#94a3b8" }}>
+                                    {l.approvalStatus === "Pending" && (
+                                      <div style={{ padding: "10px 14px", fontSize: 12, color: "#94a3b8" }}>
                                         No actions available
                                       </div>
                                     )}
@@ -421,12 +528,12 @@ export default function SuperAdminLeaveRequests() {
                         </tr>
 
                         {/* rejection reason row */}
-                        {l.status === "Rejected" && l.rejectReason && (
+                        {l.approvalStatus === "Rejected" && l.rejectionReason && (
                           <tr className="rr">
                             <td colSpan={6}>
                               <div className="rr-inner">
                                 <span className="rr-label">Reason for rejection:</span>
-                                <span>{l.rejectReason}</span>
+                                <span>{l.rejectionReason}</span>
                               </div>
                             </td>
                           </tr>
@@ -438,13 +545,45 @@ export default function SuperAdminLeaveRequests() {
               </table>
             </div>
 
-            {filtered.length > 0 && (
+            {(leaves?.length || 0) > 0 && (
               <div className="lr-footer">
                 <span>
-                  {filtered.length} request{filtered.length!==1?"s":""} shown
+                  {leaves?.length || 0} request{leaves?.length || 0 !== 1 ? "s" : ""} shown
                   {statusTab !== "All" && <> &middot; filtered by <strong>{statusTab}</strong></>}
                 </span>
-                <span style={{ color:"#94a3b8" }}>{tab}</span>
+                <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                  <button
+                    onClick={() => setCurrentPage(p => Math.max(p - 1, 1))}
+                    disabled={currentPage === 1}
+                    style={{
+                      padding: "4px 10px",
+                      borderRadius: 6,
+                      border: "1px solid #e0eaff",
+                      background: currentPage === 1 ? "#f1f5f9" : "#fff",
+                      cursor: currentPage === 1 ? "not-allowed" : "pointer"
+                    }}
+                  >
+                    Prev
+                  </button>
+
+                  <span style={{ fontSize: 12 }}>
+                    Page {currentPage} of {totalPages || 1}
+                  </span>
+
+                  <button
+                    onClick={() => setCurrentPage(p => Math.min(p + 1, totalPages))}
+                    disabled={currentPage === totalPages || totalPages === 0}
+                    style={{
+                      padding: "4px 10px",
+                      borderRadius: 6,
+                      border: "1px solid #e0eaff",
+                      background: currentPage === totalPages ? "#f1f5f9" : "#fff",
+                      cursor: currentPage === totalPages ? "not-allowed" : "pointer"
+                    }}
+                  >
+                    Next
+                  </button>
+                </div>
               </div>
             )}
           </div>
@@ -452,35 +591,39 @@ export default function SuperAdminLeaveRequests() {
           {/* TODAY PANEL */}
           <div className="lr-today">
             <div className="lr-today-title">
-              <FiCalendar style={{ color:"#2563eb" }} />
+              <FiCalendar style={{ color: "#2563eb" }} />
               {todaysLeaves.length === 0
                 ? "Everyone's in today"
-                : `${todaysLeaves.length} ${todaysLeaves.length===1?"person":"people"} out today`}
+                : `${todaysLeaves.length} ${todaysLeaves.length === 1 ? "person" : "people"} out today`}
             </div>
             {todaysLeaves.length === 0 ? (
-              <p style={{ fontSize:13, color:"#94a3b8" }}>Full house — no leaves today.</p>
+              <p style={{ fontSize: 13, color: "#94a3b8" }}>
+                Full house — no leaves today.
+              </p>
             ) : (
               <div className="lr-today-grid">
-                {todaysLeaves.map(l => {
-                  const emp = employees.find(e => e.id === l.empId);
-                  const a   = avStyle(emp.name);
-                  const sp  = STATUS[l.status]  || STATUS.Pending;
-                  const tp  = TYPE[l.type]      || { bg:"#f1f5f9", color:"#475569" };
+                {todaysLeaves.map((l, index) => {
+                  const empName = l.employee?.name || "Unknown";
+                  const initials = empName.split(" ").map(n => n[0]).join("").slice(0, 2);
+                  const a = avStyle(empName);
+                  const sp = STATUS[l.approvalStatus] || STATUS.Pending;
+
+                  const tp = TYPE[l.type] || { bg: "#f1f5f9", color: "#475569" };
                   return (
-                    <div key={l.id} className="lr-today-card">
-                      <div style={{ display:"flex", alignItems:"center", gap:10 }}>
-                        <div className="lr-av" style={{ background:a.bg, color:a.color }}>{emp.initials}</div>
+                    <div key={l._id || index} className="lr-today-card">
+                      <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                        <div className="lr-av" style={{ background: a.bg, color: a.color }}>{initials}</div>
                         <div>
-                          <div style={{ fontWeight:600, fontSize:13 }}>{emp.name}</div>
-                          <div style={{ fontSize:11, color:"#94a3b8", marginTop:2, display:"flex", alignItems:"center", gap:5 }}>
-                            <span className="pill" style={{ background:tp.bg, color:tp.color, padding:"2px 8px" }}>{l.type}</span>
-                            &middot; {daysBetween(l.start, l.end)}
+                          <div style={{ fontWeight: 600, fontSize: 13 }}>{empName}</div>
+                          <div style={{ fontSize: 11, color: "#94a3b8", marginTop: 2, display: "flex", alignItems: "center", gap: 5 }}>
+                            <span className="pill" style={{ background: tp.bg, color: tp.color, padding: "2px 8px" }}>{l.type}</span>
+                            &middot; {daysBetween(l.startDate, l.endDate)}
                           </div>
                         </div>
                       </div>
-                      <span className="pill" style={{ background:sp.bg, color:sp.color }}>
-                        <span className="pill-dot" style={{ background:sp.dot }} />
-                        {l.status}
+                      <span className="pill" style={{ background: sp.bg, color: sp.color }}>
+                        <span className="pill-dot" style={{ background: sp.dot }} />
+                        {l.approvalStatus}
                       </span>
                     </div>
                   );

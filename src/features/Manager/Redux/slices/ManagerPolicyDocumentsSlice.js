@@ -18,6 +18,26 @@
 
 // export default managerPolicyDocumentsSlice.reducer;
 
+// import { createSlice } from "@reduxjs/toolkit";
+// import managerPolicyDocumentsThunk from "../thunks/ManagerPolicyDocumentsThunk";
+
+// const initialState = {
+//     loading: false,
+//     data: null,
+//     error: null,
+// };
+
+// const managerPolicyDocumentsSlice = createSlice({
+//     name: "managerPolicyDocuments",
+//     initialState,
+//     reducers: {},
+//     extraReducers: (builder) => {
+//         builder;
+//     },
+// });
+
+// export default managerPolicyDocumentsSlice.reducer;
+
 import { createSlice } from "@reduxjs/toolkit";
 import {
   getAllManagerPolicyDocuments,
@@ -42,9 +62,9 @@ const managerPolicyDocumentsSlice = createSlice({
   extraReducers: (builder) => {
     builder
 
-      // ===============================
+      
       // GET ALL POLICIES
-      // ===============================
+      
       .addCase(getAllManagerPolicyDocuments.pending, (state) => {
         state.loading = true;
         state.error = null;
@@ -58,9 +78,9 @@ const managerPolicyDocumentsSlice = createSlice({
         state.error = action.payload || "Something went wrong";
       })
 
-      // ===============================
+      
       // GET POLICY BY ID
-      // ===============================
+      
       .addCase(getManagerPolicyById.pending, (state) => {
         state.loading = true;
         state.error = null;
@@ -80,3 +100,4 @@ export const { clearSelectedPolicy } =
   managerPolicyDocumentsSlice.actions;
 
 export default managerPolicyDocumentsSlice.reducer;
+ 
