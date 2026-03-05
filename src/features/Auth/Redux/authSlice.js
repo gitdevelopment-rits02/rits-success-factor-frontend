@@ -47,7 +47,19 @@ const initialState = {
 const authSlice = createSlice({
   name: "auth",
   initialState,
-  reducers: {},
+  reducers: {
+    restoreAuth: (state, action) => {
+      state.user = action.payload.user;
+      state.isAuthenticated = true;
+      state.restoring = false;
+    },
+    logout: (state) => {
+      state.user = null;
+      state.isAuthenticated = false;
+      localStorage.removeItem("token");
+      localStorage.removeItem("user");
+    }
+  },
   extraReducers: (builder) => {
     builder
       //register
@@ -115,6 +127,8 @@ const authSlice = createSlice({
         if (user) {
           state.user = user;
           state.isAuthenticated = true;
+          // Save user to localStorage so it can be restored on refresh
+          localStorage.setItem("user", JSON.stringify(user));
         }
       })
       .addCase(loginThunk.rejected, (state, action) => {
@@ -185,5 +199,6 @@ const authSlice = createSlice({
   },
 });
 
+export const { restoreAuth, logout } = authSlice.actions;
 export default authSlice.reducer;
 
