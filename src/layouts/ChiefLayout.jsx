@@ -26,14 +26,14 @@ const ChiefLayout = () => {
             path: "/chief/dashboard",
             icon: HiOutlineClipboardDocumentList,
         },
-        {
-            name: "Admin Creation",
-            path: "/chief/admincreation",
-            icon: HiOutlineClock,
-        },
+        // {
+        //     name: "Admin Creation",
+        //     path: "/chief/admincreation",
+        //     icon: HiOutlineClock,
+        // },
 
         {
-            name: "Admin Management",
+            name: "Hr Management",
             path: "/chief/adminmanagement",
             icon: HiOutlineClock,
         },
@@ -53,59 +53,59 @@ const ChiefLayout = () => {
             icon: HiOutlineUserCircle,
         },
 
-        {
-            name: "Approval Flow",
-            path: "/chief/approvalflow",
-            icon: HiOutlineUsers,
-        },
+        // {
+        //     name: "Approval Flow",
+        //     path: "/chief/approvalflow",
+        //     icon: HiOutlineUsers,
+        // },
 
 
 
-        {
-            name: "Manage My Team",
-            path: "/chief/managemyteam",
-            icon: HiOutlineUsers,
-        },
+        // {
+        //     name: "Manage My Team",
+        //     path: "/chief/managemyteam",
+        //     icon: HiOutlineUsers,
+        // },
         {
             name: "Org Chart",
             path: "/chief/orgchart",
             icon: HiOutlineBuildingOffice2,
         },
-        {
-            name: "Growth Portfolio",
-            path: "/chief/growthportfolio",
-            icon: HiOutlineChartBar,
-        },
+        // {
+        //     name: "Growth Portfolio",
+        //     path: "/chief/growthportfolio",
+        //     icon: HiOutlineChartBar,
+        // },
         {
             name: "Manage Leave",
             path: "/chief/manageleave",
             icon: HiOutlineCalendarDays,
         },
-        {
-            name: "Personal Timesheet",
-            path: "/chief/personaltimesheet",
-            icon: HiOutlineClock,
-        },
-        {
-            name: "Organization",
-            path: "/chief/org",
-            icon: HiOutlineClock,
-        },
+        // {
+        //     name: "Personal Timesheet",
+        //     path: "/chief/personaltimesheet",
+        //     icon: HiOutlineClock,
+        // },
+        // {
+        //     name: "Organization",
+        //     path: "/chief/org",
+        //     icon: HiOutlineClock,
+        // },
         {
             name: "Policies",
             path: "/chief/policies",
             icon: HiOutlineClock,
         },
         {
-            name: "Payroll",
+            name: "Payslip",
             path: "/chief/payroll",
             icon: HiOutlineClock,
         },
-        {
-            name: "Feedback",
-            path: "/chief/feedback",
-            icon: HiOutlineClock,
-        },
+        // {
+        //     name: "Feedback",
+        //     path: "/chief/feedback",
+        //     icon: HiOutlineClock,
+        // },
 
     ];
 

@@ -1,404 +1,621 @@
-
-import { useState, useMemo, Fragment } from "react";
-import { FaArrowTrendUp } from "react-icons/fa6";
-import { FaBuilding, FaCalendarAlt, FaSearch, FaLayerGroup } from "react-icons/fa";
-import { FaEye } from "react-icons/fa";
+import { useState, useMemo } from "react";
+import { FaDownload, FaEye, FaListUl } from "react-icons/fa";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
+import { FaCalendarAlt } from "react-icons/fa";
+import bgWave from "../../../assets/background.png";
+import manpng from "../../../assets/man.png";
+import companyLogo from "../../../assets/companyLogo.png";;
 
-/*  Payroll Rules  */
+/*  Payroll Engine  */
 const PF_BASE_LOW = 8000;
 const PF_BASE_HIGH = 15000;
 
 function calculatePayroll(ctc) {
-    const annualCTC = ctc;
-    const isLowSlab = annualCTC <= 300000;
-    const pfBase = isLowSlab ? PF_BASE_LOW : PF_BASE_HIGH;
+  const annualCTC = Number(ctc);
+  const isLowSlab = annualCTC <= 300000;
+  const pfBase = isLowSlab ? PF_BASE_LOW : PF_BASE_HIGH;
 
-    const employerPF = pfBase * 0.13;
-    const employeePF = pfBase * 0.12;
+  const employerPF = pfBase * 0.13;
+  const employeePF = pfBase * 0.12;
 
-    const grossAnnual = annualCTC - employerPF * 12;
-    const basicRatio = isLowSlab ? 0.5 : 0.4;
-    const hraRatio = 0.5;
+  const grossAnnual = annualCTC - (employerPF * 12);
 
-    const basicAnnual = grossAnnual * basicRatio;
-    const hraAnnual = basicAnnual * hraRatio;
-    const conveyanceAnnual = 19200;
+  const basicRatio = isLowSlab ? 0.5 : 0.4;
+  const basicAnnual = grossAnnual * basicRatio;
+  const hraAnnual = basicAnnual * 0.5;
+  const conveyanceAnnual = 19200;
 
-    const specialAllowanceAnnual = grossAnnual - (basicAnnual + hraAnnual + conveyanceAnnual);
-    const grossMonthly = grossAnnual / 12;
+  const specialAllowanceAnnual =
+    grossAnnual - (basicAnnual + hraAnnual + conveyanceAnnual);
 
-    const professionalTax = 200;
-    const medicalInsurance = 500;
-    const netPay = grossMonthly - (employeePF + professionalTax + medicalInsurance);
+  const grossMonthly = grossAnnual / 12;
 
-    return {
-        employerPF,
-        employeePF,
-        basic: basicAnnual / 12,
-        hra: hraAnnual / 12,
-        conveyance: conveyanceAnnual / 12,
-        specialAllowance: specialAllowanceAnnual / 12,
-        professionalTax,
-        medicalInsurance,
-        gross: grossMonthly,
-        netPay,
-    };
+  const professionalTax = 200;
+  const medicalInsurance = 500;
+
+  const netPay = grossMonthly - (employeePF + professionalTax + medicalInsurance);
+
+  return {
+    employerPF,
+    employeePF,
+    basic: basicAnnual / 12,
+    hra: hraAnnual / 12,
+    conveyance: conveyanceAnnual / 12,
+    specialAllowance: specialAllowanceAnnual / 12,
+    professionalTax,
+    medicalInsurance,
+    gross: grossMonthly,
+    netPay,
+  };
 }
 
-export default function ChiefPayroll() {
-    /*  Dummy Data */
-    const employees = [
-        { id: "ENG-001", name: "Amit Sharma", designation: "Senior Engineer", department: "Engineering", month: "January", year: "2026", ctc: 500000 },
-        { id: "ENG-002", name: "Rohit Kulkarni", designation: "Software Engineer", department: "Engineering", month: "February", year: "2026", ctc: 420000 },
-        { id: "ENG-003", name: "Sneha Patil", designation: "Frontend Dev", department: "Engineering", month: "March", year: "2026", ctc: 380000 },
-        { id: "ENG-004", name: "Arjun Rao", designation: "Backend Dev", department: "Engineering", month: "January", year: "2025", ctc: 460000 },
-        { id: "HR-001", name: "Neha Verma", designation: "HR Manager", department: "HR", month: "January", year: "2026", ctc: 1000000 },
-        { id: "HR-002", name: "Kiran Joshi", designation: "HR Executive", department: "HR", month: "February", year: "2026", ctc: 320000 },
-        { id: "HR-003", name: "Megha Desai", designation: "Recruiter", department: "HR", month: "March", year: "2025", ctc: 350000 },
-        { id: "HR-004", name: "Anjali Singh", designation: "HR Ops", department: "HR", month: "January", year: "2025", ctc: 300000 },
-        { id: "SAL-001", name: "Rahul Mehta", designation: "Sales Lead", department: "Sales", month: "January", year: "2026", ctc: 350006 },
-        { id: "SAL-002", name: "Nikhil Gupta", designation: "Sales Exec", department: "Sales", month: "February", year: "2026", ctc: 300000 },
-        { id: "SAL-003", name: "Pooja Malhotra", designation: "Account Manager", department: "Sales", month: "March", year: "2026", ctc: 390000 },
-        { id: "SAL-004", name: "Deepak Yadav", designation: "BD Executive", department: "Sales", month: "January", year: "2025", ctc: 310000 },
-        { id: "FIN-001", name: "Pooja Iyer", designation: "Junior Analyst", department: "Finance", month: "January", year: "2026", ctc: 300000 },
-        { id: "FIN-002", name: "Suresh Nair", designation: "Finance Analyst", department: "Finance", month: "February", year: "2026", ctc: 420000 },
-        { id: "FIN-003", name: "Ritika Shah", designation: "Accounts Officer", department: "Finance", month: "March", year: "2025", ctc: 360000 },
-        { id: "FIN-004", name: "Manoj Pillai", designation: "Auditor", department: "Finance", month: "January", year: "2025", ctc: 390000 },
-    ];
+/* Data  */
 
-    const [selectedDept, setSelectedDept] = useState("All");
-    const [selectedYear, setSelectedYear] = useState("2026");
-    const [selectedMonth, setSelectedMonth] = useState("January");
-    const [expandedId, setExpandedId] = useState(null);
-    const [searchTerm, setSearchTerm] = useState("");
+const employeeProfile = {
+  id: "EMP-003",
+  name: "Rahul Sharma",
+  designation: "Senior Software Engineer",
+  department: "Product Engineering",
+  salaryHistory: {
+    "2025-11": 600000,
+    "2025-12": 600000,
+    "2026-01": 800000,
+  },
+  defaultCTC: 800000,
+};
 
-    const payrollData = useMemo(() => employees.map((emp) => ({ ...emp, structure: calculatePayroll(emp.ctc) })), []);
-    const filteredData = useMemo(() => payrollData.filter((emp) => {
-        const deptMatch = selectedDept === "All" || emp.department === selectedDept;
-        const yearMatch = selectedYear === "All" || emp.year === selectedYear;
-        const monthMatch = emp.month === selectedMonth;
-        const searchMatch = emp.name.toLowerCase().includes(searchTerm.toLowerCase()) || emp.id.toLowerCase().includes(searchTerm.toLowerCase());
-        return deptMatch && yearMatch && monthMatch && searchMatch;
-    }), [payrollData, selectedDept, selectedYear, selectedMonth, searchTerm]);
+const monthMap = {
+  January: "01",
+  November: "11",
+  December: "12",
+  February: "02",
+  March : "03",
 
-    const monthlyPayout = useMemo(() => filteredData.reduce((sum, e) => sum + e.structure.netPay, 0), [filteredData]);
-    const yearlyPayout = useMemo(() => payrollData.filter((e) => e.year === selectedYear).reduce((sum, e) => sum + e.structure.netPay * 12, 0), [payrollData, selectedYear]);
-    const currentYear = new Date().getFullYear();
-    const yearRange = Array.from({ length: 11 }, (_, i) => currentYear - 5 + i);
+};
+const loadImage = (src) => {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    img.src = src;
+    img.onload = () => resolve(img);
+    img.onerror = reject;
+  });
+};
 
-    /* PDF Generation Functions  */
-    const generateGlobalReport = () => {
-        const doc = new jsPDF();
-        doc.setFontSize(18);
-        doc.text(`Payroll Report: ${selectedMonth} ${selectedYear}`, 14, 20);
-        doc.setFontSize(11);
-        doc.text(`Department: ${selectedDept}`, 14, 30);
+function getCTCByDate(year, month) {
+  const key = `${year}-${monthMap[month]}`;
+  return employeeProfile.salaryHistory[key] || employeeProfile.defaultCTC;
+}
 
-        const tableRows = filteredData.map(emp => [
-            emp.id,
-            emp.name,
-            emp.designation,
-            `INR ${emp.ctc.toLocaleString()}`,
-            `INR ${Math.round(emp.structure.netPay).toLocaleString()}`
-        ]);
+/* Component  */
+export default function EmployeePayrollUI() {
+  const [selectedMonth] = useState("January");
+  const [selectedYear] = useState("2026");
+  const [showBreakdown, setShowBreakdown] = useState(false);
+  const [historyYear, setHistoryYear] = useState("All");
+  const [modalData, setModalData] = useState(null);
 
-        autoTable(doc, {
-            startY: 40,
-            head: [['ID', 'Name', 'Designation', 'CTC', 'Net Pay']],
-            body: tableRows,
-            theme: 'striped'
-        });
-        doc.save(`Payroll_Report_${selectedMonth}_${selectedYear}.pdf`);
-    };
+  const currentCTC = useMemo(
+    () => getCTCByDate(selectedYear, selectedMonth),
+    [selectedMonth, selectedYear]
+  );
 
-    const generateIndividualPayslip = (emp) => {
-        const doc = new jsPDF();
-        doc.setFontSize(20);
-        doc.text("Revappayya IT Services Pvt Ltd", 105, 20, { align: "center" });
+  const structure = useMemo(
+    () => calculatePayroll(currentCTC),
+    [currentCTC]
+  );
 
-        doc.setFontSize(12);
-        doc.text(`Employee Name: ${emp.name}`, 14, 40);
-        doc.text(`Employee ID: ${emp.id}`, 14, 47);
-        doc.text(`Designation: ${emp.designation}`, 14, 54);
-        doc.text(`Period: ${emp.month} ${emp.year}`, 140, 40);
+  const history = [
+    { month: "January", year: "2026", status: "Paid" },
+    { month: "December", year: "2025", status: "Paid" },
+    { month: "November", year: "2025", status: "Paid" },
+  ].map(h => {
+    const ctc = getCTCByDate(h.year, h.month);
+    const s = calculatePayroll(ctc);
+    return { ...h, gross: s.gross, net: s.netPay, struct: s };
+  });
 
-        const earnings = [
-            ["Basic Salary", Math.round(emp.structure.basic).toLocaleString()],
-            ["HRA", Math.round(emp.structure.hra).toLocaleString()],
-            ["Conveyance", Math.round(emp.structure.conveyance).toLocaleString()],
-            ["Special Allowance", Math.round(emp.structure.specialAllowance).toLocaleString()],
-        ];
+  const filteredHistory =
+    historyYear === "All"
+      ? history
+      : history.filter(h => h.year === historyYear);
 
-        const deductions = [
-            ["Employee PF", Math.round(emp.structure.employeePF).toLocaleString()],
-            ["Professional Tax", Math.round(emp.structure.professionalTax).toLocaleString()],
-            ["Medical Insurance", Math.round(emp.structure.medicalInsurance).toLocaleString()],
-        ];
+  /* PDF  */
+const downloadPDF = async (data) => {
+const doc = new jsPDF();
+const logoImg = await loadImage(companyLogo);
+doc.addImage(logoImg, "PNG", 7, -3, 48, 34);
+doc.setFont("helvetica", "bold");
+doc.setFontSize(16);  
+doc.text("Revappayya IT Services Pvt Ltd", 64, 12);
 
-        autoTable(doc, {
-            startY: 65,
-            head: [['Earnings', 'Amount (INR)']],
-            body: earnings,
-        });
+doc.setFont("helvetica", "normal");
+    doc.setFontSize(9);
+    doc.text("HO: Shree Shaila Nilaya, 13th Cross, 22nd Main Road,", 14, 22);
+    doc.text("Virat Nagar, Bommanahalli, Bangalore, KA 560068, India", 14, 27);
+    doc.text("RO: Unit no-2201A, 22nd floor, WTC Bangalore, Brigade Gateway, Bangalore - 560055", 14, 32);
+    doc.text("Email: support@revappayyaitservices.com | www.revappayyaitservices.com", 14, 37);
+    doc.line(14, 40, 196, 40);
+    doc.setFontSize(11);
+    doc.text(`Salary Slip for the month of ${data.month} ${data.year}`, 105, 48, { align: "center" });
 
-        autoTable(doc, {
-            startY: doc.lastAutoTable.finalY + 10,
-            head: [['Deductions', 'Amount (INR)']],
-            body: deductions,
-        });
-        doc.setFontSize(14);
-        doc.text(`Net Pay: INR ${Math.round(emp.structure.netPay).toLocaleString()}`, 14, doc.lastAutoTable.finalY + 20);
+    doc.setFontSize(9);
+    autoTable(doc, {
+      startY: 52,
+      theme: "grid",
+      styles: { fontSize: 8 },
+      body: [
+        ["Name", employeeProfile.name, "Period", `${data.month} ${data.year}`],
+        ["Designation", employeeProfile.designation, "Employee ID", employeeProfile.id],
+        ["Department", employeeProfile.department, "Bank A/C", "XXXX1234"],
+        ["Payment Mode", "Bank Transfer", "No of Days", "30"],
+      ],
+    });
 
-        doc.save(`Payslip_${emp.name}_${emp.month}.pdf`);
-    };
+    autoTable(doc, {
+      startY: doc.lastAutoTable.finalY + 5,
+      theme: "grid",
+      styles: { fontSize: 8 },
+      head: [["Earnings", "Amount (Rs)", "Deductions", "Amount (Rs)"]],
+      body: [
+        ["Basic", Math.round(data.struct.basic), "PF - Employee", Math.round(data.struct.employeePF)],
+        ["HRA", Math.round(data.struct.hra), "Professional Tax", 200],
+        ["Conveyance", Math.round(data.struct.conveyance), "Medical Insurance", 500],
+        ["Special Allowance", Math.round(data.struct.specialAllowance), "", ""],
+        ["Gross Salary", Math.round(data.gross), "Total Deductions", Math.round(data.struct.employeePF + 700)],
+      ],
+    });
 
-    return (
-        <div className="min-h-screen w-full p-8 bg-gradient-to-br from-slate-100 via-blue-50 to-indigo-100">
-            {/* Header */}
-            <div className="bg-white/90 backdrop-blur-xl rounded-[28px] p-7 shadow-[0_20px_50px_rgba(0,0,0,0.08)] relative border border-blue-100">
+   const netY = doc.lastAutoTable.finalY + 10;
 
-                <div className="absolute top-5 right-5">
-                    <span className="text-[11px] px-5 py-1.5 rounded-full bg-gradient-to-r from-blue-500 to-indigo-500 text-white font-semibold shadow-lg tracking-wide">Chief</span>
-                </div>
+doc.setFontSize(11);
+doc.text(
+  `Net Salary : Rs ${Math.round(data.net).toLocaleString()}`,
+  14,
+  netY
+);
 
-                <h1 className="text-[28px] font-bold bg-gradient-to-r from-blue-700 to-indigo-600 bg-clip-text text-transparent">Payroll Overview</h1>
-                <p className="text-[13px] text-gray-500 mt-1">Employee Payroll Engine</p>
-                <div className="flex flex-wrap items-center justify-between gap-4 mt-7">
+doc.setFontSize(11);
+doc.text(
+  `Total CTC (Per Year) : Rs ${Math.round(getCTCByDate(data.year, data.month)).toLocaleString()}`,
+  130,   
+  netY
+);
+    doc.setFontSize(7);
+    doc.text("This is a computer generated slip and does not require signature.", 14, doc.lastAutoTable.finalY + 20);
+    doc.text("This document contains confidential information. If you are not the intended recipient you are not authorised to use or disclose it.", 14, doc.lastAutoTable.finalY + 25);
+    doc.save(`Payslip_${data.month}_${data.year}.pdf`);
+  };
 
-                    <div className="flex flex-wrap gap-3">
-                        {/* Department */}
-                        <div className="relative">
-                            <FaBuilding className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm" />
-                            <select
-                                value={selectedDept}
-                                onChange={(e) => setSelectedDept(e.target.value)}
-                                className="pl-9 pr-4 py-2.5 rounded-xl border border-gray-200 bg-white shadow-sm text-[13px] font-medium outline-none focus:outline-none focus:ring-2 focus:ring-blue-200 focus:border-blue-400 transition-all">
-                                <option value="All">All Departments</option>
-                                <option value="Engineering">Engineering</option>
-                                <option value="HR">HR</option>
-                                <option value="Sales">Sales</option>
-                                <option value="Finance">Finance</option>
-                            </select>
-                        </div>
+  /* Year-wise PDF Download  */
+const downloadYearPDF = async (year) => {
+const doc = new jsPDF();
+const yearData =
+    year === "All"
+      ? history
+      : history.filter(h => h.year === year);
+const logoImg = await loadImage(companyLogo);
+yearData.forEach((data, index) => {
+    if (index !== 0) doc.addPage();   
 
-                        {/* Year */}
-                        <div className="relative">
-                            <FaCalendarAlt className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm" />
-                            <select
-                                value={selectedYear}
-                                onChange={(e) => setSelectedYear(e.target.value)}
-                                className="pl-9 pr-4 py-2.5 rounded-xl border border-gray-200 bg-white shadow-sm text-[13px] font-mediumoutline-none focus:outline-none focus:ring-2 focus:ring-blue-200 focus:border-blue-400 transition-all">
-                                <option value="All">All Years</option>
-                                {yearRange.map((year) => (
-                                    <option key={year} value={String(year)}>
-                                        {year}
-                                    </option>
-                                ))}
-                            </select>
-                        </div>
+    /* HEADER */
+doc.addImage(logoImg, "PNG", 7, -3, 48, 34);
+doc.setFont("helvetica", "bold");
+doc.setFontSize(16);
+doc.text("Revappayya IT Services Pvt Ltd", 64, 12);
 
-                        {/* Month */}
-                        <div className="relative">
-                            <FaLayerGroup className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm" />
-                            <select
-                                value={selectedMonth}
-                                onChange={(e) => setSelectedMonth(e.target.value)}
-                                className="pl-9 pr-4 py-2.5 rounded-xl border border-gray-200 bg-white shadow-sm text-[13px] font-medium outline-none focus:outline-none focus:ring-2 focus:ring-blue-200 focus:border-blue-400 transition-all" >
-                                {['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
-                                    .map(m => <option key={m}>{m}</option>)}
-                            </select>
-                        </div>
-
-                        {/* Search */}
-                        <div className="relative">
-                            <FaSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-grey-100 text-sm" />
-                            <input
-                                type="text"
-                                placeholder="Search by name or ID..."
-                                value={searchTerm}
-                                onChange={(e) => setSearchTerm(e.target.value)}
-                                className="pl-10 pr-4 py-2.5 rounded-xl border border-gray-200 bg-white shadow-sm text-[13px] w-80 font-medium placeholder:text-gray-400 outline-none focus:outline-none focus:ring-2 focus:ring-blue-200 focus:border-blue-400 transition-all" />
-                        </div>
-                    </div>
-                    <button
-                        onClick={generateGlobalReport}
-                        className="bg-gradient-to-r from-blue-500 to-indigo-500 text-white px-7 py-3 rounded-xl font-semibold shadow-lg hover:scale-[1.03] transition-all text-[13px]">
-                        ⬇ Download Report
-                    </button>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
-                    {/* Monthly Net Payout */}
-                    <div className="relative rounded-2xl p-5 h-[130px] border border-sky-100  bg-gradient-to-br from-sky-50 via-white to-indigo-50  shadow-xl overflow-hidden">
-
-                        {/* Soft Glow */}
-                        <div className="absolute -top-16 -right-16 w-40 h-40 bg-sky-200/30 rounded-full blur-3xl" />
-
-                        {/* Accent Bar */}
-                        <div className="absolute left-0 top-0 h-full w-1.5 
-    bg-gradient-to-b from-sky-300 to-indigo-400 rounded-l-2xl" />
-
-                        <div className="relative z-10 flex justify-between items-center h-full">
-                            <div className="flex flex-col gap-1">
-                                <span className="text-[11px] uppercase tracking-widest text-gray-500 font-semibold">
-                                    Monthly Net Payout
-                                </span>
-
-                                <h2 className="text-[28px] font-black tracking-tight text-gray-700 leading-tight">
-                                    ₹ {Math.round(monthlyPayout).toLocaleString()}
-                                </h2>
-
-                                <span className="text-[11px] text-gray-500">
-                                    Monthly payroll disbursement
-                                </span>
-                            </div>
-
-                            <div className="flex items-center justify-center 
-      bg-gradient-to-br from-sky-100 to-indigo-100 
-      text-sky-700 p-3 rounded-xl shadow-sm">
-                                <FaArrowTrendUp size={18} />
-                            </div>
-                        </div>
-                    </div>
+// address 
+doc.setFont("helvetica", "normal");
+doc.setFontSize(9);
+ doc.text("HO: Shree Shaila Nilaya, 13th Cross, 22nd Main Road,", 14, 22);
+    doc.text("Virat Nagar, Bommanahalli, Bangalore, KA 560068, India", 14, 27);
+    doc.text("RO: Unit no-2201A, 22nd floor, WTC Bangalore, Brigade Gateway, Bangalore - 560055", 14, 32);
+    doc.text("Email: support@revappayyaitservices.com | www.revappayyaitservices.com", 14, 37);
+    doc.line(14, 40, 196, 40);
 
 
-                    {/* Yearly Net Payout */}
-                    <div className="relative rounded-2xl p-5 h-[130px] border border-emerald-100 
-  bg-gradient-to-br from-emerald-50 via-white to-teal-50 
-  shadow-xl overflow-hidden">
+    /* TITLE  */
+    doc.setFontSize(11);
+    doc.text(`Salary Slip for the month of ${data.month} ${data.year}`, 105, 48, { align: "center" });
 
-                        {/* Soft Glow */}
-                        <div className="absolute -top-16 -right-16 w-40 h-40 bg-emerald-200/30 rounded-full blur-3xl" />
+    /*  EMPLOYEE INFO TABLE  */
+    doc.setFontSize(9);
+    autoTable(doc, {
+      startY: 52,
+      theme: "grid",
+      styles: { fontSize: 8 },
+      body: [
+        ["Name", employeeProfile.name, "Period", `${data.month} ${data.year}`],
+        ["Designation", employeeProfile.designation, "Employee ID", employeeProfile.id],
+        ["Department", employeeProfile.department, "Bank A/C", "XXXX1234"],
+        ["Payment Mode", "Bank Transfer", "No of Days", "30"],
+      ],
+    });
 
-                        {/* Accent Bar */}
-                        <div className="absolute left-0 top-0 h-full w-1.5 
-    bg-gradient-to-b from-emerald-300 to-teal-400 rounded-l-2xl" />
+    /*  SALARY TABLE */
+    autoTable(doc, {
+      startY: doc.lastAutoTable.finalY + 5,
+      theme: "grid",
+      styles: { fontSize: 8 },
+      head: [["Earnings", "Amount (Rs)", "Deductions", "Amount (Rs)"]],
+      body: [
+        ["Basic", Math.round(data.struct.basic), "PF - Employee", Math.round(data.struct.employeePF)],
+        ["HRA", Math.round(data.struct.hra), "Professional Tax", 200],
+        ["Conveyance", Math.round(data.struct.conveyance), "Medical Insurance", 500],
+        ["Special Allowance", Math.round(data.struct.specialAllowance), "", ""],
+        ["Gross Salary", Math.round(data.gross), "Total Deductions", Math.round(data.struct.employeePF + 700)],
+      ],
+    });
 
-                        <div className="relative z-10 flex justify-between items-center h-full">
-                            <div className="flex flex-col gap-1">
-                                <span className="text-[11px] uppercase tracking-widest text-gray-400 font-semibold">
-                                    Yearly Net Payout
-                                </span>
-
-                                <h2 className="text-[28px] font-black tracking-tight text-gray-700 leading-tight">
-                                    ₹ {Math.round(yearlyPayout).toLocaleString()}
-                                </h2>
-
-                                <span className="text-[11px] text-gray-500">
-                                    Annual payroll disbursement
-                                </span>
-                            </div>
-
-                            <div className="flex items-center justify-center 
-      bg-gradient-to-br from-emerald-100 to-teal-100 
-      text-emerald-700 p-3 rounded-xl shadow-sm">
-                                <FaArrowTrendUp size={18} />
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            {/* Table */}
-            <div className="mt-10 bg-white/95 rounded-[28px] shadow-[0_20px_60px_rgba(0,0,0,0.08)] overflow-hidden border border-blue-100">
-                <table className="w-full text-[13.5px] table-fixed">
-
-                    <thead className="bg-gradient-to-r from-blue-50 to-indigo-50 border-b">
-                        <tr>
-                            <th className="p-4 text-center font-bold text-gray-700 text-[14px] tracking-wide w-[12%]">
-                                Employee ID
-                            </th>
-
-                            <th className="p-4 text-center font-bold text-gray-700 text-[14px] tracking-wide w-[22%]">
-                                Employee Name
-                            </th>
-
-                            <th className="p-4 text-center font-bold text-gray-700 text-[14px] tracking-wide w-[18%]">
-                                Designation
-                            </th>
-
-                            <th className="p-4 text-center font-bold text-gray-700 text-[14px] tracking-wide w-[18%]">
-                                CTC
-                            </th>
-
-                            <th className="p-4 text-center font-bold text-gray-700 text-[14px] tracking-wide w-[18%]">
-                                Net Pay
-                            </th>
-
-                            <th className="p-4 text-center font-bold text-gray-700 text-[14px] tracking-wide w-[18%]">
-                                View Breakdown
-                            </th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {filteredData.map((emp) => (
-                            <Fragment key={emp.id + emp.month + emp.year}>
-
-                                <tr className="border-b hover:bg-gray-50 transition">
-
-                                    <td className="p-4 font-semibold text-indigo-600 text-center">{emp.id}</td>
-                                    <td className="p-4 font-medium text-gray-900 text-center">{emp.name}</td>
-                                    <td className="p-4 text-gray-600 text-center">{emp.designation}</td>
-                                    <td className="p-4 font-medium text-center">₹ {emp.ctc.toLocaleString()}</td>
-
-                                    <td className="p-4 font-bold text-emerald-700 text-center">
-                                        ₹ {Math.round(emp.structure.netPay).toLocaleString()}</td>
-
-                                    {/* View Icon */}
-                                    <td className="p-4 text-center">
-                                        <button
-                                            onClick={() => setExpandedId(expandedId === emp.id ? null : emp.id)}
-                                            className="p-2 rounded-lg bg-grey-50 text-grey-600  hover:bg-indigo-100 hover:scale-105 transition-all shadow-sm"
-                                            title="View Payroll Details">
-                                            <FaEye size={14} />
-                                        </button>
-                                    </td>
-                                </tr>
-                                {expandedId === emp.id && (
-                                    <tr className="bg-indigo-50/40">
-                                        <td colSpan={6} className="p-6">
-                                            <div className="bg-white rounded-2xl shadow-lg p-6 grid grid-cols-2 md:grid-cols-3 gap-4 text-[12.5px]">
-                                                <PayRow label="Basic" value={emp.structure.basic} />
-                                                <PayRow label="HRA" value={emp.structure.hra} />
-                                                <PayRow label="Conveyance" value={emp.structure.conveyance} />
-                                                <PayRow label="Special Allowance" value={emp.structure.specialAllowance} />
-                                                <PayRow label="Employer PF" value={emp.structure.employerPF} />
-                                                <PayRow label="Employee PF" value={emp.structure.employeePF} />
-                                                <PayRow label="Professional Tax" value={emp.structure.professionalTax} />
-                                                <PayRow label="Medical Insurance" value={emp.structure.medicalInsurance} />
-                                                <PayRow label="Gross" value={emp.structure.gross} highlight />
-                                                <PayRow label="Net Pay" value={emp.structure.netPay} highlight />
-                                                <div className="col-span-full flex justify-between items-center pt-4 border-t">
-                                                    <span className="text-gray-500 text-[12px] font-medium">CTC: ₹ {emp.ctc.toLocaleString()}</span>
-                                                    <button
-                                                        onClick={(e) => {
-                                                            e.stopPropagation();
-                                                            generateIndividualPayslip(emp);
-                                                        }}
-                                                        className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-5 py-2 rounded-lg text-[12px] font-semibold shadow hover:scale-[1.03] transition">
-                                                        ⬇ Generate Payslip
-                                                    </button>
-                                                </div>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                )}
-                            </Fragment>
-                        ))}
-                    </tbody>
-                </table>
-            </div>
-        </div>
+    /*  NET + CTC  */
+    const netY = doc.lastAutoTable.finalY + 10;
+    doc.setFontSize(11);
+    doc.text(
+      `Net Salary : Rs ${Math.round(data.net).toLocaleString()}`,
+      14,
+      netY
     );
+
+    doc.text(
+      `Total CTC (Per Year) : Rs ${Math.round(getCTCByDate(data.year, data.month)).toLocaleString()}`,
+      130,
+      netY
+    );
+
+    /*  FOOTER  */
+    doc.setFontSize(7);
+    doc.text(
+      "This is a computer generated slip and does not require signature.",
+      14,
+      netY + 12
+    );
+    doc.text(
+      "This document contains confidential information. If you are not the intended recipient you are not authorised to use or disclose it.",
+      14,
+      netY + 17
+    );
+  });
+
+  doc.save(`Payslips_${year === "All" ? "All_Years" : year}.pdf`);
+};
+  return (
+     <div
+      className="min-h-screen p-6 font-sans text-slate-800"
+      style={{
+        backgroundImage: `url(${bgWave})`,
+        backgroundSize: "cover",
+        backgroundPosition: "center",
+      }}
+    >
+      <div className="max-w-7xl mx-auto space-y-8">
+
+        {/* Header */}
+       <div className="bg-white rounded-3xl p-8 shadow-lg flex flex-col md:flex-row justify-between items-center gap-8">
+  <div className="flex items-center gap-6">
+    <img
+      src={manpng}
+      className="w-20 h-20 rounded-2xl ring-2 ring-indigo-300"
+    />
+    <div>
+      <h1 className="text-2xl font-semibold text-slate-800">{employeeProfile.name}</h1>
+      <p className="text-base text-slate-500">{employeeProfile.designation}</p>
+      <p className="text-sm text-slate-400">{employeeProfile.id}</p>
+    </div>
+  </div>
+          <div className="text-center md:text-right">
+            <p className="text-xs text-slate-400">Payroll Period</p>
+            <p className="text-2xl font-bold text-indigo-600">{selectedMonth} {selectedYear}</p>
+          </div>
+        </div>
+
+        {/* KPI */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+          <KPI className="bg-slate-50" title="Gross Salary" value={structure.gross} />
+          <KPI className="bg-slate-50" title="Deductions" value={structure.employeePF + 700} />
+          <KPI className="bg-slate-50" title="Net Pay" value={structure.netPay}  />
+          <KPI className="bg-slate-50" title="Total CTC" value={currentCTC} annual />
+        </div>
+
+        {/* Salary Breakdown */}
+        <div className="bg-white rounded-3xl p-6 shadow-lg">
+          <h3 className="text-lg font-semibold text-slate-700 mb-6">Salary Breakdown</h3>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div className="bg-slate-50 rounded-2xl p-4">
+              <p className="text-xs uppercase tracking-widest text-slate-400 font-semibold mb-3">Earnings</p>
+              <Row label="Basic" value={structure.basic} />
+              <Row label="HRA" value={structure.hra} />
+              <Row label="Conveyance" value={structure.conveyance} />
+              <Row label="Special Allowance" value={structure.specialAllowance} />
+              <div className="border-t pt-3 mt-3 flex justify-between font-semibold">
+                <span>Total Gross</span>
+                <span>₹{Math.round(structure.gross).toLocaleString()}</span>
+              </div>
+            </div>
+
+            <div className="bg-red-50/40 rounded-2xl p-4">
+              <p className="text-xs uppercase tracking-widest text-slate-400 font-semibold mb-3">Deductions</p>
+              <Row label="Provident Fund" value={structure.employeePF} neg />
+              <Row label="Professional Tax" value={200} neg />
+              <Row label="Medical Insurance" value={500} neg />
+              <div className="border-t pt-3 mt-3 flex justify-between font-semibold text-red-600">
+                <span>Total Deductions</span>
+                <span>- ₹{Math.round(structure.employeePF + 700).toLocaleString()}</span>
+              </div>
+            </div>
+          </div>
+
+          <div className="mt-6 pt-4 border-t flex flex-col sm:flex-row justify-between items-center gap-3">
+            <span className="text-sm text-slate-500">Net Pay = Gross − Deductions</span>
+            <span className="text-2xl font-bold text-indigo-600">₹{Math.round(structure.netPay).toLocaleString()}</span>
+          </div>
+        </div>
+
+{/* Attendance Summary */}
+{/* <div className="bg-white rounded-3xl p-6 shadow-lg">
+  <h3 className="text-lg font-semibold text-slate-700 mb-6">
+    Attendance Summary
+  </h3>
+
+  <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
+    <div className="bg-slate-50 rounded-2xl p-4 text-center">
+      <p className="text-semibold text-slate-400">Working Days</p>
+      <p className="text-xl font-bold text-slate-800">30</p>
+    </div>
+
+    <div className="bg-green-50 rounded-2xl p-4 text-center">
+      <p className="text-semibold text-slate-400">Days Present</p>
+      <p className="text-xl font-bold text-green-600">28</p>
+    </div>
+
+    <div className="bg-yellow-50 rounded-2xl p-4 text-center">
+      <p className="text-semibold text-slate-400">Leaves Taken</p>
+      <p className="text-xl font-bold text-yellow-600">2</p>
+    </div>
+
+    <div className="bg-red-50 rounded-2xl p-4 text-center">
+      <p className="text-semibold text-slate-400">Leave Without Pay</p>
+      <p className="text-xl font-bold text-red-600">0</p>
+    </div>
+
+    <div className="bg-indigo-50 rounded-2xl p-4 text-center">
+      <p className="text-semibold text-slate-400">Overtime Hours</p>
+      <p className="text-xl font-bold text-indigo-600">12</p>
+    </div>
+  </div>
+</div> */}
+
+        {/* History */}
+        <div className="bg-white rounded-3xl p-6 shadow-lg">
+   <div className="flex items-center mb-4">
+  <h3 className="text-lg font-semibold flex items-center gap-2 text-slate-700">
+    <FaListUl className="text-indigo-500" /> Payment History
+  </h3>
+
+
+  <div className="ml-auto flex items-center gap-6">
+    {/* Year dropdown */}
+    <div className="relative">
+      <FaCalendarAlt className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm pointer-events-none" />
+      <select
+        value={historyYear}
+        onChange={(e)=>setHistoryYear(e.target.value)}
+        className="pl-9 pr-4 py-2.5 rounded-xl border border-gray-200 bg-white shadow-sm text-[13px] font-medium outline-none focus:ring-2 focus:ring-blue-200 focus:border-blue-400 transition-all"
+      >
+        <option value="All">All Years</option>
+        {[...new Set(history.map(h=>h.year))].map(y=> (
+          <option key={y} value={y}>{y}</option>
+        ))}
+      </select>
+    </div>
+
+    {/* Download button */}
+    <button
+      onClick={()=>downloadYearPDF(historyYear)}
+      className="flex items-center gap-2 text-indigo-600 hover:text-indigo-800 transition"
+      title={`Download ${historyYear} payslips`}
+    >
+      <FaDownload className="text-xl" />
+      <span className="text-sm font-medium">
+        {historyYear === "All" ? "Download All" : `Download ${historyYear}`}
+      </span>
+    </button>
+
+  </div>
+</div>
+  {/* Desktop Table */}
+<div className="hidden md:block overflow-x-auto">
+  <table className="w-full text-sm table-fixed border-separate border-spacing-y-2">
+    <thead className="text-slate-500 text-[15px] font-semibold">
+      <tr>
+        <th className="text-center px-4 w-[15%]">Month</th>
+        <th className="text-center px-4 w-[20%]">Net Pay</th>
+        <th className="text-center px-4 w-[15%]">Status</th>
+        <th className="text-center px-4 w-[15%]">View</th>
+        <th className="text-center px-4 w-[15%]">Download</th>
+      </tr>
+    </thead>
+
+    <tbody>
+      {filteredHistory.map((h,i)=> (
+        <tr
+          key={i}
+          className="bg-slate-50 rounded-xl shadow-sm hover:shadow-md transition">
+          
+          <td className="px-4 py-3 text-center rounded-l-xl">
+            <div className="font-medium">{h.month}</div>
+            <div className="text-xs text-slate-400">{h.year}</div>
+          </td>
+
+          <td className="px-4 py-3 text-center font-semibold">
+            ₹{Math.round(h.net).toLocaleString()}
+          </td>
+
+          <td className="px-4 py-3 text-center text-green-600 font-medium">
+            {h.status}
+          </td>
+
+          <td className="px-4 py-3 text-center">
+            <button
+              onClick={()=>{setModalData(h);setShowBreakdown(true);}}
+              className="text-indigo-600 hover:scale-110 transition">
+              <FaEye />
+            </button>
+          </td>
+
+          <td className="px-4 py-3 text-center rounded-r-xl">
+            <button
+              onClick={()=>downloadPDF(h)}
+              className="text-slate-400 hover:text-indigo-600 hover:scale-110 transition" >
+              <FaDownload />
+            </button>
+          </td>
+        </tr>
+      ))}
+    </tbody>
+  </table>
+</div>
+
+{/* Mobile Cards */}
+<div className="md:hidden space-y-4">
+  {filteredHistory.map((h, i) => (
+    <div
+      key={i}
+      className="bg-white rounded-2xl p-4 shadow-md border border-slate-100"
+    >
+      <div className="flex justify-between items-center mb-2">
+        <div>
+          <p className="font-semibold text-slate-800">{h.month}</p>
+          <p className="text-xs text-slate-400">{h.year}</p>
+        </div>
+        <span className="text-green-600 text-sm font-medium">{h.status}</span>
+      </div>
+
+      <div className="flex justify-between items-center mb-3">
+        <span className="text-slate-500 text-sm">Net Pay</span>
+        <span className="font-bold text-indigo-600">
+          ₹{Math.round(h.net).toLocaleString()}
+        </span>
+      </div>
+
+      <div className="flex justify-between items-center pt-2 border-t">
+        <button
+          onClick={()=>{setModalData(h);setShowBreakdown(true);}}
+          className="flex items-center gap-2 text-indigo-600 text-sm font-medium"
+        >
+          <FaEye /> View
+        </button>
+
+        <button
+          onClick={()=>downloadPDF(h)}
+          className="flex items-center gap-2 text-slate-600 text-sm font-medium"
+        >
+          <FaDownload /> Download
+        </button>
+      </div>
+    </div>
+  ))}
+</div>
+ </div>
+        {/* Modal */}
+        {showBreakdown && modalData && (
+          <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50">
+            <div className="bg-white rounded-3xl p-6 w-full max-w-xl shadow-2xl">
+              <div className="flex justify-between items-center mb-4">
+                <h3 className="text-lg font-semibold">Payslip Breakdown</h3>
+                <button onClick={()=>setShowBreakdown(false)} className="text-slate-400 hover:text-red-500">✕</button>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 text-sm">
+                <div className="bg-slate-50 rounded-xl p-3">
+                  <h4 className="font-medium mb-2">Earnings</h4>
+                  <ModalRow label="Basic" value={modalData.struct.basic} />
+                  <ModalRow label="HRA" value={modalData.struct.hra} />
+                  <ModalRow label="Conveyance" value={modalData.struct.conveyance} />
+                  <ModalRow label="Special Allowance" value={modalData.struct.specialAllowance} />
+                </div>
+                <div className="bg-red-50/40 rounded-xl p-3">
+                  <h4 className="font-medium mb-2">Deductions</h4>
+                  <ModalRow label="PF" value={modalData.struct.employeePF} red />
+                  <ModalRow label="Prof. Tax" value={200} red />
+                  <ModalRow label="Insurance" value={500} red />
+                </div>
+              </div>
+
+   <div className="mt-6 flex items-center justify-between gap-6">
+  <div className="flex items-center gap-10">
+
+    {/* Monthly net pay */}
+    <div>
+      <p className="text-xs text-slate-400">Net Pay (Monthly)</p>
+      <p className="text-xl font-bold text-indigo-600">
+        ₹{Math.round(modalData.net).toLocaleString()}
+      </p>
+    </div>
+
+    {/* CTC */}
+    <div>
+      <p className="text-xs text-slate-400">CTC (Per Year)</p>
+      <p className="text-xl font-bold text-indigo-600">
+        ₹{Math.round(getCTCByDate(modalData.year, modalData.month)).toLocaleString()}
+      </p>
+    </div>
+
+  </div>
+
+  {/*  Download */}
+  <button
+    onClick={()=>downloadPDF(modalData)}
+    className="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-3 rounded-xl flex items-center gap-2 shadow-md"
+  >
+    <FaDownload /> Download
+  </button>
+</div>
+</div>
+ </div>
+        )}
+
+      </div>
+    </div>
+  );
 }
 
-function PayRow({ label, value, highlight }) {
-    return (
-        <div className={`flex justify-between items-center px-3 py-2.5 rounded-lg border ${highlight ? "bg-emerald-50 border-emerald-200" : "bg-slate-50 border-slate-200"}`}>
-            <span className="text-gray-600 font-medium">{label}</span>
-            <span className={`font-bold ${highlight ? "text-emerald-700" : "text-gray-800"}`}>₹ {Math.round(value).toLocaleString()}</span>
-        </div>
-    )
+/* Components */
+function KPI({ title, value, main, annual, className="" }) {
+  return (
+    <div className={`rounded-2xl p-5 shadow-md ${main ? "ring-2 ring-indigo-400 scale-[1.02]" : ""}${className}`}>
+      <p className="text-semibold text-slate-400">{title}</p>
+      <p className={`font-bold ${main ? "text-indigo-600 text-2xl" : "text-slate-800 text-lg"}`}>
+        ₹{Math.round(value).toLocaleString()}
+        {annual && <span className="text-xs text-slate-400"> /yr</span>}
+      </p>
+    </div>
+  );
 }
+
+function Row({ label, value, neg }) {
+  return (
+    <div className="flex justify-between py-1">
+      <span className="text-slate-600">{label}</span>
+      <span className={`${neg ? "text-red-500" : "text-slate-800"} font-medium`}>
+        {neg && "- "}₹{Math.round(value).toLocaleString()}
+      </span>
+    </div>
+  );
+}
+
+function ModalRow({ label, value, red }) {
+  return (
+    <div className="flex justify-between py-1">
+      <span className="text-slate-500">{label}</span>
+      <span className={`${red ? "text-red-500" : "text-slate-800"} font-semibold`}>
+        {red && "- "}₹{Math.round(value).toLocaleString()}
+      </span>
+    </div>
+  );
+}
+
+
+
+
+
