@@ -16,6 +16,12 @@ import HrOrgChart from "../../features/Hr/pages/HrOrgChart";
 import HrOffBoarding from "../../features/Hr/pages/HrOffBoarding";
 import HrLeaveApproval from "../../features/Hr/pages/HrLeaveApproval";
 
+import HrSalStatus from "../../features/Hr/pages/HrSalStatus";
+
+import HrOurOrganization from "../../features/Hr/pages/HrOurOrganization";
+
+import HrCalender from "../../features/Hr/pages/HrCalender";
+
 import { elements } from "chart.js";
 const hrRoutes = [
  
@@ -39,9 +45,20 @@ const hrRoutes = [
         path:ROUTES.HR.NOTIFICATION,
         element: < HrNotification/>
     },
+
+
+    {
+        path:ROUTES.HR.OURORGANIZATION,
+        element: < HrOurOrganization/>
+    },
+
     {
         path:ROUTES.HR.ONBOARDING,
         element: <HrOnboarding />
+    },
+    {
+        path:ROUTES.HR.HRCALENDER,
+        element: < HrCalender/>
     },
     {
         path:ROUTES.HR.PAYSLIPS,
@@ -74,6 +91,10 @@ const hrRoutes = [
     {
         path:ROUTES.HR.OFFBOARDING,
         element: < HrOffBoarding/>
+    },
+    {
+        path:ROUTES.HR.SALARYSTATUS,
+        element: < HrSalStatus/>
     }
 ];
 

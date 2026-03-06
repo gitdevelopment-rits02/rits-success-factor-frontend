@@ -37,6 +37,22 @@ const HrLayout = () => {
         path: "/hr/dashboard",
         icon: MdDashboard,
     },
+    {
+      name:"Salary status",
+      path:"/hr/salarystatus",
+      icon: FiDollarSign
+    },
+
+    {
+      name:"Our Organization",
+      path:"/hr/ourorganization",
+      icon: FiDollarSign
+    },
+    {
+      name:"Hr Holiday Calender",
+      path:"/hr/holidaycalender",
+      icon: FiDollarSign
+    },
     // {
     //     name:"ClockMyTime",
     //     path:"/hr/clockmytime",

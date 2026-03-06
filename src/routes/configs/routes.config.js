@@ -101,7 +101,10 @@ export const ROUTES = {
     TIMESHEET:"/hr/timesheet",
     ORGCHART:"/hr/orgchart",
     OFFBOARDING:"/hr/offboarding",
-    LEAVEAPPROVAL:"/hr/leaveapproval"
+    LEAVEAPPROVAL:"/hr/leaveapproval",
+    SALARYSTATUS:"/hr/salarystatus",
+    OURORGANIZATION:"/hr/ourorganization",
+    HRCALENDER:"/hr/holidaycalender"
 
 
   },
