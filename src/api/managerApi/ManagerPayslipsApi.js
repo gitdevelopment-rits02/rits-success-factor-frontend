@@ -22,14 +22,7 @@ const managerPayslipsApi = {
     return response.data;
   },
 
-  /* GET PDF */
-  getManagerPayslipPdf: async (month, year) => {
-    const response = await axiosInstance.get(
-      `/manager/payslips/download?month=${month}&year=${year}`,
-      { responseType: "blob" }
-    );
-    return response.data;
-  },
+  
 };
 
 export default managerPayslipsApi;
