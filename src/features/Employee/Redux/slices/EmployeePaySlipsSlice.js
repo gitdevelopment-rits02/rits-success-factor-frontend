@@ -1,5 +1,5 @@
 ﻿import { createSlice } from "@reduxjs/toolkit";
-import { fetchMyPayslip, fetchMyPayslipHistory, fetchMyPayslipPdf } 
+import { fetchMyPayslip, fetchMyPayslipHistory,  } 
 from "../thunks/EmployeePaySlipsThunk";
 
 
@@ -13,7 +13,7 @@ const initialState = {
   historyError: null,
 
   //pdf
-  pdfLoading: false,
+  // pdfLoading: false,
 
 };
 
@@ -58,17 +58,17 @@ const employeePaySlipsSlice = createSlice({
 .addCase(fetchMyPayslipHistory.rejected, (state, action) => {
   state.historyLoading = false;
   state.historyError = action.payload || "Failed to fetch history";
-})
-//pdf
-.addCase(fetchMyPayslipPdf.pending, (state) => {
-  state.pdfLoading = true;
-})
-.addCase(fetchMyPayslipPdf.fulfilled, (state) => {
-  state.pdfLoading = false;
-})
-.addCase(fetchMyPayslipPdf.rejected, (state) => {
-  state.pdfLoading = false;
 });
+// //pdf
+// .addCase(fetchMyPayslipPdf.pending, (state) => {
+//   state.pdfLoading = true;
+// })
+// .addCase(fetchMyPayslipPdf.fulfilled, (state) => {
+//   state.pdfLoading = false;
+// })
+// .addCase(fetchMyPayslipPdf.rejected, (state) => {
+//   state.pdfLoading = false;
+// });
 
 
   },

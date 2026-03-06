@@ -28,16 +28,3 @@ export const fetchMyPayslipHistory = createAsyncThunk(
   }
 );
 
-export const fetchMyPayslipPdf = createAsyncThunk(
-  "employeePaySlips/fetchMyPayslipPdf",
-  async ({ month, year }, { rejectWithValue }) => {
-    try {
-      const pdfBlob = await employeePaySlipsApi.getMyPayslipPdf(month, year);
-      return pdfBlob;
-    } catch (error) {
-      return rejectWithValue(
-        error.response?.data || "Failed to download PDF"
-      );
-    }
-  }
-);

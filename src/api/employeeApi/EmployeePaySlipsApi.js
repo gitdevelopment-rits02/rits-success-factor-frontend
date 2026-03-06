@@ -19,15 +19,7 @@ const employeePaySlipsApi = {
   return response.data;   // <-- this is an ARRAY
 },
 
-getMyPayslipPdf: async (month, year) => {
-  const response = await axiosInstance.get(
-    `/employee/my-payslip-pdf?month=${month}&year=${year}`,
-    {
-      responseType: "blob",   // <-- VERY IMPORTANT for PDF
-    }
-  );
-  return response.data; // this is the PDF file
-},
+
 
 
 

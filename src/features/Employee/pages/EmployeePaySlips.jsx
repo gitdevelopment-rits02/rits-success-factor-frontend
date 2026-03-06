@@ -3,9 +3,11 @@ import { FaCalendarAlt, FaRegCalendar } from "react-icons/fa";
 import { FaDownload, FaEye, FaListUl } from "react-icons/fa";
 import bgWave from "../../../assets/background.png";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchMyPayslip, fetchMyPayslipHistory, fetchMyPayslipPdf } from "../Redux/thunks/EmployeePaySlipsThunk";
+import { fetchMyPayslip, fetchMyPayslipHistory} from "../Redux/thunks/EmployeePaySlipsThunk";
 import EmployeePayslipSkeleton from "./EmployeePayslipsSkeleton";
-
+import jsPDF from "jspdf";
+import autoTable from "jspdf-autotable";
+import companyLogo from "../../../assets/companyLogo.png";
 
 const monthNames = {
   1: "January",
@@ -20,6 +22,15 @@ const monthNames = {
   10: "October",
   11: "November",
   12: "December",
+};
+
+const loadImage = (src) => {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    img.src = src;
+    img.onload = () => resolve(img);
+    img.onerror = reject;
+  });
 };
 
 const monthNumberMap = {
@@ -133,35 +144,89 @@ const history = allHistory
 
 
 
-
-  /* PDF  */
 const downloadPDF = async (data) => {
   try {
-    const pdfBlob = await dispatch(
-      fetchMyPayslipPdf({
+
+    const result = await dispatch(
+      fetchMyPayslip({
         month: data.monthNum,
-        year: Number(data.year),
+        year: Number(data.year)
       })
     ).unwrap();
 
-    const url = window.URL.createObjectURL(pdfBlob);
-    const link = document.createElement("a");
-    link.href = url;
-    link.download = `Payslip_${data.month}_${data.year}.pdf`;
+    const { employee, payrollPeriod, earnings, deductions, netPay, totalCTC } = result;
 
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+    const monthName = monthNames[payrollPeriod.month];
+    const periodText = `${monthName} ${payrollPeriod.year}`;
+
+    const doc = new jsPDF();
+
+    const logoImg = await loadImage(companyLogo);
+
+    doc.addImage(logoImg, "PNG", 7, -3, 48, 34);
+
+    doc.setFont("helvetica","bold");
+    doc.setFontSize(16);
+    doc.text("Revappayya IT Services Pvt Ltd",64,12);
+
+    doc.setFont("helvetica","normal");
+    doc.setFontSize(9);
+
+    doc.text("HO: Shree Shaila Nilaya, 13th Cross, 22nd Main Road,",14,22);
+    doc.text("Virat Nagar, Bommanahalli, Bangalore, KA 560068, India",14,27);
+    doc.text("RO: Unit no-2201A, 22nd floor, WTC Bangalore, Brigade Gateway, Bangalore - 560055",14,32);
+
+    doc.text("Email: support@revappayyaitservices.com | www.revappayyaitservices.com",14,37);
+
+    doc.line(14,40,196,40);
+
+    doc.setFontSize(11);
+    doc.text(`Salary Slip for the month of ${periodText}`,105,48,{align:"center"});
+
+    autoTable(doc,{
+      startY:52,
+      theme:"grid",
+      styles:{fontSize:8},
+      body:[
+        ["Name",employee.employeeName,"Period",periodText],
+        ["Designation",employee.designation,"Employee ID",employee.employeeNo],
+        ["Department","","Bank A/C",""],
+        ["Payment Mode","Bank Transfer","No of Days",""],
+      ]
+    });
+
+    autoTable(doc,{
+      startY:doc.lastAutoTable.finalY + 5,
+      theme:"grid",
+      styles:{fontSize:8},
+      head:[["Earnings","Amount (Rs)","Deductions","Amount (Rs)"]],
+      body:[
+        ["Basic",earnings.basic,"PF - Employee",deductions.providentFund],
+        ["HRA",earnings.hra,"Professional Tax",deductions.professionalTax],
+        ["Conveyance",earnings.conveyance,"Medical Insurance",deductions.medicalInsurance],
+        ["Special Allowance",earnings.specialAllowance,"",""],
+        ["Gross Salary",earnings.gross,"Total Deductions",deductions.totalDeductions],
+      ]
+    });
+
+    const netY = doc.lastAutoTable.finalY + 10;
+
+    doc.setFontSize(11);
+    doc.text(`Net Salary : Rs ${netPay.toLocaleString()}`,14,netY);
+
+    doc.text(`Total CTC (Per Year) : Rs ${totalCTC.toLocaleString()}`,130,netY);
+
+    doc.setFontSize(7);
+
+    doc.text("This is a computer generated slip and does not require signature.",14,netY + 12);
+    doc.text("This document contains confidential information.",14,netY + 17);
+
+    doc.save(`Payslip_${employee.employeeName}_${periodText}.pdf`);
 
   } catch (err) {
-    console.error("PDF download failed:", err);
-    alert("Failed to download payslip");
+    console.error("PDF generation failed:",err);
   }
 };
-
-
-
-
 
 const modalStructure = payslip
   ? {

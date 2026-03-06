@@ -1,5 +1,5 @@
 import { createSlice } from "@reduxjs/toolkit";
-import {fetchManagerPayslip,fetchManagerPayslipHistory,fetchManagerPayslipPdf,} from "../thunks/ManagerPayslipsThunk";
+import {fetchManagerPayslip,fetchManagerPayslipHistory} from "../thunks/ManagerPayslipsThunk";
 
 const initialState = {
   loading: false,
@@ -10,7 +10,7 @@ const initialState = {
   historyData: [],
   historyError: null,
 
-  pdfLoading: false,
+  
 };
 
 const managerPayslipsSlice = createSlice({
@@ -46,18 +46,9 @@ const managerPayslipsSlice = createSlice({
       .addCase(fetchManagerPayslipHistory.rejected, (state, action) => {
         state.historyLoading = false;
         state.historyError = action.payload;
-      })
-
-      /* PDF */
-      .addCase(fetchManagerPayslipPdf.pending, (state) => {
-        state.pdfLoading = true;
-      })
-      .addCase(fetchManagerPayslipPdf.fulfilled, (state) => {
-        state.pdfLoading = false;
-      })
-      .addCase(fetchManagerPayslipPdf.rejected, (state) => {
-        state.pdfLoading = false;
       });
+
+      
   },
 });
 

@@ -34,11 +34,12 @@ export const fetchPayslipPdfThunk = createAsyncThunk(
   "superAdmin/payroll/fetchPayslipPdf",
   async (payrollId, { rejectWithValue }) => {
     try {
-      const pdfBlob = await SuperAdminPayrollApi.getPayslipPdf(payrollId);
-
-      return { payrollId, pdfBlob };
+      const data = await SuperAdminPayrollApi.getPayslipPdf(payrollId);
+      return data.data;
     } catch (error) {
-      return rejectWithValue(error.response?.data || "Failed to download payslip");
+      return rejectWithValue(
+        error.response?.data || "Failed to fetch payslip data"
+      );
     }
   }
 );
