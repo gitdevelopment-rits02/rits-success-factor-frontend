@@ -1,22 +1,7 @@
-// import { configureStore } from "@reduxjs/toolkit";
-// import rootReducer from './rootReducer';
-// import { injectStore } from "../api/axionInstance"
-
-// export const store = configureStore({
-//   reducer: rootReducer,
-//   middleware: (getDefaultMiddleware) =>
-//     getDefaultMiddleware({
-//       serializableCheck: false,
-//     }),
-// });
-
-// injectStore(store);
 import { configureStore } from "@reduxjs/toolkit";
-import rootReducer from "./rootReducer";
+import { createReducerManager, staticReducers } from "./reducerManager";
 
-// --- Restore auth from localStorage BEFORE store creation ---
-// This prevents the race condition where ProtectedRoute renders before
-// useEffect can dispatch restoreAuth.
+// Helper to restore auth state from localStorage
 const loadAuthState = () => {
   try {
     const token = localStorage.getItem("token");
@@ -29,7 +14,7 @@ const loadAuthState = () => {
             user,
             isAuthenticated: true,
             restoring: false,
-          },
+          }
         },
       };
     }
@@ -41,12 +26,15 @@ const loadAuthState = () => {
 };
 
 const preloadedState = loadAuthState();
+const reducerManager = createReducerManager(staticReducers);
 
 export const store = configureStore({
-  reducer: rootReducer,
+  reducer: reducerManager.reduce,
   preloadedState,
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({
       serializableCheck: false,
     }),
 });
+
+store.reducerManager = reducerManager;
