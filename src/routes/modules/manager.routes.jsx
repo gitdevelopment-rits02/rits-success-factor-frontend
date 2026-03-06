@@ -1,40 +1,44 @@
-import { ROUTES } from "../configs/routes.config";
-import ManagerClockMyTime from "../../features/Manager/pages/ManagerClockMyTime";
-import ManagerRequestTimeOff from "../../features/Manager/pages/ManagerRequestTimeOff";
-import ManagerOrgChart from "../../features/Manager/pages/ManagerOrgChart";
-import ManagerInsurance from "../../features/Manager/pages/ManagerInsurance";
-import ManagerLeaveApproval from "../../features/Manager/pages/ManagerLeaveApproval";
-import ManagerNotification from "../../features/Manager/pages/ManagerNotification";
-import ManagerDashboard from "../../features/Manager/pages/ManagerDashboard";
-// import ManagerTimesheetReview from "../../features/Manager/pages/ManagerTimesheet";
-import ManagerPayslips from "../../features/Manager/pages/ManagerPayslips";
-import ManagerTimesheet from "../../features/Manager/pages/ManagerTimesheet";
-import ManagerPolicyDocuments from "../../features/Manager/pages/ManagerPolicyDocuments";
-import ManagerFeedBackOfEmployee from "../../features/Manager/pages/ManagerFeedBackOfEmployee";
-import ManagerTaskAndProjectTracking from "../../features/Manager/pages/ManagerTaskAndProjectTracking";
+import React, { Suspense } from "react";
+import PageLoader from "../../components/PageLoader";
 
-import ManagerTimeSheetReview from "../../features/Manager/pages/ManagerTimeSheetReview";
-import ManagerPerformanceReview from "../../features/Manager/pages/ManagerPerformanceReview";
-import ManagerViewMyProfile from "../../features/Manager/pages/ManagerViewMyProfile";
-import ManagerTaskAssignment from "../../features/Manager/pages/ManagerTaskAssignment";
+const ManagerClockMyTime = React.lazy(() => import("../../features/Manager/pages/ManagerClockMyTime"));
+const ManagerDashboard = React.lazy(() => import("../../features/Manager/pages/ManagerDashboard"));
+const ManagerRequestTimeOff = React.lazy(() => import("../../features/Manager/pages/ManagerRequestTimeOff"));
+const ManagerViewMyProfile = React.lazy(() => import("../../features/Manager/pages/ManagerViewMyProfile"));
+const ManagerOrgChart = React.lazy(() => import("../../features/Manager/pages/ManagerOrgChart"));
+const ManagerNotification = React.lazy(() => import("../../features/Manager/pages/ManagerNotification"));
+const ManagerInsurance = React.lazy(() => import("../../features/Manager/pages/ManagerInsurance"));
+const ManagerLeaveApproval = React.lazy(() => import("../../features/Manager/pages/ManagerLeaveApproval"));
+const ManagerPayslips = React.lazy(() => import("../../features/Manager/pages/ManagerPayslips"));
+const ManagerTimesheet = React.lazy(() => import("../../features/Manager/pages/ManagerTimesheet"));
+const ManagerTimeSheetReview = React.lazy(() => import("../../features/Manager/pages/ManagerTimeSheetReview"));
+const ManagerPolicyDocuments = React.lazy(() => import("../../features/Manager/pages/ManagerPolicyDocuments"));
+const ManagerFeedBackOfEmployee = React.lazy(() => import("../../features/Manager/pages/ManagerFeedBackOfEmployee"));
+const ManagerTaskAndProjectTracking = React.lazy(() => import("../../features/Manager/pages/ManagerTaskAndProjectTracking"));
+const ManagerPerformanceReview = React.lazy(() => import("../../features/Manager/pages/ManagerPerformanceReview"));
+const ManagerTaskAssignment = React.lazy(() => import("../../features/Manager/pages/ManagerTaskAssignment"));
 
-
+const lazy = (Component) => (
+  <Suspense fallback={<PageLoader />}>
+    <Component />
+  </Suspense>
+);
 
 export const managerRoutes = [
-  { path: "clockmytime", element: <ManagerClockMyTime /> },
-  { path: "dashboard", element: <ManagerDashboard /> },
-  { path: "requesttimeoff", element: <ManagerRequestTimeOff /> },
-  { path: "profile", element: <ManagerViewMyProfile /> },
-  { path: "orgchart", element: <ManagerOrgChart /> },
-  { path: "notification", element: <ManagerNotification /> },
-  { path: "insurance", element: <ManagerInsurance /> },
-  { path: "leaveapproval", element: <ManagerLeaveApproval /> },
-  { path: "payslips", element: <ManagerPayslips /> },
-  { path: "timesheet", element: <ManagerTimesheet /> },
-  { path: "timesheetreview", element: <ManagerTimeSheetReview /> },
-  { path: "policydocuments", element: <ManagerPolicyDocuments /> },
-  { path: "feedback", element: <ManagerFeedBackOfEmployee /> },
-  { path: "taskandproject", element: <ManagerTaskAndProjectTracking /> },
-  { path: "performancereview", element: <ManagerPerformanceReview /> },
-  {path:"taskassignment",element: <ManagerTaskAssignment />},
+  { path: "clockmytime", element: lazy(ManagerClockMyTime) },
+  { path: "dashboard", element: lazy(ManagerDashboard) },
+  { path: "requesttimeoff", element: lazy(ManagerRequestTimeOff) },
+  { path: "profile", element: lazy(ManagerViewMyProfile) },
+  { path: "orgchart", element: lazy(ManagerOrgChart) },
+  { path: "notification", element: lazy(ManagerNotification) },
+  { path: "insurance", element: lazy(ManagerInsurance) },
+  { path: "leaveapproval", element: lazy(ManagerLeaveApproval) },
+  { path: "payslips", element: lazy(ManagerPayslips) },
+  { path: "timesheet", element: lazy(ManagerTimesheet) },
+  { path: "timesheetreview", element: lazy(ManagerTimeSheetReview) },
+  { path: "policydocuments", element: lazy(ManagerPolicyDocuments) },
+  { path: "feedback", element: lazy(ManagerFeedBackOfEmployee) },
+  { path: "taskandproject", element: lazy(ManagerTaskAndProjectTracking) },
+  { path: "performancereview", element: lazy(ManagerPerformanceReview) },
+  { path: "taskassignment", element: lazy(ManagerTaskAssignment) },
 ];
