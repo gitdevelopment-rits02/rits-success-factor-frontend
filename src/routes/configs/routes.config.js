@@ -104,7 +104,8 @@ export const ROUTES = {
     LEAVEAPPROVAL:"/hr/leaveapproval",
     SALARYSTATUS:"/hr/salarystatus",
     OURORGANIZATION:"/hr/ourorganization",
-    HRCALENDER:"/hr/holidaycalender"
+    HRCALENDER:"/hr/holidaycalender",
+    ANNOUNCEMENT:"/hr/announcement"
 
 
   },

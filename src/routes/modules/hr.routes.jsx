@@ -22,6 +22,9 @@ import HrOurOrganization from "../../features/Hr/pages/HrOurOrganization";
 
 import HrCalender from "../../features/Hr/pages/HrCalender";
 
+
+import HrAnnouncements from "../../features/Hr/pages/HrAnnouncements";
+
 import { elements } from "chart.js";
 const hrRoutes = [
  
@@ -32,6 +35,10 @@ const hrRoutes = [
     {
         path:ROUTES.HR.LEAVEAPPROVAL,
         element: <HrLeaveApproval/>
+    },
+    {
+        path:ROUTES.HR.ANNOUNCEMENT,
+        element: <HrAnnouncements />
     },
     {
         path:ROUTES.HR.CLOCKMYTIME,
