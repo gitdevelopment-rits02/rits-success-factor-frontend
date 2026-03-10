@@ -3,7 +3,7 @@ import { FaCalendarAlt, FaRegCalendar } from "react-icons/fa";
 import { FaDownload, FaEye, FaListUl } from "react-icons/fa";
 import bgWave from "../../../assets/background.png";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchMyPayslip, fetchMyPayslipHistory} from "../Redux/thunks/EmployeePaySlipsThunk";
+import { fetchMyPayslip, fetchMyPayslipHistory } from "../Redux/thunks/EmployeePaySlipsThunk";
 import EmployeePayslipSkeleton from "./EmployeePayslipsSkeleton";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
@@ -50,63 +50,63 @@ const monthNumberMap = {
 
 /* Component  */
 export default function EmployeePayrollUI() {
-const dispatch = useDispatch();
+  const dispatch = useDispatch();
 
-const {
-  data: payslip,
-  loading,
-  error,
-  historyData,
-} = useSelector((state) => state.employee.paySlips);
+  const {
+    data: payslip,
+    loading,
+    error,
+    historyData,
+  } = useSelector((state) => state.employee.paySlips);
 
-const [allHistory, setAllHistory] = useState([]);
-const [showBreakdown, setShowBreakdown] = useState(false);
-const today = new Date();
-const currentMonth = today.getMonth() + 1;   
-const currentYear = today.getFullYear();
+  const [allHistory, setAllHistory] = useState([]);
+  const [showBreakdown, setShowBreakdown] = useState(false);
+  const today = new Date();
+  const currentMonth = today.getMonth() + 1;
+  const currentYear = today.getFullYear();
 
-useEffect(() => {
-  dispatch(fetchMyPayslip({ 
-    month: currentMonth, 
-    year: currentYear 
-  }));
+  useEffect(() => {
+    dispatch(fetchMyPayslip({
+      month: currentMonth,
+      year: currentYear
+    }));
 
 
 
-dispatch(fetchMyPayslipHistory({ 
-  year: currentYear 
-}));
+    dispatch(fetchMyPayslipHistory({
+      year: currentYear
+    }));
 
-}, [dispatch]);
+  }, [dispatch]);
 
-useEffect(() => {
-  console.log("HISTORY FROM REDUX:", historyData);
-}, [historyData]);
+  useEffect(() => {
+    // console.log("HISTORY FROM REDUX:", historyData);
+  }, [historyData]);
 
-useEffect(() => {
-  if (historyData?.length && allHistory.length === 0) {
-    setAllHistory(historyData);
-  }
-}, [historyData, allHistory.length]);
+  useEffect(() => {
+    if (historyData?.length && allHistory.length === 0) {
+      setAllHistory(historyData);
+    }
+  }, [historyData, allHistory.length]);
 
-const [historyYear, setHistoryYear] = useState("All");
-const [historyMonth, setHistoryMonth] = useState("All");
-const [initialLoading, setInitialLoading] = useState(true);
+  const [historyYear, setHistoryYear] = useState("All");
+  const [historyMonth, setHistoryMonth] = useState("All");
+  const [initialLoading, setInitialLoading] = useState(true);
 
-useEffect(() => {
-  const timer = setTimeout(() => {
-    setInitialLoading(false);
-  }, 1500);
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setInitialLoading(false);
+    }, 1500);
 
-  return () => clearTimeout(timer);
-}, []);
+    return () => clearTimeout(timer);
+  }, []);
 
-const [modalData, setModalData] = useState(null);
-const currentCTC = payslip?.totalCTC ?? 0;
+  const [modalData, setModalData] = useState(null);
+  const currentCTC = payslip?.totalCTC ?? 0;
 
 
   const structure = payslip
-  ? {
+    ? {
       basic: payslip.earnings.basic,
       hra: payslip.earnings.hra,
       conveyance: payslip.earnings.conveyance,
@@ -120,116 +120,116 @@ const currentCTC = payslip?.totalCTC ?? 0;
       totalDeductions: payslip.deductions.totalDeductions,
       netPay: payslip.netPay,
     }
-  : null;
+    : null;
 
 
-const history = allHistory
-  .filter(item => {
-    const yearMatch =
-      historyYear === "All" || Number(historyYear) === item.year;
+  const history = allHistory
+    .filter(item => {
+      const yearMatch =
+        historyYear === "All" || Number(historyYear) === item.year;
 
-    const monthMatch =
-      historyMonth === "All" || monthNumberMap[historyMonth] === item.month;
+      const monthMatch =
+        historyMonth === "All" || monthNumberMap[historyMonth] === item.month;
 
-    return yearMatch && monthMatch;
-  })
-  .map(item => ({
-    monthNum: item.month,
-    month: monthNames[item.month],
-    year: String(item.year),
-    status: item.status,
-    net: item.salary?.netPay ?? 0,
-    gross: item.salary?.gross ?? 0
-  }));
+      return yearMatch && monthMatch;
+    })
+    .map(item => ({
+      monthNum: item.month,
+      month: monthNames[item.month],
+      year: String(item.year),
+      status: item.status,
+      net: item.salary?.netPay ?? 0,
+      gross: item.salary?.gross ?? 0
+    }));
 
 
 
-const downloadPDF = async (data) => {
-  try {
+  const downloadPDF = async (data) => {
+    try {
 
-    const result = await dispatch(
-      fetchMyPayslip({
-        month: data.monthNum,
-        year: Number(data.year)
-      })
-    ).unwrap();
+      const result = await dispatch(
+        fetchMyPayslip({
+          month: data.monthNum,
+          year: Number(data.year)
+        })
+      ).unwrap();
 
-    const { employee, payrollPeriod, earnings, deductions, netPay, totalCTC } = result;
+      const { employee, payrollPeriod, earnings, deductions, netPay, totalCTC } = result;
 
-    const monthName = monthNames[payrollPeriod.month];
-    const periodText = `${monthName} ${payrollPeriod.year}`;
+      const monthName = monthNames[payrollPeriod.month];
+      const periodText = `${monthName} ${payrollPeriod.year}`;
 
-    const doc = new jsPDF();
+      const doc = new jsPDF();
 
-    const logoImg = await loadImage(companyLogo);
+      const logoImg = await loadImage(companyLogo);
 
-    doc.addImage(logoImg, "PNG", 7, -3, 48, 34);
+      doc.addImage(logoImg, "PNG", 7, -3, 48, 34);
 
-    doc.setFont("helvetica","bold");
-    doc.setFontSize(16);
-    doc.text("Revappayya IT Services Pvt Ltd",64,12);
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(16);
+      doc.text("Revappayya IT Services Pvt Ltd", 64, 12);
 
-    doc.setFont("helvetica","normal");
-    doc.setFontSize(9);
+      doc.setFont("helvetica", "normal");
+      doc.setFontSize(9);
 
-    doc.text("HO: Shree Shaila Nilaya, 13th Cross, 22nd Main Road,",14,22);
-    doc.text("Virat Nagar, Bommanahalli, Bangalore, KA 560068, India",14,27);
-    doc.text("RO: Unit no-2201A, 22nd floor, WTC Bangalore, Brigade Gateway, Bangalore - 560055",14,32);
+      doc.text("HO: Shree Shaila Nilaya, 13th Cross, 22nd Main Road,", 14, 22);
+      doc.text("Virat Nagar, Bommanahalli, Bangalore, KA 560068, India", 14, 27);
+      doc.text("RO: Unit no-2201A, 22nd floor, WTC Bangalore, Brigade Gateway, Bangalore - 560055", 14, 32);
 
-    doc.text("Email: support@revappayyaitservices.com | www.revappayyaitservices.com",14,37);
+      doc.text("Email: support@revappayyaitservices.com | www.revappayyaitservices.com", 14, 37);
 
-    doc.line(14,40,196,40);
+      doc.line(14, 40, 196, 40);
 
-    doc.setFontSize(11);
-    doc.text(`Salary Slip for the month of ${periodText}`,105,48,{align:"center"});
+      doc.setFontSize(11);
+      doc.text(`Salary Slip for the month of ${periodText}`, 105, 48, { align: "center" });
 
-    autoTable(doc,{
-      startY:52,
-      theme:"grid",
-      styles:{fontSize:8},
-      body:[
-        ["Name",employee.employeeName,"Period",periodText],
-        ["Designation",employee.designation,"Employee ID",employee.employeeNo],
-        ["Department","","Bank A/C",""],
-        ["Payment Mode","Bank Transfer","No of Days",""],
-      ]
-    });
+      autoTable(doc, {
+        startY: 52,
+        theme: "grid",
+        styles: { fontSize: 8 },
+        body: [
+          ["Name", employee.employeeName, "Period", periodText],
+          ["Designation", employee.designation, "Employee ID", employee.employeeNo],
+          ["Department", "", "Bank A/C", ""],
+          ["Payment Mode", "Bank Transfer", "No of Days", ""],
+        ]
+      });
 
-    autoTable(doc,{
-      startY:doc.lastAutoTable.finalY + 5,
-      theme:"grid",
-      styles:{fontSize:8},
-      head:[["Earnings","Amount (Rs)","Deductions","Amount (Rs)"]],
-      body:[
-        ["Basic",earnings.basic,"PF - Employee",deductions.providentFund],
-        ["HRA",earnings.hra,"Professional Tax",deductions.professionalTax],
-        ["Conveyance",earnings.conveyance,"Medical Insurance",deductions.medicalInsurance],
-        ["Special Allowance",earnings.specialAllowance,"",""],
-        ["Gross Salary",earnings.gross,"Total Deductions",deductions.totalDeductions],
-      ]
-    });
+      autoTable(doc, {
+        startY: doc.lastAutoTable.finalY + 5,
+        theme: "grid",
+        styles: { fontSize: 8 },
+        head: [["Earnings", "Amount (Rs)", "Deductions", "Amount (Rs)"]],
+        body: [
+          ["Basic", earnings.basic, "PF - Employee", deductions.providentFund],
+          ["HRA", earnings.hra, "Professional Tax", deductions.professionalTax],
+          ["Conveyance", earnings.conveyance, "Medical Insurance", deductions.medicalInsurance],
+          ["Special Allowance", earnings.specialAllowance, "", ""],
+          ["Gross Salary", earnings.gross, "Total Deductions", deductions.totalDeductions],
+        ]
+      });
 
-    const netY = doc.lastAutoTable.finalY + 10;
+      const netY = doc.lastAutoTable.finalY + 10;
 
-    doc.setFontSize(11);
-    doc.text(`Net Salary : Rs ${netPay.toLocaleString()}`,14,netY);
+      doc.setFontSize(11);
+      doc.text(`Net Salary : Rs ${netPay.toLocaleString()}`, 14, netY);
 
-    doc.text(`Total CTC (Per Year) : Rs ${totalCTC.toLocaleString()}`,130,netY);
+      doc.text(`Total CTC (Per Year) : Rs ${totalCTC.toLocaleString()}`, 130, netY);
 
-    doc.setFontSize(7);
+      doc.setFontSize(7);
 
-    doc.text("This is a computer generated slip and does not require signature.",14,netY + 12);
-    doc.text("This document contains confidential information.",14,netY + 17);
+      doc.text("This is a computer generated slip and does not require signature.", 14, netY + 12);
+      doc.text("This document contains confidential information.", 14, netY + 17);
 
-    doc.save(`Payslip_${employee.employeeName}_${periodText}.pdf`);
+      doc.save(`Payslip_${employee.employeeName}_${periodText}.pdf`);
 
-  } catch (err) {
-    console.error("PDF generation failed:",err);
-  }
-};
+    } catch (err) {
+      console.error("PDF generation failed:", err);
+    }
+  };
 
-const modalStructure = payslip
-  ? {
+  const modalStructure = payslip
+    ? {
       basic: payslip.earnings.basic,
       hra: payslip.earnings.hra,
       conveyance: payslip.earnings.conveyance,
@@ -242,14 +242,14 @@ const modalStructure = payslip
       netPay: payslip.netPay,
       ctc: currentCTC,
     }
-  : null;
+    : null;
 
-if (initialLoading) {
-  return <EmployeePayslipSkeleton />;
-}
+  if (initialLoading) {
+    return <EmployeePayslipSkeleton />;
+  }
 
   return (
-     <div
+    <div
       className="min-h-screen p-6 font-sans text-slate-800"
       style={{
         backgroundImage: `url(${bgWave})`,
@@ -261,43 +261,43 @@ if (initialLoading) {
 
 
 
-<div className="bg-white rounded-3xl p-8 shadow-lg flex flex-col md:flex-row justify-between items-center gap-6">
+        <div className="bg-white rounded-3xl p-8 shadow-lg flex flex-col md:flex-row justify-between items-center gap-6">
 
-  <div className="flex flex-col justify-center">
-  {/*  Name */}
-  <h1 className="text-3xl font-bold text-slate-800">
-    {payslip.employee.employeeName}
-  </h1>
+          <div className="flex flex-col justify-center">
+            {/*  Name */}
+            <h1 className="text-3xl font-bold text-slate-800">
+              {payslip.employee.employeeName}
+            </h1>
 
-  {/* Designation with label */}
-  <p className="text-sm text-slate-600 mt-1">
-    <span className="font-semibold">Designation :</span>{" "}
-    {payslip.employee.designation}
-  </p>
+            {/* Designation with label */}
+            <p className="text-sm text-slate-600 mt-1">
+              <span className="font-semibold">Designation :</span>{" "}
+              {payslip.employee.designation}
+            </p>
 
-  {/* Employee ID with label */}
-  <p className="text-sm text-slate-600">
-    <span className="font-semibold">Employee ID :</span>{" "}
-    {payslip.employee.employeeNo}
-  </p>
-</div>
+            {/* Employee ID with label */}
+            <p className="text-sm text-slate-600">
+              <span className="font-semibold">Employee ID :</span>{" "}
+              {payslip.employee.employeeNo}
+            </p>
+          </div>
 
 
-  {/* Right side payroll period */}
-  <div className="text-center md:text-right">
-    <p className="text-sm text-slate-400">Payroll Period</p>
-    <p className="text-2xl font-bold text-indigo-600">
-      {monthNames[payslip.payrollPeriod.month]} / {payslip.payrollPeriod.year}
-    </p>
-  </div>
-</div>
+          {/* Right side payroll period */}
+          <div className="text-center md:text-right">
+            <p className="text-sm text-slate-400">Payroll Period</p>
+            <p className="text-2xl font-bold text-indigo-600">
+              {monthNames[payslip.payrollPeriod.month]} / {payslip.payrollPeriod.year}
+            </p>
+          </div>
+        </div>
 
         {/* KPI */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-        <KPI className="bg-slate-50" title="Gross Salary" value={structure.gross} />
-        <KPI className="bg-slate-50" title="Deductions" value={structure.totalDeductions} />
-        <KPI className="bg-slate-50" title="Net Pay" value={structure.netPay} />
-        <KPI className="bg-slate-50" title="Total CTC" value={currentCTC} annual />
+          <KPI className="bg-slate-50" title="Gross Salary" value={structure.gross} />
+          <KPI className="bg-slate-50" title="Deductions" value={structure.totalDeductions} />
+          <KPI className="bg-slate-50" title="Net Pay" value={structure.netPay} />
+          <KPI className="bg-slate-50" title="Total CTC" value={currentCTC} annual />
         </div>
 
         {/* Salary Breakdown */}
@@ -318,9 +318,9 @@ if (initialLoading) {
 
             <div className="bg-red-50/40 rounded-2xl p-4">
               <p className="text-xs uppercase tracking-widest text-slate-400 font-semibold mb-3">Deductions</p>
-             <Row label="Provident Fund" value={structure.employeePF} neg />
-             <Row label="Professional Tax" value={structure.professionalTax} neg />
-             <Row label="Medical Insurance" value={structure.medicalInsurance} neg />
+              <Row label="Provident Fund" value={structure.employeePF} neg />
+              <Row label="Professional Tax" value={structure.professionalTax} neg />
+              <Row label="Medical Insurance" value={structure.medicalInsurance} neg />
 
               <div className="border-t pt-3 mt-3 flex justify-between font-semibold text-red-600">
                 <span>Total Deductions</span>
@@ -339,164 +339,164 @@ if (initialLoading) {
 
         {/* History */}
         <div className="bg-white rounded-3xl p-6 shadow-lg">
-       <div className="flex items-center mb-4">
-       <h3 className="text-lg font-semibold flex items-center gap-2 text-slate-700">
-      <FaListUl className="text-indigo-500" /> Payment History
-      </h3>
+          <div className="flex items-center mb-4">
+            <h3 className="text-lg font-semibold flex items-center gap-2 text-slate-700">
+              <FaListUl className="text-indigo-500" /> Payment History
+            </h3>
 
 
-  <div className="ml-auto flex items-center gap-6">
-<div className="ml-auto flex items-center gap-4">
-  {/* YEAR DROPDOWN */}
-  <div className="relative">
-    <FaCalendarAlt className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm pointer-events-none" />
-    <select
-      value={historyYear}
-      onChange={(e) => setHistoryYear(e.target.value)}
-      className="pl-9 pr-4 py-2.5 rounded-xl border border-gray-200 bg-white shadow-sm text-[13px] font-medium outline-none focus:ring-2 focus:ring-blue-200 focus:border-blue-400 transition-all">
-      <option value="All">All Years</option>
-      {[...new Set(allHistory.map(h => h.year))]
-.map(y => (
-        <option key={y} value={y}>{y}</option>
-      ))}
-    </select>
-  </div>
+            <div className="ml-auto flex items-center gap-6">
+              <div className="ml-auto flex items-center gap-4">
+                {/* YEAR DROPDOWN */}
+                <div className="relative">
+                  <FaCalendarAlt className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm pointer-events-none" />
+                  <select
+                    value={historyYear}
+                    onChange={(e) => setHistoryYear(e.target.value)}
+                    className="pl-9 pr-4 py-2.5 rounded-xl border border-gray-200 bg-white shadow-sm text-[13px] font-medium outline-none focus:ring-2 focus:ring-blue-200 focus:border-blue-400 transition-all">
+                    <option value="All">All Years</option>
+                    {[...new Set(allHistory.map(h => h.year))]
+                      .map(y => (
+                        <option key={y} value={y}>{y}</option>
+                      ))}
+                  </select>
+                </div>
 
-  {/* MONTH DROPDOWN */}
-  <div className="relative">
-    <FaRegCalendar className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm pointer-events-none" />
-    <select
-      value={historyMonth}
-      onChange={(e) => setHistoryMonth(e.target.value)}
-      className="pl-9 pr-4 py-2.5 rounded-xl border border-gray-200 bg-white shadow-sm text-[13px] font-medium outline-none focus:ring-2 focus:ring-blue-200 focus:border-blue-400 transition-all" >
-      <option value="All">Months</option>
-      {[...new Set(allHistory.map(h => monthNames[h.month]))].map(m => (
-        <option key={m} value={m}>{m}</option>
-      ))}
-    </select>
-  </div>
-</div>
-</div>
-</div>
+                {/* MONTH DROPDOWN */}
+                <div className="relative">
+                  <FaRegCalendar className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm pointer-events-none" />
+                  <select
+                    value={historyMonth}
+                    onChange={(e) => setHistoryMonth(e.target.value)}
+                    className="pl-9 pr-4 py-2.5 rounded-xl border border-gray-200 bg-white shadow-sm text-[13px] font-medium outline-none focus:ring-2 focus:ring-blue-200 focus:border-blue-400 transition-all" >
+                    <option value="All">Months</option>
+                    {[...new Set(allHistory.map(h => monthNames[h.month]))].map(m => (
+                      <option key={m} value={m}>{m}</option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+            </div>
+          </div>
 
-  {/* Desktop Table */}
-<div className="hidden md:block overflow-x-auto">
-  <table className="w-full text-sm table-fixed border-separate border-spacing-y-2">
-    <thead className="text-slate-500 text-[15px] font-semibold">
-      <tr>
-        <th className="text-center px-4 w-[15%]">Month</th>
-        <th className="text-center px-4 w-[20%]">Net Pay</th>
-        <th className="text-center px-4 w-[15%]">Status</th>
-        <th className="text-center px-4 w-[15%]">View</th>
-        <th className="text-center px-4 w-[15%]">Download</th>
-      </tr>
-    </thead>
-    <tbody>
-     {history.map((h,i)=> (
-        <tr
-          key={i}
-          className="bg-slate-50 rounded-xl shadow-sm hover:shadow-md transition">
+          {/* Desktop Table */}
+          <div className="hidden md:block overflow-x-auto">
+            <table className="w-full text-sm table-fixed border-separate border-spacing-y-2">
+              <thead className="text-slate-500 text-[15px] font-semibold">
+                <tr>
+                  <th className="text-center px-4 w-[15%]">Month</th>
+                  <th className="text-center px-4 w-[20%]">Net Pay</th>
+                  <th className="text-center px-4 w-[15%]">Status</th>
+                  <th className="text-center px-4 w-[15%]">View</th>
+                  <th className="text-center px-4 w-[15%]">Download</th>
+                </tr>
+              </thead>
+              <tbody>
+                {history.map((h, i) => (
+                  <tr
+                    key={i}
+                    className="bg-slate-50 rounded-xl shadow-sm hover:shadow-md transition">
 
-          <td className="px-4 py-3 text-center rounded-l-xl">
-            <div className="font-medium">{h.month}</div>
-            <div className="text-xs text-slate-400">{h.year}</div>
-          </td>
+                    <td className="px-4 py-3 text-center rounded-l-xl">
+                      <div className="font-medium">{h.month}</div>
+                      <div className="text-xs text-slate-400">{h.year}</div>
+                    </td>
 
-          <td className="px-4 py-3 text-center font-semibold">
-            ₹{Math.round(h.net).toLocaleString()}
-          </td>
+                    <td className="px-4 py-3 text-center font-semibold">
+                      ₹{Math.round(h.net).toLocaleString()}
+                    </td>
 
-          <td className="px-4 py-3 text-center text-green-600 font-medium">
-            {h.status}
-          </td>
+                    <td className="px-4 py-3 text-center text-green-600 font-medium">
+                      {h.status}
+                    </td>
 
-          <td className="px-4 py-3 text-center">
-            <button
-             onClick={async () => {
-            await dispatch(
-            fetchMyPayslip({ month: h.monthNum, year: Number(h.year) })
-            );
-          setModalData(h);
-          setShowBreakdown(true);
-        }}
-              className="text-indigo-600 hover:scale-110 transition">
-              <FaEye />
-            </button>
-          </td>
+                    <td className="px-4 py-3 text-center">
+                      <button
+                        onClick={async () => {
+                          await dispatch(
+                            fetchMyPayslip({ month: h.monthNum, year: Number(h.year) })
+                          );
+                          setModalData(h);
+                          setShowBreakdown(true);
+                        }}
+                        className="text-indigo-600 hover:scale-110 transition">
+                        <FaEye />
+                      </button>
+                    </td>
 
-          <td className="px-4 py-3 text-center rounded-r-xl">
-            <button
-              onClick={()=>downloadPDF(h)}
-              className="text-slate-400 hover:text-indigo-600 hover:scale-110 transition" >
-              <FaDownload />
-            </button>
-          </td>
-        </tr>
-      ))}
-    </tbody>
-  </table>
-</div>
+                    <td className="px-4 py-3 text-center rounded-r-xl">
+                      <button
+                        onClick={() => downloadPDF(h)}
+                        className="text-slate-400 hover:text-indigo-600 hover:scale-110 transition" >
+                        <FaDownload />
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
 
-{/* Mobile Cards */}
-<div className="md:hidden space-y-4">
-  {history.map((h,i)=> (
-    <div
-      key={i}
-      className="bg-white rounded-2xl p-4 shadow-md border border-slate-100">
-      <div className="flex justify-between items-center mb-2">
-        <div>
-          <p className="font-semibold text-slate-800">{h.month}</p>
-          <p className="text-xs text-slate-400">{h.year}</p>
+          {/* Mobile Cards */}
+          <div className="md:hidden space-y-4">
+            {history.map((h, i) => (
+              <div
+                key={i}
+                className="bg-white rounded-2xl p-4 shadow-md border border-slate-100">
+                <div className="flex justify-between items-center mb-2">
+                  <div>
+                    <p className="font-semibold text-slate-800">{h.month}</p>
+                    <p className="text-xs text-slate-400">{h.year}</p>
+                  </div>
+                  <span className="text-green-600 text-sm font-medium">{h.status}</span>
+                </div>
+
+                <div className="flex justify-between items-center mb-3">
+                  <span className="text-slate-500 text-sm">Net Pay</span>
+                  <span className="font-bold text-indigo-600">
+                    ₹{Math.round(h.net).toLocaleString()}
+                  </span>
+                </div>
+
+                <div className="flex justify-between items-center pt-2 border-t">
+                  <button
+                    onClick={async () => {
+                      await dispatch(
+                        fetchMyPayslip({ month: h.monthNum, year: Number(h.year) })
+                      );
+                      setModalData(h);
+                      setShowBreakdown(true);
+                    }}
+                    className="flex items-center gap-2 text-indigo-600 text-sm font-medium">
+                    <FaEye /> View
+                  </button>
+
+                  <button
+                    onClick={() => downloadPDF(h)}
+                    className="flex items-center gap-2 text-slate-600 text-sm font-medium">
+                    <FaDownload /> Download
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
-        <span className="text-green-600 text-sm font-medium">{h.status}</span>
-      </div>
-
-      <div className="flex justify-between items-center mb-3">
-        <span className="text-slate-500 text-sm">Net Pay</span>
-        <span className="font-bold text-indigo-600">
-          ₹{Math.round(h.net).toLocaleString()}
-        </span>
-      </div>
-
-      <div className="flex justify-between items-center pt-2 border-t">
-        <button
-          onClick={async () => {
-  await dispatch(
-    fetchMyPayslip({ month: h.monthNum, year: Number(h.year) })
-  );
-  setModalData(h);
-  setShowBreakdown(true);
-}}
-          className="flex items-center gap-2 text-indigo-600 text-sm font-medium">
-          <FaEye /> View
-        </button>
-
-        <button
-          onClick={()=>downloadPDF(h)}
-          className="flex items-center gap-2 text-slate-600 text-sm font-medium">
-          <FaDownload /> Download
-        </button>
-      </div>
-    </div>
-  ))}
-</div>
-</div>
         {/* Modal */}
         {showBreakdown && modalData && (
           <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50">
             <div className="bg-white rounded-3xl p-6 w-full max-w-xl shadow-2xl">
               <div className="flex justify-between items-center mb-4">
                 <h3 className="text-lg font-semibold">Payslip Breakdown</h3>
-                <button onClick={()=>setShowBreakdown(false)} className="text-slate-400 hover:text-red-500">✕</button>
+                <button onClick={() => setShowBreakdown(false)} className="text-slate-400 hover:text-red-500">✕</button>
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 text-sm">
                 <div className="bg-slate-50 rounded-xl p-3">
                   <h4 className="font-medium mb-2">Earnings</h4>
-                 <ModalRow label="Basic" value={modalStructure.basic} />
-                 <ModalRow label="HRA" value={modalStructure.hra} />
-                 <ModalRow label="Conveyance" value={modalStructure.conveyance} />
-                 <ModalRow label="Special Allowance" value={modalStructure.specialAllowance} />
+                  <ModalRow label="Basic" value={modalStructure.basic} />
+                  <ModalRow label="HRA" value={modalStructure.hra} />
+                  <ModalRow label="Conveyance" value={modalStructure.conveyance} />
+                  <ModalRow label="Special Allowance" value={modalStructure.specialAllowance} />
                 </div>
                 <div className="bg-red-50/40 rounded-xl p-3">
                   <h4 className="font-medium mb-2">Deductions</h4>
@@ -505,35 +505,35 @@ if (initialLoading) {
                   <ModalRow label="Insurance" value={modalStructure.medicalInsurance} red />
                 </div>
               </div>
-   <div className="mt-6 flex items-center justify-between gap-6">
-   <div className="flex items-center gap-10">
+              <div className="mt-6 flex items-center justify-between gap-6">
+                <div className="flex items-center gap-10">
 
-    {/* Monthly net pay */}
-    <div>
-      <p className="text-xs text-slate-400">Net Pay (Monthly)</p>
-      <p className="text-xl font-bold text-indigo-600">
-        ₹{Math.round(modalStructure.netPay).toLocaleString()}
-      </p>
-    </div>
+                  {/* Monthly net pay */}
+                  <div>
+                    <p className="text-xs text-slate-400">Net Pay (Monthly)</p>
+                    <p className="text-xl font-bold text-indigo-600">
+                      ₹{Math.round(modalStructure.netPay).toLocaleString()}
+                    </p>
+                  </div>
 
-    {/* CTC */}
-    <div>
-      <p className="text-xs text-slate-400">CTC (Per Year)</p>
-      <p className="text-xl font-bold text-indigo-600">
-       ₹{Math.round(payslip.totalCTC).toLocaleString()}
-      </p>
-    </div>
-  </div>
+                  {/* CTC */}
+                  <div>
+                    <p className="text-xs text-slate-400">CTC (Per Year)</p>
+                    <p className="text-xl font-bold text-indigo-600">
+                      ₹{Math.round(payslip.totalCTC).toLocaleString()}
+                    </p>
+                  </div>
+                </div>
 
-  {/*  Download */}
-  <button
-    onClick={()=>downloadPDF(modalData)}
-    className="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-3 rounded-xl flex items-center gap-2 shadow-md">
-    <FaDownload /> Download
-  </button>
-</div>
-</div>
-</div>
+                {/*  Download */}
+                <button
+                  onClick={() => downloadPDF(modalData)}
+                  className="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-3 rounded-xl flex items-center gap-2 shadow-md">
+                  <FaDownload /> Download
+                </button>
+              </div>
+            </div>
+          </div>
         )}
       </div>
     </div>
@@ -541,7 +541,7 @@ if (initialLoading) {
 }
 
 /* Components */
-function KPI({ title, value, main, annual, className="" }) {
+function KPI({ title, value, main, annual, className = "" }) {
   return (
     <div className={`rounded-2xl p-5 shadow-md ${main ? "ring-2 ring-indigo-400 scale-[1.02]" : ""}${className}`}>
       <p className="text-semibold text-slate-400">{title}</p>
@@ -579,4 +579,3 @@ function ModalRow({ label, value, red }) {
 
 
 
- 

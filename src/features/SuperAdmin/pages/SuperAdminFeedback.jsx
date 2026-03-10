@@ -49,12 +49,12 @@ export default function EmployeeFeedback() {
   const [selectedHR, setSelectedHR] = useState(null);
 
   const dispatch = useDispatch();
-  
+
   useEffect(() => {
     dispatch(fetchOverview());
   }, [dispatch]);
 
-  
+
 
   // Fetch HRs when activeRole is HR
   useEffect(() => {
@@ -66,7 +66,7 @@ export default function EmployeeFeedback() {
   // Fetch managers when HR is selected
   useEffect(() => {
     if (activeRole === "HR" && selectedHR?._id) {
-      console.log("Fetching managers for HR:", selectedHR._id);
+      // console.log("Fetching managers for HR:", selectedHR._id);
       dispatch(fetchManagersByHR(selectedHR._id));
     }
   }, [dispatch, activeRole, selectedHR?._id]);
@@ -121,8 +121,8 @@ export default function EmployeeFeedback() {
             <button
               onClick={() => setActiveRole("Manager")}
               className={`px-6 py-2 rounded-full text-sm font-medium transition ${activeRole === "Manager"
-                  ? "bg-blue-600 text-white shadow"
-                  : "text-gray-600 hover:bg-gray-200"
+                ? "bg-blue-600 text-white shadow"
+                : "text-gray-600 hover:bg-gray-200"
                 }`}
             >
               MANAGER
@@ -131,8 +131,8 @@ export default function EmployeeFeedback() {
             <button
               onClick={() => setActiveRole("HR")}
               className={`px-6 py-2 rounded-full text-sm font-medium transition ${activeRole === "HR"
-                  ? "bg-blue-600 text-white shadow"
-                  : "text-gray-600 hover:bg-gray-200"
+                ? "bg-blue-600 text-white shadow"
+                : "text-gray-600 hover:bg-gray-200"
                 }`}
             >
               HR
@@ -215,13 +215,13 @@ export default function EmployeeFeedback() {
                     <button
                       key={hrItem._id}
                       onClick={() => {
-                        console.log("Selected HR:", hrItem);
+                        // console.log("Selected HR:", hrItem);
                         setSelectedHR(hrItem);
                         setSelectedManager(null);
                       }}
                       className={`px-5 py-2 rounded-full text-sm font-medium whitespace-nowrap transition ${selectedHR?._id === hrItem._id
-                          ? "bg-blue-600 text-white"
-                          : "bg-gray-100"
+                        ? "bg-blue-600 text-white"
+                        : "bg-gray-100"
                         }`}
                     >
                       {hrItem.employeeName}
@@ -242,8 +242,8 @@ export default function EmployeeFeedback() {
                         setSelectedEmployee(null);
                       }}
                       className={`px-4 py-2 rounded-full text-lg font-medium ${selectedManager?._id === manager._id
-                          ? "bg-blue-600 text-white"
-                          : "bg-gray-100"
+                        ? "bg-blue-600 text-white"
+                        : "bg-gray-100"
                         }`}
                     >
                       {manager.employeeName}
@@ -274,8 +274,8 @@ export default function EmployeeFeedback() {
                     key={manager._id}
                     onClick={() => setSelectedManager(manager)}
                     className={`px-4 py-2 rounded-full text-sm font-medium ${selectedManager?._id === manager._id
-                        ? "bg-purple-600 text-white"
-                        : "bg-purple-100 text-purple-700"
+                      ? "bg-purple-600 text-white"
+                      : "bg-purple-100 text-purple-700"
                       }`}
                   >
                     {manager.employeeName}

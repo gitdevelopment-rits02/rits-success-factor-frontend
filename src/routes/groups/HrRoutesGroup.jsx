@@ -11,7 +11,7 @@ export default function HrRoutesGroup() {
 
     useEffect(() => {
         store.reducerManager.add("hr", hrRootReducer);
-        console.log("HR Reducer Dynamic Injection: SUCCESS");
+        // console.log("HR Reducer Dynamic Injection: SUCCESS");
         setIsLoaded(true);
     }, []);
 

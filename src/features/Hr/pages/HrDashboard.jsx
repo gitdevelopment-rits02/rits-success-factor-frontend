@@ -197,7 +197,7 @@ export default function HRDashboard() {
 
   const dispatch = useDispatch();
 
-  const { data, loading, error } = useSelector((state) => state.hr?.dashboard || {});
+  const { data, loading, error } = useSelector((state) => state.hr?.dashboard) || {};
   useEffect(() => {
     const hasShownToast = sessionStorage.getItem("dashboardToastShown");
 
@@ -602,8 +602,8 @@ export default function HRDashboard() {
                           key={key}
                           onClick={() => setSelectedStatus(key)}
                           className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold transition-colors ${selectedStatus === key
-                              ? `${activeBg} text-white`
-                              : "text-slate-500 hover:bg-slate-50"
+                            ? `${activeBg} text-white`
+                            : "text-slate-500 hover:bg-slate-50"
                             }`}
                         >
                           <Icon
@@ -766,8 +766,8 @@ export default function HRDashboard() {
                             key={i}
                             onClick={() => setCurrentPage(i + 1)}
                             className={`w-8 h-8 rounded-lg text-sm font-semibold ${currentPage === i + 1
-                                ? "bg-blue-600 text-white"
-                                : "bg-slate-100 hover:bg-slate-200"
+                              ? "bg-blue-600 text-white"
+                              : "bg-slate-100 hover:bg-slate-200"
                               }`}
                           >
                             {i + 1}

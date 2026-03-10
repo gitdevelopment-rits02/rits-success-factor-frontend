@@ -48,10 +48,10 @@ const hrLeaveApprovalSlice = createSlice({
       })
 
       // OUT TODAY
-  .addCase(fetchOutToday.fulfilled, (state, action) => {
-  console.log("OUT TODAY DATA:", action.payload);
-  state.outToday = action.payload || [];
-})
+      .addCase(fetchOutToday.fulfilled, (state, action) => {
+        // console.log("OUT TODAY DATA:", action.payload);
+        state.outToday = action.payload || [];
+      })
 
       // UPDATE STATUS
       .addCase(updateLeaveStatus.fulfilled, (state, action) => {

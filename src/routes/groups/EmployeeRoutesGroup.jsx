@@ -11,7 +11,7 @@ export default function EmployeeRoutesGroup() {
 
     useEffect(() => {
         store.reducerManager.add("employee", employeeRootReducer);
-        console.log("Employee Reducer Dynamic Injection: SUCCESS");
+        // console.log("Employee Reducer Dynamic Injection: SUCCESS");
         setIsLoaded(true);
     }, []);
 

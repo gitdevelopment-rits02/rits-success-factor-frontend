@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";   
+import React, { useState, useEffect } from "react";
 import {
   FiUsers,
   FiHome,
@@ -55,32 +55,32 @@ export default function SuperAdminDashboard() {
   const {
     getAttendanceDataLoading,
     getDashboardDataLoading,
-  } = useSelector((state) => state.superAdmin?.dashboard || {});
+  } = useSelector((state) => state.superAdmin?.dashboard) || {};
 
-useEffect(() => {
-  if (
-    (activeTab === "attendance" && !getAttendanceDataLoading) ||
-    (activeTab === "analytics" && !getDashboardDataLoading)
-  ) {
-    const timer = setTimeout(() => {
-      setShowSkeleton(false);
-    }, 1500);
+  useEffect(() => {
+    if (
+      (activeTab === "attendance" && !getAttendanceDataLoading) ||
+      (activeTab === "analytics" && !getDashboardDataLoading)
+    ) {
+      const timer = setTimeout(() => {
+        setShowSkeleton(false);
+      }, 1500);
 
-    return () => clearTimeout(timer);
-  } else {
-    setShowSkeleton(true);
-  }
-}, [activeTab,getAttendanceDataLoading, getDashboardDataLoading]);
+      return () => clearTimeout(timer);
+    } else {
+      setShowSkeleton(true);
+    }
+  }, [activeTab, getAttendanceDataLoading, getDashboardDataLoading]);
 
   return (
 
     <div className="min-h-screen bg-[#F8FAFC] p-6 md:p-10 font-sans text-slate-700">
 
-  {showSkeleton && (
-      <div className="absolute inset-0 z-50 bg-[#F8FAFC]">
-        <SuperAdminDashboardSkeleton />
-      </div>
-    )}
+      {showSkeleton && (
+        <div className="absolute inset-0 z-50 bg-[#F8FAFC]">
+          <SuperAdminDashboardSkeleton />
+        </div>
+      )}
 
 
 
@@ -122,8 +122,8 @@ useEffect(() => {
 
 function LateCheckInMonitor() {
   const { dashboardData } = useSelector(
-    (state) => state.superAdmin?.dashboard || {}
-  );
+    (state) => state.superAdmin?.dashboard
+  ) || {};
 
   const lateEmployees = dashboardData?.lateCheckins?.employees || [];
   const lateCount = dashboardData?.lateCheckins?.count || 0;
@@ -186,36 +186,36 @@ function LiveAttendanceTracker() {
   const {
     attendanceData,
     getAttendanceDataLoading,
-  } = useSelector((state) => state.superAdmin?.dashboard || {});
+  } = useSelector((state) => state.superAdmin?.dashboard) || {};
   // GET DASHBOARD DATA FOR DEPARTMENTS LIST
   const { dashboardData } = useSelector(
-    (state) => state.superAdmin?.dashboard || {}
-  );
+    (state) => state.superAdmin?.dashboard
+  ) || {};
 
- 
+
   useEffect(() => {
     // Fetch attendance data
     dispatch(superAdminDashboardThunk.getAttendanceDataThunk())
       .unwrap()
       .then((res) => {
-        console.log("Attendance data:", res);
+        // console.log("Attendance data:", res);
       })
       .catch((err) => {
-        console.log("Error fetching attendance:", err);
+        // console.log("Error fetching attendance:", err);
       });
 
     // Fetch dashboard data for departments
     dispatch(superAdminDashboardThunk.getDashboardDataThunk())
       .unwrap()
       .then((res) => {
-        console.log("Dashboard data:", res);
+        // console.log("Dashboard data:", res);
       })
       .catch((err) => {
-        console.log("Error fetching dashboard:", err);
+        // console.log("Error fetching dashboard:", err);
       });
   }, [dispatch]);
 
-  
+
   const stats = {
     total: attendanceData?.overview?.totalStaff || 0,
     present: attendanceData?.overview?.present || 0,
@@ -243,12 +243,12 @@ function LiveAttendanceTracker() {
   // }
 
 
-// if (getAttendanceDataLoading) {
-//   return <SuperAdminDashboardSkeleton />;
-// }
-// if (showSkeleton) {
-//   return <SuperAdminDashboardSkeleton />;
-// }
+  // if (getAttendanceDataLoading) {
+  //   return <SuperAdminDashboardSkeleton />;
+  // }
+  // if (showSkeleton) {
+  //   return <SuperAdminDashboardSkeleton />;
+  // }
 
 
   return (
@@ -437,17 +437,17 @@ function LiveAttendanceTracker() {
 function SuperAdminSystemDashboard() {
   const dispatch = useDispatch();
   const { dashboardData } = useSelector(
-    (state) => state.superAdmin?.dashboard || {}
-  );
+    (state) => state.superAdmin?.dashboard
+  ) || {};
 
   useEffect(() => {
     dispatch(superAdminDashboardThunk.getDashboardDataThunk())
       .unwrap()
       .then((res) => {
-        console.log("Analytics dashboard data:", res);
+        // console.log("Analytics dashboard data:", res);
       })
       .catch((err) => {
-        console.log("Error:", err);
+        // console.log("Error:", err);
       });
   }, [dispatch]);
 
@@ -584,4 +584,3 @@ function ImgStatCard({ label, value, icon: Icon, color }) {
     </div>
   );
 }
- 

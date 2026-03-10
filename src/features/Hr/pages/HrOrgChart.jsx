@@ -20,76 +20,75 @@ import HrOrgChartSkeleton from "./HrOrgChartSkeleton";
 
 const HrOrgChart = ({ employees: initialEmployees }) => {
     const dispatch = useDispatch();
-    const { getOrgChartLoading, orgChartData, getOrgChartError } = useSelector((state) => state.hr.orgChart);
-    console.log("Org Chart Data from Redux:", orgChartData);
+    const { getOrgChartLoading, orgChartData, getOrgChartError } = useSelector((state) => state.hr?.orgChart) || {};
 
     useEffect(() => {
         dispatch(hrOrgChartThunk.getOrgChartThunk());
     }, [dispatch]);
 
 
-       const hierarchy = useMemo(() => {
-    if (!orgChartData?.length) return null;
+    const hierarchy = useMemo(() => {
+        if (!orgChartData?.length) return null;
 
-    const buildNode = (emp) => ({
-        id: emp.employeeNo,
-        name: emp.employeeName,
-        designation: emp.designation,
-        department: emp.department,
-        status: emp.status === "active" ? "Active" : "Inactive",
-        companyEmail: emp.companyEmail,
-        phone: emp.phone,
-        joiningDate: emp.joiningDate,
-        avatar: `https://ui-avatars.com/api/?name=${encodeURIComponent(emp.employeeName)}&background=1e40af&color=fff`,
-        children: emp.children?.map(buildNode) || []
-    });
-
-    const roots = orgChartData.map(buildNode);
-
-    if (roots.length === 1) return roots[0];
-
-    return {
-        id: "ROOT",
-        name: "Organization",
-        designation: "Company Structure",
-        department: "",
-        status: "Active",
-        avatar: "",
-        children: roots
-    };
-}, [orgChartData]);
-
-    const employees = useMemo(() => {
-    if (!hierarchy) return [];
-
-    const flatten = (node, manager = null) => {
-        const result = [{
-            id: node.id,
-            name: node.name,
-            designation: node.designation,
-            department: node.department,
-            status: node.status,
-            companyEmail: node.companyEmail,
-            phone: node.phone,
-            joiningDate: node.joiningDate,
-            reportingManager: manager,
-            avatar: node.avatar
-        }];
-
-        node.children?.forEach(child => {
-            result.push(...flatten(child, node.name));
+        const buildNode = (emp) => ({
+            id: emp.employeeNo,
+            name: emp.employeeName,
+            designation: emp.designation,
+            department: emp.department,
+            status: emp.status === "active" ? "Active" : "Inactive",
+            companyEmail: emp.companyEmail,
+            phone: emp.phone,
+            joiningDate: emp.joiningDate,
+            avatar: `https://ui-avatars.com/api/?name=${encodeURIComponent(emp.employeeName)}&background=1e40af&color=fff`,
+            children: emp.children?.map(buildNode) || []
         });
 
-        return result;
-    };
+        const roots = orgChartData.map(buildNode);
 
-    if (hierarchy.id === "ROOT") {
-        return hierarchy.children.flatMap(child => flatten(child));
-    }
+        if (roots.length === 1) return roots[0];
 
-    return flatten(hierarchy);
+        return {
+            id: "ROOT",
+            name: "Organization",
+            designation: "Company Structure",
+            department: "",
+            status: "Active",
+            avatar: "",
+            children: roots
+        };
+    }, [orgChartData]);
 
-}, [hierarchy]);
+    const employees = useMemo(() => {
+        if (!hierarchy) return [];
+
+        const flatten = (node, manager = null) => {
+            const result = [{
+                id: node.id,
+                name: node.name,
+                designation: node.designation,
+                department: node.department,
+                status: node.status,
+                companyEmail: node.companyEmail,
+                phone: node.phone,
+                joiningDate: node.joiningDate,
+                reportingManager: manager,
+                avatar: node.avatar
+            }];
+
+            node.children?.forEach(child => {
+                result.push(...flatten(child, node.name));
+            });
+
+            return result;
+        };
+
+        if (hierarchy.id === "ROOT") {
+            return hierarchy.children.flatMap(child => flatten(child));
+        }
+
+        return flatten(hierarchy);
+
+    }, [hierarchy]);
 
 
     const [selectedEmployee, setSelectedEmployee] = useState(null);
@@ -129,16 +128,15 @@ const HrOrgChart = ({ employees: initialEmployees }) => {
                         <div className="p-4 flex items-center gap-4">
                             <div className="relative">
                                 <img
-    src={
-        node.avatar
-            ? node.avatar
-            : `https://ui-avatars.com/api/?name=${node.name || "User"}&background=1e40af&color=fff`
-    }
-    className={`w-12 h-12 rounded-xl object-cover border-2 shadow-sm ${
-        isVirtualRoot ? 'border-white' : 'border-blue-50'
-    }`}
-    alt={node.name}
-/>
+                                    src={
+                                        node.avatar
+                                            ? node.avatar
+                                            : `https://ui-avatars.com/api/?name=${node.name || "User"}&background=1e40af&color=fff`
+                                    }
+                                    className={`w-12 h-12 rounded-xl object-cover border-2 shadow-sm ${isVirtualRoot ? 'border-white' : 'border-blue-50'
+                                        }`}
+                                    alt={node.name}
+                                />
                                 {!isVirtualRoot && (
                                     <span className={`absolute -bottom-1 -right-1 w-3 h-3 rounded-full border-2 border-white ${node.status === 'Active' ? 'bg-emerald-500' : 'bg-slate-400'}`}></span>
                                 )}
@@ -193,7 +191,7 @@ const HrOrgChart = ({ employees: initialEmployees }) => {
 
     const renderListView = () => (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 p-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
-           {employees.map(emp => (
+            {employees.map(emp => (
                 <div
                     key={emp.id}
                     onClick={() => setSelectedEmployee(emp)}
@@ -221,9 +219,9 @@ const HrOrgChart = ({ employees: initialEmployees }) => {
     );
 
 
-if (getOrgChartLoading) {
-    return <HrOrgChartSkeleton />;
-}
+    if (getOrgChartLoading) {
+        return <HrOrgChartSkeleton />;
+    }
 
     return (
         <div className="flex flex-col h-[calc(100vh-3rem)] w-full overflow-hidden bg-gradient-to-br from-slate-100 via-blue-50 to-indigo-100 rounded-[2rem] border border-blue-100 shadow-[0_20px_50px_rgba(0,0,0,0.05)] relative">
@@ -235,7 +233,7 @@ if (getOrgChartLoading) {
                         <p className="text-[11px] font-semibold text-gray-500 uppercase tracking-[0.2em] mt-0.5">
                             {/* {filteredEmployees.length} Displaying • {employees.length} Members */}
                             {/* {employees.length} Members */}
-                             Total Employees • {employees.length}
+                            Total Employees • {employees.length}
                         </p>
                     </div>
                     <div className="h-8 w-px bg-slate-200 mx-2 hidden md:block"></div>
@@ -266,19 +264,19 @@ if (getOrgChartLoading) {
                         <div className="absolute inset-0 p-20 min-w-max min-h-max flex justify-center items-start">
                             <div className="transition-all duration-300 origin-top h-fit" style={{ zoom: zoom }}>
                                 {getOrgChartLoading ? (
-    <div className="flex flex-col items-center justify-center mt-20">
-        <FiLayers size={48} className="text-blue-200 mb-4 animate-pulse" />
-        <p className="text-[12px] font-bold text-blue-500 uppercase tracking-[0.3em]">
-            Loading Organization...
-        </p>
-    </div>
-) : getOrgChartError ? (
-    <div className="text-red-500 font-semibold mt-20">
-        Failed to load organization structure
-    </div>
-) : hierarchy ? (
-    renderNode(hierarchy)
-) : null}
+                                    <div className="flex flex-col items-center justify-center mt-20">
+                                        <FiLayers size={48} className="text-blue-200 mb-4 animate-pulse" />
+                                        <p className="text-[12px] font-bold text-blue-500 uppercase tracking-[0.3em]">
+                                            Loading Organization...
+                                        </p>
+                                    </div>
+                                ) : getOrgChartError ? (
+                                    <div className="text-red-500 font-semibold mt-20">
+                                        Failed to load organization structure
+                                    </div>
+                                ) : hierarchy ? (
+                                    renderNode(hierarchy)
+                                ) : null}
                             </div>
                         </div>
                     ) : renderListView()}
@@ -309,13 +307,13 @@ if (getOrgChartLoading) {
                                 </div>
                                 <h2 className="text-[26px] font-bold bg-gradient-to-r from-blue-800 to-indigo-700 bg-clip-text text-transparent tracking-tight leading-tight">{selectedEmployee.name}</h2>
                                 <p className="text-[11px] font-bold text-blue-600 uppercase tracking-[0.2em] mt-2">{selectedEmployee.designation}</p>
-                                
+
                             </div>
                         </div>
 
                         <div className="flex border-b border-blue-50 bg-white">
-    {[{ id: 'details', label: 'Overview' }].map(tab => (
-           
+                            {[{ id: 'details', label: 'Overview' }].map(tab => (
+
                                 <button key={tab.id} onClick={() => setActiveTab(tab.id)} className={`flex-1 py-4 text-[11px] font-bold uppercase tracking-widest transition-all relative ${activeTab === tab.id ? 'text-blue-700' : 'text-gray-400 hover:text-gray-600'}`}>
                                     {tab.label}
                                     {activeTab === tab.id && <div className="absolute bottom-0 left-1/4 right-1/4 h-1 bg-blue-600 rounded-t-full shadow-[0_-4px_10px_rgba(37,99,235,0.4)]" />}
@@ -324,34 +322,34 @@ if (getOrgChartLoading) {
                         </div>
 
                         <div className="flex-1 p-8 space-y-8 overflow-y-auto custom-scrollbar bg-white">
-{activeTab === 'details' && (                                <div className="space-y-5">
-                                    <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2 border-b border-slate-50 pb-2">Employee Information</p>
-                                    {[
-    { label: 'Department', value: selectedEmployee.department },
-    { label: 'Employee ID', value: selectedEmployee.id },
-    { label: 'Reporting Manager', value: selectedEmployee.reportingManager || 'N/A' },
-    { label: 'Work Location', value: 'Corporate HQ, Floor 4' },
-    { label: 'Start Date', value: selectedEmployee.joiningDate },
-    { label: 'Work Email', value: selectedEmployee.companyEmail },
-    { label: 'Contact Number', value: selectedEmployee.phone || 'N/A' },
-    { label: 'Employment', value: 'Full-Time' },
-].map((item, i) => (
-    <div
-        key={i}
-        className="flex justify-between items-center py-3.5 border-b border-slate-50 last:border-0"
-    >
-        <span 
-        style={{ fontFamily: "Times New Roman, serif" }} className="text-[11px] font-semibold text-[#1E293B] uppercase tracking-tight">
-            {item.label}
-        </span>
+                            {activeTab === 'details' && (<div className="space-y-5">
+                                <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2 border-b border-slate-50 pb-2">Employee Information</p>
+                                {[
+                                    { label: 'Department', value: selectedEmployee.department },
+                                    { label: 'Employee ID', value: selectedEmployee.id },
+                                    { label: 'Reporting Manager', value: selectedEmployee.reportingManager || 'N/A' },
+                                    { label: 'Work Location', value: 'Corporate HQ, Floor 4' },
+                                    { label: 'Start Date', value: selectedEmployee.joiningDate },
+                                    { label: 'Work Email', value: selectedEmployee.companyEmail },
+                                    { label: 'Contact Number', value: selectedEmployee.phone || 'N/A' },
+                                    { label: 'Employment', value: 'Full-Time' },
+                                ].map((item, i) => (
+                                    <div
+                                        key={i}
+                                        className="flex justify-between items-center py-3.5 border-b border-slate-50 last:border-0"
+                                    >
+                                        <span
+                                            style={{ fontFamily: "Times New Roman, serif" }} className="text-[11px] font-semibold text-[#1E293B] uppercase tracking-tight">
+                                            {item.label}
+                                        </span>
 
-        <span 
-        style={{ fontFamily: "Times New Roman, serif" }} className="text-[13px] text-[#1E293B] text-right max-w-[65%] truncate">
-            {item.value}
-        </span>
-    </div>
-))}
-                                </div>
+                                        <span
+                                            style={{ fontFamily: "Times New Roman, serif" }} className="text-[13px] text-[#1E293B] text-right max-w-[65%] truncate">
+                                            {item.value}
+                                        </span>
+                                    </div>
+                                ))}
+                            </div>
                             )}
                         </div>
                     </div>
@@ -362,4 +360,3 @@ if (getOrgChartLoading) {
 };
 
 export default HrOrgChart;
- 

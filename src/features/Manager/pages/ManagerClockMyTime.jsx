@@ -95,13 +95,13 @@ export default function App() {
 
 
     useEffect(() => {
-        console.log("FULL API DATA:", data);
+        // console.log("FULL API DATA:", data);
 
     }, [data]);
 
     useEffect(() => {
         if (data) {
-            console.log("Calendar Data:", data);
+            // console.log("Calendar Data:", data);
         }
     }, [data]);
     //  Sync logs + status from backend

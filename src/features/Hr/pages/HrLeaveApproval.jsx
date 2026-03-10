@@ -52,7 +52,7 @@ export default function SuperAdminLeaveRequests() {
   const dispatch = useDispatch();
 
 
-  const hrState = useSelector((state) => state.hr?.leaveApproval);
+  const hrState = useSelector((state) => state.hr?.leaveApproval) || {};
 
   const leaves = hrState?.leaves || [];
   const summary = hrState?.summary || {};
@@ -107,10 +107,7 @@ export default function SuperAdminLeaveRequests() {
     dispatch(fetchHrLeaves(params));
   }, [tab, statusTab, search, dispatch]);
   const approve = async (id) => {
-    if (!id) {
-      console.log("APPROVING ID:", id);
-      return;
-    }
+    return;
 
     try {
       const res = await dispatch(updateLeaveStatus({
@@ -118,7 +115,7 @@ export default function SuperAdminLeaveRequests() {
         payload: { status: "Approved" }
       })).unwrap();
 
-      console.log("UPDATE RESULT:", res);
+      // console.log("UPDATE RESULT:", res);
 
       if (!res) {
         toast.error("Update failed from server");
@@ -146,8 +143,6 @@ export default function SuperAdminLeaveRequests() {
         payload: { status: "Pending" }
       })).unwrap();
 
-      console.log("PENDING RESULT:", res);
-
       toast.success("Moved back to Pending");
 
       setTimeout(() => {
@@ -173,8 +168,6 @@ export default function SuperAdminLeaveRequests() {
           rejectionReason: rejectInput.trim(),
         }
       })).unwrap();
-
-      console.log("REJECT RESULT:", res);
 
       toast.success("Leave rejected successfully");
 

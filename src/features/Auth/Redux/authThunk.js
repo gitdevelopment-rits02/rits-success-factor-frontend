@@ -51,7 +51,7 @@ export const loginThunk = createAsyncThunk(
     try {
       const res = await authApi.login(payload);
 
-      console.log("LOGIN RESPONSE:", res.data);   
+      // console.log("LOGIN RESPONSE:", res.data);   
 
       return res.data;
     } catch (err) {
@@ -68,7 +68,7 @@ export const forgotPasswordThunk = createAsyncThunk(
   async (payload, { rejectWithValue }) => {
     try {
       const res = await authApi.forgotPassword(payload);
-      return res.data;   
+      return res.data;
     } catch (err) {
       return rejectWithValue(
         err.response?.data || { message: "Forgot password failed" }
@@ -108,4 +108,3 @@ export const resetPasswordThunk = createAsyncThunk(
     }
   }
 );
- 
