@@ -16,6 +16,10 @@ const HrTimeSheet = React.lazy(() => import("../../features/Hr/pages/HrTimeSheet
 const HrOrgChart = React.lazy(() => import("../../features/Hr/pages/HrOrgChart"));
 const HrOffBoarding = React.lazy(() => import("../../features/Hr/pages/HrOffBoarding"));
 const HrLeaveApproval = React.lazy(() => import("../../features/Hr/pages/HrLeaveApproval"));
+const HrAnnouncements = React.lazy(() => import("../../features/Hr/pages/HrAnnouncements"));
+const HrCalender = React.lazy(() => import("../../features/Hr/pages/HrCalender"));
+const HrSalStatus = React.lazy(() => import("../../features/Hr/pages/HrSalStatus"));
+const HrOurOrganization = React.lazy(() => import("../../features/Hr/pages/HrOurOrganization"));
 
 const lazy = (Component) => (
     <Suspense fallback={<PageLoader />}>
@@ -38,6 +42,10 @@ const hrRoutes = [
     { path: ROUTES.HR.TIMESHEET, element: lazy(HrTimeSheet) },
     { path: ROUTES.HR.ORGCHART, element: lazy(HrOrgChart) },
     { path: ROUTES.HR.OFFBOARDING, element: lazy(HrOffBoarding) },
+    { path: ROUTES.HR.ANNOUNCEMENT, element: lazy(HrAnnouncements) },
+    { path: ROUTES.HR.HRCALENDER, element: lazy(HrCalender) },
+    { path: ROUTES.HR.SALARYSTATUS, element: lazy(HrSalStatus) },
+    { path: ROUTES.HR.OURORGANIZATION, element: lazy(HrOurOrganization) },
 ];
 
 export default hrRoutes;
