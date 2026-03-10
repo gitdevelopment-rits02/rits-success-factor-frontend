@@ -1,4 +1,4 @@
-​import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import {
   FiUsers,
   FiHome,
@@ -245,8 +245,8 @@ function AnalyticsView() {
   } = useSelector((state) => state.superAdmin?.dashboard) || {};
 
   useEffect(() => {
-    dispatch(superAdminDashboardThunk.getAttendanceDataThunk()).unwrap().catch(() => {});
-    dispatch(superAdminDashboardThunk.getDashboardDataThunk()).unwrap().catch(() => {});
+    dispatch(superAdminDashboardThunk.getAttendanceDataThunk()).unwrap().catch(() => { });
+    dispatch(superAdminDashboardThunk.getDashboardDataThunk()).unwrap().catch(() => { });
   }, [dispatch]);
 
   const overview = attendanceData?.overview || {};
@@ -518,8 +518,8 @@ function AttendanceView() {
   ) || {};
 
   useEffect(() => {
-    dispatch(superAdminDashboardThunk.getDashboardDataThunk()).unwrap().catch(() => {});
-    dispatch(superAdminDashboardThunk.getAttendanceDataThunk()).unwrap().catch(() => {});
+    dispatch(superAdminDashboardThunk.getDashboardDataThunk()).unwrap().catch(() => { });
+    dispatch(superAdminDashboardThunk.getAttendanceDataThunk()).unwrap().catch(() => { });
   }, [dispatch]);
 
   const overview = attendanceData?.overview || {};
