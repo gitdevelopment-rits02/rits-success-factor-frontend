@@ -17,7 +17,7 @@ import {
     FiList
 } from "react-icons/fi";
 import superAdminOrgChartThunk from '../Redux/thunks/superAdminOrgChartThunk';
-
+import SuperAdminOrgChartSkeleton from "../SuperAdminSkeleton/SuperAdminOrgChartSkeleton";
 const SuperAdminOrgChart = () => {
     const dispatch = useDispatch();
     const { getOrgChartLoading: loading, orgChartData: data, getOrgChartError: error } = useSelector((state) => state.superAdmin.orgChart);
@@ -213,8 +213,11 @@ const SuperAdminOrgChart = () => {
         </div>
     );
 
+    // if (loading) {
+    //     return <div className="p-10 text-lg">Loading organization...</div>;
+    // }
     if (loading) {
-        return <div className="p-10 text-lg">Loading organization...</div>;
+        return <SuperAdminOrgChartSkeleton />;
     }
 
     if (error) {
