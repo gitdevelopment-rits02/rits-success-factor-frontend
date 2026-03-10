@@ -73,11 +73,11 @@ export default function LeaveManagementSystem() {
       if (previousStatus && previousStatus !== currentStatus) {
 
         if (currentStatus === "approved") {
-          toast.success(`🎉 ${leaveType} has been approved!`);
+          toast.success(` ${leaveType} has been approved!`);
         }
 
         if (currentStatus === "rejected") {
-          toast.error(`❌ ${leaveType} has been rejected.`);
+          toast.error(` ${leaveType} has been rejected.`);
         }
       }
 
@@ -163,7 +163,7 @@ export default function LeaveManagementSystem() {
     )
       .unwrap()
       .then(() => {
-        toast.success("Leave request sent successfully 🎉");
+        toast.success("Leave request sent successfully ");
 
         dispatch(getLeaveHistory());
         dispatch(getLeaveSummary());
