@@ -13,7 +13,11 @@ const initialState = {
 const superAdminPayrollSlice = createSlice({
   name: "superAdminPayroll",
   initialState,
-  reducers: {},
+  reducers: {
+    resetList: (state) => {
+    state.payrollList = [];
+    }
+  },
   extraReducers: (builder) => {
     builder
       .addCase(fetchPayrollListThunk.pending, (state) => {
@@ -21,13 +25,17 @@ const superAdminPayrollSlice = createSlice({
         state.error = null;
       })
       .addCase(fetchPayrollListThunk.fulfilled, (state, action) => {
-  state.loading = false;
+       state.loading = false;
+        console.log("Thunk payload:", action.payload);
 
-  console.log("Thunk payload:", action.payload);
+        if (action.payload?.success) {
 
-  if (action.payload?.success) {
-    state.payrollList = action.payload.data;  // <-- THIS IS THE KEY LINE
-  } else {
+        if (action.payload.page === 1) {
+        state.payrollList = action.payload.data;
+        } else {
+        state.payrollList = [...state.payrollList, ...action.payload.data];
+  }
+} else {
     state.error = action.payload?.message || "Failed to fetch payroll";
   }
 })
@@ -39,7 +47,7 @@ const superAdminPayrollSlice = createSlice({
 
 
       //breakdown
-      .addCase(fetchPayrollBreakdownThunk.pending, (state) => {
+.addCase(fetchPayrollBreakdownThunk.pending, (state) => {
   state.loading = true;
 })
 .addCase(fetchPayrollBreakdownThunk.fulfilled, (state, action) => {
@@ -47,7 +55,7 @@ const superAdminPayrollSlice = createSlice({
   const { payrollId, data } = action.payload;
 
   if (data?.success) {
-    state.breakdownMap[payrollId] = data.data; // store per employee
+    state.breakdownMap[payrollId] = data.data; 
   }
 })
 .addCase(fetchPayrollBreakdownThunk.rejected, (state, action) => {
@@ -70,14 +78,12 @@ builder
   //report excel
   .addCase(fetchPayrollReportThunk.fulfilled, (state, action) => {
   state.reportBlob = action.payload.fileBlob;
-})
+ })
 .addCase(fetchPayrollReportThunk.rejected, (state, action) => {
   state.error = action.payload || "Report download failed";
 });
-
-
-
   },
 });
 
+export const { resetList } = superAdminPayrollSlice.actions;
 export default superAdminPayrollSlice.reducer;
