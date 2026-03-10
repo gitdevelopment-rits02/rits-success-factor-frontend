@@ -30,28 +30,33 @@ import HrSideNav from "../features/Hr/components/HrSideNav";
 const HrLayout = () => {
   const [collapsed, setCollapsed] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
-  const dispatch = useDispatch(); 
+  const dispatch = useDispatch();
   const navItems = [
     {
-        name: "Dashboard",
-        path: "/hr/dashboard",
-        icon: MdDashboard,
+      name: "Dashboard",
+      path: "/hr/dashboard",
+      icon: MdDashboard,
     },
     {
-      name:"Salary status",
-      path:"/hr/salarystatus",
+      name: "Announcements",
+      path: "/hr/announcement",
+      icon: FiBell
+    },
+    {
+      name: "Salary status",
+      path: "/hr/salarystatus",
       icon: FiDollarSign
     },
 
     {
-      name:"Our Organization",
-      path:"/hr/ourorganization",
-      icon: FiDollarSign
+      name: "Our Organization",
+      path: "/hr/ourorganization",
+      icon: HiOutlineBuildingOffice2
     },
     {
-      name:"Hr Holiday Calender",
-      path:"/hr/holidaycalender",
-      icon: FiDollarSign
+      name: "Hr Holiday Calender",
+      path: "/hr/holidaycalender",
+      icon: FiCalendar
     },
     // {
     //     name:"ClockMyTime",
@@ -70,14 +75,14 @@ const HrLayout = () => {
     //     icon:FiBell
     // },
     {
-        name:"OnBoarding",
-        path:"/hr/onboarding",
-        icon:FiUserPlus
+      name: "OnBoarding",
+      path: "/hr/onboarding",
+      icon: FiUserPlus
     },
     {
-        name:"Leave Approval",
-        path:"/hr/leaveapproval",
-        icon:FiUserPlus
+      name: "Leave Approval",
+      path: "/hr/leaveapproval",
+      icon: FiUserPlus
     },
     // {
     //     name:"Payslips",
@@ -85,9 +90,9 @@ const HrLayout = () => {
     //     icon:HiOutlineDocumentText
     // },
     {
-        name:"PolicyAndInsuranceCreation",
-        path:"/hr/policyandinsurancecreation",
-        icon:FiShield
+      name: "PolicyAndInsuranceCreation",
+      path: "/hr/policyandinsurancecreation",
+      icon: FiShield
     },
     // {
     //     name:"Policy Documents",
@@ -105,47 +110,47 @@ const HrLayout = () => {
     //     icon:FiDollarSign
     // },
     {
-        name:"TimeSheet",
-        path:"/hr/timesheet",
-        icon:FiClock
+      name: "TimeSheet",
+      path: "/hr/timesheet",
+      icon: FiClock
     },
     {
-        name:"Organization Chart",
-        path:"/hr/orgchart",
-        icon:FiUsers
+      name: "Organization Chart",
+      path: "/hr/orgchart",
+      icon: FiUsers
     },
     {
-        name:"OffBoarding",
-        path:"/hr/offboarding",
-        icon:FiUserPlus
+      name: "OffBoarding",
+      path: "/hr/offboarding",
+      icon: FiUserPlus
     }
 
 
 
-    
 
 
- 
-];
+
+
+  ];
 
 
   return (
 
-    
+
     <div className={`flex h-screen ${collapsed ? "md:ml-20" : "md:ml-64"}`}>
-      
-        <HrSideNav
+
+      <HrSideNav
         collapsed={collapsed}
         setCollapsed={setCollapsed}
         mobileOpen={mobileOpen}
         setMobileOpen={setMobileOpen}
         navItems={navItems}
       />
-      
+
 
       <div className="flex flex-col flex-1 min-h-0">
 
-        
+
         <main className="flex-1 min-h-0 overflow-y-auto p-1 bg-blue-50">
           <Outlet />
         </main>
