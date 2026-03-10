@@ -123,7 +123,7 @@ useEffect(() => {
   return () => window.removeEventListener("scroll", handleScroll);
 }, [hasMore, loading]);
 
- useEffect(() => {
+useEffect(() => {
   if (
     selectedMonth !== "Select Month" &&
     selectedYear !== "Select Year"
@@ -258,7 +258,7 @@ const generateIndividualPayslip = async (emp) => {
       { align: "center" }
     );
 
-   
+
 
     autoTable(doc, {
       startY: 52,
@@ -359,7 +359,7 @@ if (pageLoading) {
   return <SuperAdminPayrollSkeleton />;
 }
 
- return (
+return (
   <div className="min-h-screen p-6 lg:p-8 bg-gradient-to-br from-slate-100 via-blue-50 to-indigo-100">
     <div className="max-w-[1400px] mx-auto">
       {/*  Header  */}

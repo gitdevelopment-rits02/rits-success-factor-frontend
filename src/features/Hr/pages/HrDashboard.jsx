@@ -1,5 +1,5 @@
 import { useState } from "react";
-import {    
+import {
   FiUsers,
   FiUserPlus,
   FiTrendingDown,
@@ -197,15 +197,15 @@ export default function HRDashboard() {
 
   const dispatch = useDispatch();
 
-  const { data, loading, error } = useSelector((state) => state.hr.dashboard);
-useEffect(() => {
-  const hasShownToast = sessionStorage.getItem("dashboardToastShown");
+  const { data, loading, error } = useSelector((state) => state.hr?.dashboard) || {};
+  useEffect(() => {
+    const hasShownToast = sessionStorage.getItem("dashboardToastShown");
 
-  if (!hasShownToast) {
-    toast.success("Dashboard loaded successfully", { toastId: "dashboard-login" });
-    sessionStorage.setItem("dashboardToastShown", "true");
-  }
-}, []);
+    if (!hasShownToast) {
+      toast.success("Dashboard loaded successfully", { toastId: "dashboard-login" });
+      sessionStorage.setItem("dashboardToastShown", "true");
+    }
+  }, []);
 
   useEffect(() => {
     dispatch(fetchHrDashboard());
@@ -219,15 +219,15 @@ useEffect(() => {
     year: "numeric",
   });
   const storedUser = JSON.parse(localStorage.getItem("user") || "null");
-const userName =
-  storedUser?.name ||
-  storedUser?.fullName ||
-  storedUser?.email?.split("@")[0] ||
-  "";
+  const userName =
+    storedUser?.name ||
+    storedUser?.fullName ||
+    storedUser?.email?.split("@")[0] ||
+    "";
 
   const userInitial = userName.charAt(0).toUpperCase();
 
-    const employees = data?.attendanceRoster || [];
+  const employees = data?.attendanceRoster || [];
   // const employees =
   //   data?.attendanceRoster && data.attendanceRoster.length > 0
   //     ? data.attendanceRoster
@@ -366,107 +366,107 @@ const userName =
         {/* Content */}
         <main className="flex-1 overflow-y-auto">
 
-  {loading ? (
-    <div className="px-6 py-5">
-      <HRDashboardSkeleton />
-    </div>
-  ) : (
-    <div className="px-6 py-5">
-          {/* Page Header */}
-          <div className="mb-6 flex items-center justify-between">
-            <div>
-              <h1 className="text-2xl font-bold text-gray-800 tracking-tight">
-                HR Dashboard
-              </h1>
-              <p className="text-sm text-slate-400 mt-0.5 font-normal">
-                Welcome back, {userName} · {formattedDate}
-              </p>
+          {loading ? (
+            <div className="px-6 py-5">
+              <HRDashboardSkeleton />
             </div>
-            {/* <button className="px-4 py-2 bg-blue-600 text-white text-sm font-semibold rounded-xl hover:bg-blue-700 transition-colors shadow-sm flex items-center gap-2">
+          ) : (
+            <div className="px-6 py-5">
+              {/* Page Header */}
+              <div className="mb-6 flex items-center justify-between">
+                <div>
+                  <h1 className="text-2xl font-bold text-gray-800 tracking-tight">
+                    HR Dashboard
+                  </h1>
+                  <p className="text-sm text-slate-400 mt-0.5 font-normal">
+                    Welcome back, {userName} · {formattedDate}
+                  </p>
+                </div>
+                {/* <button className="px-4 py-2 bg-blue-600 text-white text-sm font-semibold rounded-xl hover:bg-blue-700 transition-colors shadow-sm flex items-center gap-2">
               <FiUserPlus size={15} />
               Add Employee
             </button> */}
-          </div>
-
-          {/* Charts Row */}
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-4">
-            {/* Attendance Bar Chart */}
-            <div
-              className="lg:col-span-2 bg-white rounded-2xl p-5 shadow-sm border border-white/80"
-              style={{ boxShadow: "0 4px 24px rgba(0,0,0,0.06)" }}
-            >
-              <div className="flex items-center justify-between mb-4">
-                <div>
-                  <h2 className="text-sm font-bold text-gray-800 tracking-tight">
-                    Attendance Overview
-                  </h2>
-                  <p className="text-xs text-slate-400 font-normal">
-                    Last 6 months (%)
-                  </p>
-                </div>
-                <span className="text-xs bg-blue-50 text-blue-600 font-semibold px-3 py-1 rounded-full">
-                  Monthly
-                </span>
               </div>
-              <ResponsiveContainer width="100%" height={200}>
-                <BarChart data={attendanceChartData} barCategoryGap="30%">
-                  <CartesianGrid
-                    strokeDasharray="3 3"
-                    stroke="#f1f5f9"
-                    vertical={false}
-                  />
-                  <XAxis
-                    dataKey="month"
-                    tick={{ fontSize: 11, fill: "#94a3b8" }}
-                    axisLine={false}
-                    tickLine={false}
-                  />
-                  {/* <YAxis tick={{ fontSize: 11, fill: "#94a3b8" }} axisLine={false} tickLine={false} /> */}
-                  <Tooltip
-                    formatter={(value) => `${value}%`}
-                    contentStyle={{
-                      borderRadius: "12px",
-                      border: "1px solid #e2e8f0",
-                      fontSize: 12,
-                    }}
-                  />
 
-                  <Tooltip
-                    contentStyle={{
-                      borderRadius: "12px",
-                      border: "1px solid #e2e8f0",
-                      fontSize: 12,
-                    }}
-                    cursor={{ fill: "#f0f9ff" }}
-                  />
-                  {/* <Bar dataKey="present" name="Present" fill="#ADD8E6" radius={[6, 6, 0, 0]} />
+              {/* Charts Row */}
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-4">
+                {/* Attendance Bar Chart */}
+                <div
+                  className="lg:col-span-2 bg-white rounded-2xl p-5 shadow-sm border border-white/80"
+                  style={{ boxShadow: "0 4px 24px rgba(0,0,0,0.06)" }}
+                >
+                  <div className="flex items-center justify-between mb-4">
+                    <div>
+                      <h2 className="text-sm font-bold text-gray-800 tracking-tight">
+                        Attendance Overview
+                      </h2>
+                      <p className="text-xs text-slate-400 font-normal">
+                        Last 6 months (%)
+                      </p>
+                    </div>
+                    <span className="text-xs bg-blue-50 text-blue-600 font-semibold px-3 py-1 rounded-full">
+                      Monthly
+                    </span>
+                  </div>
+                  <ResponsiveContainer width="100%" height={200}>
+                    <BarChart data={attendanceChartData} barCategoryGap="30%">
+                      <CartesianGrid
+                        strokeDasharray="3 3"
+                        stroke="#f1f5f9"
+                        vertical={false}
+                      />
+                      <XAxis
+                        dataKey="month"
+                        tick={{ fontSize: 11, fill: "#94a3b8" }}
+                        axisLine={false}
+                        tickLine={false}
+                      />
+                      {/* <YAxis tick={{ fontSize: 11, fill: "#94a3b8" }} axisLine={false} tickLine={false} /> */}
+                      <Tooltip
+                        formatter={(value) => `${value}%`}
+                        contentStyle={{
+                          borderRadius: "12px",
+                          border: "1px solid #e2e8f0",
+                          fontSize: 12,
+                        }}
+                      />
+
+                      <Tooltip
+                        contentStyle={{
+                          borderRadius: "12px",
+                          border: "1px solid #e2e8f0",
+                          fontSize: 12,
+                        }}
+                        cursor={{ fill: "#f0f9ff" }}
+                      />
+                      {/* <Bar dataKey="present" name="Present" fill="#ADD8E6" radius={[6, 6, 0, 0]} />
                   <Bar dataKey="absent"  name="Absent"  fill="#fca5a5" radius={[6, 6, 0, 0]} /> */}
 
-                  <Bar
-                    dataKey="attendance"
-                    name="Attendance %"
-                    fill="#60a5fa"
-                    radius={[6, 6, 0, 0]}
-                  />
-                </BarChart>
-              </ResponsiveContainer>
-            </div>
+                      <Bar
+                        dataKey="attendance"
+                        name="Attendance %"
+                        fill="#60a5fa"
+                        radius={[6, 6, 0, 0]}
+                      />
+                    </BarChart>
+                  </ResponsiveContainer>
+                </div>
 
-            {/* Department Pie Chart */}
-            <div
-              className="bg-white rounded-2xl p-5 shadow-sm border border-white/80"
-              style={{ boxShadow: "0 4px 24px rgba(0,0,0,0.06)" }}
-            >
-              <div className="mb-4">
-                <h2 className="text-sm font-bold text-gray-800 tracking-tight">
-                  Dept. Headcount
-                </h2>
-                <p className="text-xs text-slate-400 font-normal">
-                  Total: 125 employees
-                </p>
-              </div>
-              <ResponsiveContainer width="100%" height={140}>
-                {/* <PieChart>
+                {/* Department Pie Chart */}
+                <div
+                  className="bg-white rounded-2xl p-5 shadow-sm border border-white/80"
+                  style={{ boxShadow: "0 4px 24px rgba(0,0,0,0.06)" }}
+                >
+                  <div className="mb-4">
+                    <h2 className="text-sm font-bold text-gray-800 tracking-tight">
+                      Dept. Headcount
+                    </h2>
+                    <p className="text-xs text-slate-400 font-normal">
+                      Total: 125 employees
+                    </p>
+                  </div>
+                  <ResponsiveContainer width="100%" height={140}>
+                    {/* <PieChart>
                  <Pie data={data?.departmentStats || []}cx="50%" cy="50%" innerRadius={40} outerRadius={65} dataKey="value" paddingAngle={3}>
                     {headcountData.map((entry, i) => (
                       <Cell key={i} fill={entry.color} />
@@ -474,324 +474,322 @@ const userName =
                   </Pie>
                   <Tooltip contentStyle={{ borderRadius: "10px", fontSize: 12 }} />
                 </PieChart> */}
-                <PieChart>
-                  <Pie
-                    data={departmentChartData}
-                    cx="50%"
-                    cy="50%"
-                    innerRadius={40}
-                    outerRadius={65}
-                    dataKey="value"
-                    paddingAngle={3}
-                  >
-                    {departmentChartData.map((entry, i) => (
-                      <Cell
-                        key={i}
-                        fill={
-                          [
-                            "#60a5fa",
-                            "#34d399",
-                            "#f59e0b",
-                            "#f472b6",
-                            "#a78bfa",
-                            "#fb7185",
-                          ][i % 6]
-                        }
-                      />
-                    ))}
-                  </Pie>
-                  <Tooltip />
-                </PieChart>
-              </ResponsiveContainer>
-              <div className="space-y-1.5 mt-2">
-                {departmentChartData.map((d, i) => (
-                  <div
-                    key={d.name}
-                    className="flex items-center justify-between text-xs"
-                  >
-                    <div className="flex items-center gap-2">
-                      <span
-                        className="w-2.5 h-2.5 rounded-full"
-                        style={{
-                          background: [
-                            "#60a5fa",
-                            "#34d399",
-                            "#f59e0b",
-                            "#f472b6",
-                            "#a78bfa",
-                            "#fb7185",
-                          ][i % 6],
-                        }}
-                      />
-                      <span className="text-slate-500 font-normal">
-                        {d.name}
-                      </span>
-                    </div>
-                    <span className="font-bold text-gray-700">{d.value}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-
-          {/* Attendance Roster Section */}
-          <div className="grid grid-cols-1 lg:grid-cols-4 gap-4">
-            {/* Filter Panel */}
-            <div
-              className="bg-white rounded-2xl p-5 shadow-sm border border-white/80 h-fit"
-              style={{ boxShadow: "0 4px 24px rgba(0,0,0,0.06)" }}
-            >
-              <div className="flex items-center gap-2 mb-5">
-                <FiFilter size={14} className="text-slate-400" />
-                <h2 className="text-sm font-bold text-gray-800 tracking-tight">
-                  Filters
-                </h2>
-              </div>
-
-              <div className="mb-5">
-                <p className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2.5">
-                  Department
-                </p>
-                <select
-                  value={selectedDept}
-                  onChange={(e) => setSelectedDept(e.target.value)}
-                  className="w-full text-sm border border-slate-200 rounded-xl px-3 py-2.5 text-slate-600 font-normal focus:outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-300 bg-slate-50 transition-colors"
-                >
-                  {departments.map((d) => (
-                    <option key={d}>{d}</option>
-                  ))}
-                </select>
-              </div>
-
-              <div>
-                <p className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2.5">
-                  Status
-                </p>
-                <div className="space-y-1.5">
-                  {[
-                    {
-                      key: "all",
-                      label: "All Status",
-                      icon: FiUsers,
-                      color: "text-blue-600",
-                      activeBg: "bg-blue-600",
-                    },
-                    {
-                      key: "present",
-                      label: "In Office",
-                      icon: FiCheckCircle,
-                      color: "text-emerald-500",
-                      activeBg: "bg-emerald-500",
-                    },
-                    {
-                      key: "remote",
-                      label: "Remote",
-                      icon: FiHome,
-                      color: "text-amber-500",
-                      activeBg: "bg-amber-500",
-                    },
-                    {
-                      key: "absent",
-                      label: "Absent",
-                      icon: FiX,
-                      color: "text-slate-400",
-                      activeBg: "bg-slate-500",
-                    },
-                  ].map(({ key, label, icon: Icon, color, activeBg }) => (
-                    <button
-                      key={key}
-                      onClick={() => setSelectedStatus(key)}
-                      className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold transition-colors ${
-                        selectedStatus === key
-                          ? `${activeBg} text-white`
-                          : "text-slate-500 hover:bg-slate-50"
-                      }`}
-                    >
-                      <Icon
-                        size={15}
-                        className={
-                          selectedStatus === key ? "text-white" : color
-                        }
-                      />
-                      {label}
-                    </button>
-                  ))}
-                </div>
-              </div>
-            </div>
-
-            {/* Roster Panel */}
-            <div
-              className="lg:col-span-3 bg-white rounded-2xl shadow-sm border border-white/80 overflow-hidden"
-              style={{ boxShadow: "0 4px 24px rgba(0,0,0,0.06)" }}
-            >
-              {/* KPI Cards — colorful, like the Monthly Summary screenshot */}
-              <div className="grid grid-cols-4 divide-x divide-slate-100 border-b border-slate-100">
-                {kpiCards.map((card) => {
-                  const Icon = card.icon;
-                  return (
-                    <div
-                      key={card.title}
-                      className={`p-4 bg-gradient-to-br ${card.bg} flex flex-col gap-1`}
-                    >
+                    <PieChart>
+                      <Pie
+                        data={departmentChartData}
+                        cx="50%"
+                        cy="50%"
+                        innerRadius={40}
+                        outerRadius={65}
+                        dataKey="value"
+                        paddingAngle={3}
+                      >
+                        {departmentChartData.map((entry, i) => (
+                          <Cell
+                            key={i}
+                            fill={
+                              [
+                                "#60a5fa",
+                                "#34d399",
+                                "#f59e0b",
+                                "#f472b6",
+                                "#a78bfa",
+                                "#fb7185",
+                              ][i % 6]
+                            }
+                          />
+                        ))}
+                      </Pie>
+                      <Tooltip />
+                    </PieChart>
+                  </ResponsiveContainer>
+                  <div className="space-y-1.5 mt-2">
+                    {departmentChartData.map((d, i) => (
                       <div
-                        className={`w-8 h-8 rounded-xl ${card.iconBg} flex items-center justify-center mb-2`}
+                        key={d.name}
+                        className="flex items-center justify-between text-xs"
                       >
-                        <Icon size={15} className={card.iconColor} />
+                        <div className="flex items-center gap-2">
+                          <span
+                            className="w-2.5 h-2.5 rounded-full"
+                            style={{
+                              background: [
+                                "#60a5fa",
+                                "#34d399",
+                                "#f59e0b",
+                                "#f472b6",
+                                "#a78bfa",
+                                "#fb7185",
+                              ][i % 6],
+                            }}
+                          />
+                          <span className="text-slate-500 font-normal">
+                            {d.name}
+                          </span>
+                        </div>
+                        <span className="font-bold text-gray-700">{d.value}</span>
                       </div>
-                      <p className={`text-2xl font-bold ${card.valColor}`}>
-                        {card.value}
-                      </p>
-                      <p className="text-xs font-bold text-slate-400 uppercase tracking-wider">
-                        {card.title}
-                      </p>
-                    </div>
-                  );
-                })}
-              </div>
-
-              {/* Roster Header */}
-              <div className="px-5 pt-4 pb-3 border-b border-slate-50">
-                <h2 className="text-sm font-bold text-gray-800 tracking-tight">
-                  Attendance Roster
-                </h2>
-                <p className="text-xs text-slate-400 font-normal">
-                  Showing{" "}
-                  {filteredEmployees.length === 0
-                    ? 0
-                    : indexOfFirstEmployee + 1}
-                  –{Math.min(indexOfLastEmployee, filteredEmployees.length)} of{" "}
-                  {filteredEmployees.length} employees
-                </p>
-              </div>
-
-              {/* Roster Table */}
-              {filteredEmployees.length === 0 ? (
-                <div className="flex flex-col items-center justify-center py-16 text-center">
-                  <div className="w-14 h-14 rounded-2xl bg-slate-100 flex items-center justify-center mx-auto mb-4">
-                    <FiUsers size={26} className="text-slate-300" />
-                  </div>
-                  <p className="text-sm font-semibold text-slate-500">
-                    No employees found
-                  </p>
-                  <p className="text-xs text-slate-300 mt-1 font-normal">
-                    Try adjusting your filters
-                  </p>
-                </div>
-              ) : (
-                <div className="overflow-auto max-h-72">
-                  <table className="w-full text-sm">
-                    <thead>
-                      <tr className="border-b border-slate-100 bg-slate-50/70">
-                        <th className="text-left px-5 py-3 text-xs font-bold text-slate-400 uppercase tracking-wider">
-                          Employee
-                        </th>
-                        <th className="text-left px-5 py-3 text-xs font-bold text-slate-400 uppercase tracking-wider">
-                          Department
-                        </th>
-                        <th className="text-left px-5 py-3 text-xs font-bold text-slate-400 uppercase tracking-wider hidden md:table-cell">
-                          Role
-                        </th>
-                        <th className="text-left px-5 py-3 text-xs font-bold text-slate-400 uppercase tracking-wider">
-                          Status
-                        </th>
-                      </tr>
-                    </thead>
-                    {/* <tbody>
-                      {filteredEmployees.map((emp, idx) => { */}
-                    <tbody>
-                      {currentEmployees.map((emp, idx) => {
-                        const sc =
-                          statusConfig[(emp.status || "").toLowerCase()] ||
-                          statusConfig.absent;
-                        const grad =
-                          avatarGradients[idx % avatarGradients.length];
-
-                        return (
-                          <tr
-                            key={emp.id}
-                            className="border-b border-slate-50 hover:bg-slate-50/60 transition-colors"
-                          >
-                            <td className="px-5 py-3">
-                              <div className="flex items-center gap-3">
-                                <div
-                                  className={`w-8 h-8 rounded-xl bg-gradient-to-br ${grad} flex items-center justify-center text-white text-xs font-bold flex-shrink-0`}
-                                >
-                                  {emp.employeeName
-                                    ?.split(" ")
-                                    .map((n) => n[0])
-                                    .join("")}
-                                </div>
-                                <span className="font-semibold text-gray-700">
-                                  {emp.employeeName}
-                                </span>
-                              </div>
-                            </td>
-                            <td className="px-5 py-3 text-slate-500 font-normal">
-                              {emp.department}
-                            </td>
-                            <td className="px-5 py-3 text-slate-400 font-normal hidden md:table-cell">
-                              {emp.designation}
-                            </td>
-                            <td className="px-5 py-3">
-                              <span
-                                className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold ${sc.color}`}
-                              >
-                                <span
-                                  className={`w-1.5 h-1.5 rounded-full ${sc.dot}`}
-                                />
-                                {sc.label}
-                              </span>
-                            </td>
-                          </tr>
-                        );
-                      })}
-                    </tbody>
-                  </table>
-                </div>
-              )}
-
-              {totalPages > 1 && (
-                <div className="flex items-center justify-between px-5 py-3 border-t border-slate-100">
-                  <button
-                    onClick={() => setCurrentPage((prev) => prev - 1)}
-                    disabled={currentPage === 1}
-                    className="px-3 py-1.5 text-sm rounded-lg bg-slate-100 disabled:opacity-40 hover:bg-slate-200"
-                  >
-                    Previous
-                  </button>
-
-                  <div className="flex gap-2">
-                    {[...Array(totalPages)].map((_, i) => (
-                      <button
-                        key={i}
-                        onClick={() => setCurrentPage(i + 1)}
-                        className={`w-8 h-8 rounded-lg text-sm font-semibold ${
-                          currentPage === i + 1
-                            ? "bg-blue-600 text-white"
-                            : "bg-slate-100 hover:bg-slate-200"
-                        }`}
-                      >
-                        {i + 1}
-                      </button>
                     ))}
                   </div>
-
-                  <button
-                    onClick={() => setCurrentPage((prev) => prev + 1)}
-                    disabled={currentPage === totalPages}
-                    className="px-3 py-1.5 text-sm rounded-lg bg-slate-100 disabled:opacity-40 hover:bg-slate-200"
-                  >
-                    Next
-                  </button>
                 </div>
-              )}
-            </div>
-          </div>
-            </div>
-  )}
+              </div>
 
-</main>
+              {/* Attendance Roster Section */}
+              <div className="grid grid-cols-1 lg:grid-cols-4 gap-4">
+                {/* Filter Panel */}
+                <div
+                  className="bg-white rounded-2xl p-5 shadow-sm border border-white/80 h-fit"
+                  style={{ boxShadow: "0 4px 24px rgba(0,0,0,0.06)" }}
+                >
+                  <div className="flex items-center gap-2 mb-5">
+                    <FiFilter size={14} className="text-slate-400" />
+                    <h2 className="text-sm font-bold text-gray-800 tracking-tight">
+                      Filters
+                    </h2>
+                  </div>
+
+                  <div className="mb-5">
+                    <p className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2.5">
+                      Department
+                    </p>
+                    <select
+                      value={selectedDept}
+                      onChange={(e) => setSelectedDept(e.target.value)}
+                      className="w-full text-sm border border-slate-200 rounded-xl px-3 py-2.5 text-slate-600 font-normal focus:outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-300 bg-slate-50 transition-colors"
+                    >
+                      {departments.map((d) => (
+                        <option key={d}>{d}</option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div>
+                    <p className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2.5">
+                      Status
+                    </p>
+                    <div className="space-y-1.5">
+                      {[
+                        {
+                          key: "all",
+                          label: "All Status",
+                          icon: FiUsers,
+                          color: "text-blue-600",
+                          activeBg: "bg-blue-600",
+                        },
+                        {
+                          key: "present",
+                          label: "In Office",
+                          icon: FiCheckCircle,
+                          color: "text-emerald-500",
+                          activeBg: "bg-emerald-500",
+                        },
+                        {
+                          key: "remote",
+                          label: "Remote",
+                          icon: FiHome,
+                          color: "text-amber-500",
+                          activeBg: "bg-amber-500",
+                        },
+                        {
+                          key: "absent",
+                          label: "Absent",
+                          icon: FiX,
+                          color: "text-slate-400",
+                          activeBg: "bg-slate-500",
+                        },
+                      ].map(({ key, label, icon: Icon, color, activeBg }) => (
+                        <button
+                          key={key}
+                          onClick={() => setSelectedStatus(key)}
+                          className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold transition-colors ${selectedStatus === key
+                            ? `${activeBg} text-white`
+                            : "text-slate-500 hover:bg-slate-50"
+                            }`}
+                        >
+                          <Icon
+                            size={15}
+                            className={
+                              selectedStatus === key ? "text-white" : color
+                            }
+                          />
+                          {label}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Roster Panel */}
+                <div
+                  className="lg:col-span-3 bg-white rounded-2xl shadow-sm border border-white/80 overflow-hidden"
+                  style={{ boxShadow: "0 4px 24px rgba(0,0,0,0.06)" }}
+                >
+                  {/* KPI Cards — colorful, like the Monthly Summary screenshot */}
+                  <div className="grid grid-cols-4 divide-x divide-slate-100 border-b border-slate-100">
+                    {kpiCards.map((card) => {
+                      const Icon = card.icon;
+                      return (
+                        <div
+                          key={card.title}
+                          className={`p-4 bg-gradient-to-br ${card.bg} flex flex-col gap-1`}
+                        >
+                          <div
+                            className={`w-8 h-8 rounded-xl ${card.iconBg} flex items-center justify-center mb-2`}
+                          >
+                            <Icon size={15} className={card.iconColor} />
+                          </div>
+                          <p className={`text-2xl font-bold ${card.valColor}`}>
+                            {card.value}
+                          </p>
+                          <p className="text-xs font-bold text-slate-400 uppercase tracking-wider">
+                            {card.title}
+                          </p>
+                        </div>
+                      );
+                    })}
+                  </div>
+
+                  {/* Roster Header */}
+                  <div className="px-5 pt-4 pb-3 border-b border-slate-50">
+                    <h2 className="text-sm font-bold text-gray-800 tracking-tight">
+                      Attendance Roster
+                    </h2>
+                    <p className="text-xs text-slate-400 font-normal">
+                      Showing{" "}
+                      {filteredEmployees.length === 0
+                        ? 0
+                        : indexOfFirstEmployee + 1}
+                      –{Math.min(indexOfLastEmployee, filteredEmployees.length)} of{" "}
+                      {filteredEmployees.length} employees
+                    </p>
+                  </div>
+
+                  {/* Roster Table */}
+                  {filteredEmployees.length === 0 ? (
+                    <div className="flex flex-col items-center justify-center py-16 text-center">
+                      <div className="w-14 h-14 rounded-2xl bg-slate-100 flex items-center justify-center mx-auto mb-4">
+                        <FiUsers size={26} className="text-slate-300" />
+                      </div>
+                      <p className="text-sm font-semibold text-slate-500">
+                        No employees found
+                      </p>
+                      <p className="text-xs text-slate-300 mt-1 font-normal">
+                        Try adjusting your filters
+                      </p>
+                    </div>
+                  ) : (
+                    <div className="overflow-auto max-h-72">
+                      <table className="w-full text-sm">
+                        <thead>
+                          <tr className="border-b border-slate-100 bg-slate-50/70">
+                            <th className="text-left px-5 py-3 text-xs font-bold text-slate-400 uppercase tracking-wider">
+                              Employee
+                            </th>
+                            <th className="text-left px-5 py-3 text-xs font-bold text-slate-400 uppercase tracking-wider">
+                              Department
+                            </th>
+                            <th className="text-left px-5 py-3 text-xs font-bold text-slate-400 uppercase tracking-wider hidden md:table-cell">
+                              Role
+                            </th>
+                            <th className="text-left px-5 py-3 text-xs font-bold text-slate-400 uppercase tracking-wider">
+                              Status
+                            </th>
+                          </tr>
+                        </thead>
+                        {/* <tbody>
+                      {filteredEmployees.map((emp, idx) => { */}
+                        <tbody>
+                          {currentEmployees.map((emp, idx) => {
+                            const sc =
+                              statusConfig[(emp.status || "").toLowerCase()] ||
+                              statusConfig.absent;
+                            const grad =
+                              avatarGradients[idx % avatarGradients.length];
+
+                            return (
+                              <tr
+                                key={emp.id}
+                                className="border-b border-slate-50 hover:bg-slate-50/60 transition-colors"
+                              >
+                                <td className="px-5 py-3">
+                                  <div className="flex items-center gap-3">
+                                    <div
+                                      className={`w-8 h-8 rounded-xl bg-gradient-to-br ${grad} flex items-center justify-center text-white text-xs font-bold flex-shrink-0`}
+                                    >
+                                      {emp.employeeName
+                                        ?.split(" ")
+                                        .map((n) => n[0])
+                                        .join("")}
+                                    </div>
+                                    <span className="font-semibold text-gray-700">
+                                      {emp.employeeName}
+                                    </span>
+                                  </div>
+                                </td>
+                                <td className="px-5 py-3 text-slate-500 font-normal">
+                                  {emp.department}
+                                </td>
+                                <td className="px-5 py-3 text-slate-400 font-normal hidden md:table-cell">
+                                  {emp.designation}
+                                </td>
+                                <td className="px-5 py-3">
+                                  <span
+                                    className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold ${sc.color}`}
+                                  >
+                                    <span
+                                      className={`w-1.5 h-1.5 rounded-full ${sc.dot}`}
+                                    />
+                                    {sc.label}
+                                  </span>
+                                </td>
+                              </tr>
+                            );
+                          })}
+                        </tbody>
+                      </table>
+                    </div>
+                  )}
+
+                  {totalPages > 1 && (
+                    <div className="flex items-center justify-between px-5 py-3 border-t border-slate-100">
+                      <button
+                        onClick={() => setCurrentPage((prev) => prev - 1)}
+                        disabled={currentPage === 1}
+                        className="px-3 py-1.5 text-sm rounded-lg bg-slate-100 disabled:opacity-40 hover:bg-slate-200"
+                      >
+                        Previous
+                      </button>
+
+                      <div className="flex gap-2">
+                        {[...Array(totalPages)].map((_, i) => (
+                          <button
+                            key={i}
+                            onClick={() => setCurrentPage(i + 1)}
+                            className={`w-8 h-8 rounded-lg text-sm font-semibold ${currentPage === i + 1
+                              ? "bg-blue-600 text-white"
+                              : "bg-slate-100 hover:bg-slate-200"
+                              }`}
+                          >
+                            {i + 1}
+                          </button>
+                        ))}
+                      </div>
+
+                      <button
+                        onClick={() => setCurrentPage((prev) => prev + 1)}
+                        disabled={currentPage === totalPages}
+                        className="px-3 py-1.5 text-sm rounded-lg bg-slate-100 disabled:opacity-40 hover:bg-slate-200"
+                      >
+                        Next
+                      </button>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+          )}
+
+        </main>
       </div>
     </div>
   );

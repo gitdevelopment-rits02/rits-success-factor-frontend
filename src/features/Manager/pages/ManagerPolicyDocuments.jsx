@@ -26,7 +26,7 @@ export default function EmployeePoliciesPage() {
     (state) => state.manager.policyDocuments
   );
 
-  console.log("Redux Data FULL:", JSON.stringify(policies, null, 2));
+  // console.log("Redux Data FULL:", JSON.stringify(policies, null, 2));
 
   //const [selectedPolicy, setSelectedPolicy] = useState(null);
   const [search, setSearch] = useState("");
@@ -44,8 +44,8 @@ export default function EmployeePoliciesPage() {
     : [];
 
   if (loading) {
-  return <ManagerPolicyDocumentSkeleton count={5} />;
-}
+    return <ManagerPolicyDocumentSkeleton count={5} />;
+  }
 
   if (error) {
     return <div className="p-6 text-red-500">Error: {error}</div>;
@@ -170,4 +170,3 @@ export default function EmployeePoliciesPage() {
     </div>
   );
 }
- 

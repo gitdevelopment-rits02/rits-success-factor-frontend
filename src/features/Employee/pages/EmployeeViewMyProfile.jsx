@@ -19,54 +19,54 @@ import {
   FiMonitor,
 } from "react-icons/fi";
 import theme from "../../../assets/background.png";
- 
+
 import { useDispatch, useSelector } from "react-redux";
 import employeeViewMyProfileThunk from "../Redux/thunks/EmployeeViewMyProfileThunk";
 import EmployeeViewMyProfileSkeleton from "./EmployeeViewMyProfileSkeleton";
- 
+
 const CURRENT_ROLE = "employee"; // employee | admin | hr
- 
+
 export default function EmployeeProfilePage() {
   const dispatch = useDispatch();
   const profileState =
     useSelector((state) => state.employee.viewMyProfile) || {};
   const { loading = false, data = null, error = null } = profileState;
- 
+
   useEffect(() => {
     dispatch(employeeViewMyProfileThunk());
   }, [dispatch]);
- 
+
   useEffect(() => {
-    console.log("Employee Profile State:", profileState);
+    // console.log("Employee Profile State:", profileState);
   }, [profileState]);
- 
+
   // ✅ Skeleton delay state
   const [showSkeleton, setShowSkeleton] = useState(true);
- 
+
   useEffect(() => {
     const timer = setTimeout(() => setShowSkeleton(false), 2000);
     return () => clearTimeout(timer);
   }, []);
- 
+
   // ✅ Restore your original states
   const canEdit = CURRENT_ROLE === "admin" || CURRENT_ROLE === "hr";
- 
+
   const [avatar, setAvatar] = useState(
     localStorage.getItem("employee_avatar")
   );
- 
+
   const [documents, setDocuments] = useState({
     certificate: localStorage.getItem("employee_certificate"),
     idProof: localStorage.getItem("employee_idProof"),
   });
- 
+
   const [viewDoc, setViewDoc] = useState({
     certificate: !!localStorage.getItem("employee_certificate"),
     idProof: !!localStorage.getItem("employee_idProof"),
   });
- 
+
   const [fullscreenDoc, setFullscreenDoc] = useState(null);
- 
+
   const profile = data || {};
   const header = profile.header || {};
   const professionalMatrix = profile.professionalMatrix || {};
@@ -75,7 +75,7 @@ export default function EmployeeProfilePage() {
   const experience = profile.experience || [];
   const complianceDocs = profile.complianceDocs || [];
   const assets = profile.assets || [];
- 
+
   const handleImageUpload = (e) => {
     if (!canEdit) return;
     const file = e.target.files[0];
@@ -87,7 +87,7 @@ export default function EmployeeProfilePage() {
     };
     reader.readAsDataURL(file);
   };
- 
+
   const handleDocUpload = (type, e) => {
     if (!canEdit) return;
     const file = e.target.files[0];
@@ -102,19 +102,19 @@ export default function EmployeeProfilePage() {
     };
     reader.readAsDataURL(file);
   };
- 
+
   const toggleView = (type) => {
     setViewDoc((prev) => ({
       ...prev,
       [type]: !prev[type],
     }));
   };
- 
-  
+
+
   if (loading || showSkeleton) return <EmployeeViewMyProfileSkeleton />;
   if (error)
     return <p className="p-6 text-red-500">Failed to load profile</p>;
- 
+
   return (
     <div
       className="min-h-screen bg-cover bg-center"
@@ -136,10 +136,10 @@ export default function EmployeeProfilePage() {
               </label>
             )}
           </div>
- 
+
           <div className="flex-1">
             <h1 className="text-3xl font-extrabold">{header.fullName}</h1>
- 
+
             <div className="flex items-center gap-3 mt-2">
               <span className="text-indigo-600 font-semibold flex items-center gap-1">
                 <FiBriefcase /> {header.role}
@@ -151,7 +151,7 @@ export default function EmployeeProfilePage() {
                 {header.status}
               </span>
             </div>
- 
+
             <div className="flex flex-wrap gap-6 mt-4 text-sm text-slate-600">
               <span className="flex items-center gap-2">
                 <FiMail /> {header.officialEmail}
@@ -165,7 +165,7 @@ export default function EmployeeProfilePage() {
             </div>
           </div>
         </div>
- 
+
         {/* ================= CONTENT GRID ================= */}
         <div className="grid grid-cols-12 gap-6 mt-6">
           {/* LEFT SECTION */}
@@ -194,7 +194,7 @@ export default function EmployeeProfilePage() {
                 />
               </div>
             </Card>
- 
+
             {/* ================= QUALIFICATIONS ================= */}
             <div className="bg-white rounded-2xl shadow-sm p-6">
               <div className="flex items-center gap-2 mb-6">
@@ -203,10 +203,10 @@ export default function EmployeeProfilePage() {
                   Qualifications
                 </h3>
               </div>
- 
+
               <div className="relative pl-6">
                 <div className="absolute left-[9px] top-0 bottom-0 w-px bg-gray-200" />
- 
+
                 {qualifications.map((item, index) => (
                   <div key={index} className="relative mb-8 flex gap-4">
                     <div className="w-4 h-4 rounded-full border-2 bg-white mt-1 border-indigo-600" />
@@ -227,7 +227,7 @@ export default function EmployeeProfilePage() {
                 ))}
               </div>
             </div>
- 
+
             {/* ================= EXPERIENCE ================= */}
             <div className="bg-white rounded-2xl shadow-sm p-6">
               <div className="flex items-center gap-2 mb-6">
@@ -236,10 +236,10 @@ export default function EmployeeProfilePage() {
                   Experience
                 </h3>
               </div>
- 
+
               <div className="relative pl-6">
                 <div className="absolute left-[9px] top-0 bottom-0 w-px bg-gray-200" />
- 
+
                 {experience.map((item, index) => (
                   <div key={index} className="relative mb-8 flex gap-4">
                     <div className="w-4 h-4 rounded-full border-2 bg-white mt-1 border-indigo-600" />
@@ -252,11 +252,11 @@ export default function EmployeeProfilePage() {
                           {item.duration}
                         </span>
                       </div>
- 
+
                       <p className="text-sm text-indigo-600 mt-1">
                         {item.company}
                       </p>
- 
+
                       {item.documentUrl && (
                         <div className="mt-3">
                           <a
@@ -275,7 +275,7 @@ export default function EmployeeProfilePage() {
               </div>
             </div>
           </div>
- 
+
           {/* RIGHT SECTION */}
           <div className="col-span-12 lg:col-span-4 space-y-6">
             <Card title="Identity Info" icon={<FiKey />}>
@@ -293,7 +293,7 @@ export default function EmployeeProfilePage() {
                 value={identityInfo.address}
               />
             </Card>
- 
+
             <Card title="Compliance Docs" icon={<FiFileText />}>
               {complianceDocs.map((doc, index) => (
                 <div key={index} className="mb-5 text-sm">
@@ -302,7 +302,7 @@ export default function EmployeeProfilePage() {
                       <FiCheckCircle className="text-green-500" />
                       {doc.name}
                     </span>
- 
+
                     <div className="flex items-center gap-3">
                       <a
                         href={doc.url}
@@ -317,7 +317,7 @@ export default function EmployeeProfilePage() {
                 </div>
               ))}
             </Card>
- 
+
             <Card title="Assigned Assets" icon={<FiMonitor />}>
               <div className="space-y-4 text-sm">
                 {assets.map((asset, index) => (
@@ -329,7 +329,7 @@ export default function EmployeeProfilePage() {
                       <p className="font-semibold">{asset.name}</p>
                       <p className="text-xs text-slate-400">{asset.code}</p>
                     </div>
- 
+
                     <span className="text-xs px-3 py-1 rounded-full bg-green-100 text-green-600">
                       {asset.status}
                     </span>
@@ -340,7 +340,7 @@ export default function EmployeeProfilePage() {
           </div>
         </div>
       </div>
- 
+
       {/* ================= FULLSCREEN DOCUMENT VIEWER ================= */}
       {fullscreenDoc && (
         <div className="fixed inset-0 z-[9999] bg-black/80 flex items-center justify-center p-6">
@@ -350,7 +350,7 @@ export default function EmployeeProfilePage() {
           >
             <FiEyeOff size={20} />
           </button>
- 
+
           <img
             src={fullscreenDoc.src}
             alt={fullscreenDoc.label}
@@ -361,9 +361,9 @@ export default function EmployeeProfilePage() {
     </div>
   );
 }
- 
+
 /* ================= REUSABLE COMPONENTS ================= */
- 
+
 function Card({ title, icon, right, children }) {
   return (
     <div className="bg-white rounded-2xl shadow-sm p-6">
@@ -382,7 +382,7 @@ function Card({ title, icon, right, children }) {
     </div>
   );
 }
- 
+
 function Matrix({ icon, label, value }) {
   return (
     <div className="flex items-center gap-4 bg-slate-50 p-4 rounded-xl">
@@ -396,7 +396,7 @@ function Matrix({ icon, label, value }) {
     </div>
   );
 }
- 
+
 function Info({ label, value }) {
   return (
     <div className="mb-4 text-sm">
@@ -405,5 +405,4 @@ function Info({ label, value }) {
     </div>
   );
 }
- 
- 
+

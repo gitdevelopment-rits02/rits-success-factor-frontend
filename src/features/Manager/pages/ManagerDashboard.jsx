@@ -1,5 +1,5 @@
-import React, { useState } from "react";        
-import { useDispatch, useSelector } from "react-redux";   
+import React, { useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import { useEffect } from "react";
 import managerDashboardThunk from "../Redux/thunks/ManagerDashboardThunk";
 import ManagerDashboardSkeleton from "./ManagerDashboardSkeleton";
@@ -49,31 +49,31 @@ const EmployeeLearning = () => {
 
   const dispatch = useDispatch();
   const {
-  dashboardData,
-  getDashboardDataLoading,
-} = useSelector((state) => state.manager.dashboard);
-const announcements = dashboardData?.announcements || [];
+    dashboardData,
+    getDashboardDataLoading,
+  } = useSelector((state) => state.manager?.dashboard) || {};
+  const announcements = dashboardData?.announcements || [];
 
 
-// ⭐ YOU FORGOT THIS
-const leaveBalances = dashboardData?.leaveBalances || [];
+  // ⭐ YOU FORGOT THIS
+  const leaveBalances = dashboardData?.leaveBalances || [];
 
 
 
 
-const attendanceSummary = dashboardData?.attendanceSummary || {};
+  const attendanceSummary = dashboardData?.attendanceSummary || {};
 
-useEffect(() => {
-  const month = currentMonth.getMonth() + 1;
-  const year = currentMonth.getFullYear();
+  useEffect(() => {
+    const month = currentMonth.getMonth() + 1;
+    const year = currentMonth.getFullYear();
 
-  dispatch(
-    managerDashboardThunk.getDashboardDataThunk({
-      month,
-      year,
-    })
-  );
-}, [dispatch, currentMonth]);
+    dispatch(
+      managerDashboardThunk.getDashboardDataThunk({
+        month,
+        year,
+      })
+    );
+  }, [dispatch, currentMonth]);
 
 
   useEffect(() => {
@@ -174,22 +174,22 @@ useEffect(() => {
 
     return days;
   };
-const attendanceData = dashboardData?.attendance || [];
+  const attendanceData = dashboardData?.attendance || [];
 
 
 
-const attendanceMap = React.useMemo(() => {
-  const map = {};
+  const attendanceMap = React.useMemo(() => {
+    const map = {};
 
-  if (Array.isArray(attendanceData)) {
-    attendanceData.forEach((item) => {
-      const day = new Date(item.date).getUTCDate();
-      map[day] = item.status;
-    });
-  }
+    if (Array.isArray(attendanceData)) {
+      attendanceData.forEach((item) => {
+        const day = new Date(item.date).getUTCDate();
+        map[day] = item.status;
+      });
+    }
 
-  return map;
-}, [attendanceData]);
+    return map;
+  }, [attendanceData]);
 
 
 
@@ -422,11 +422,10 @@ const attendanceMap = React.useMemo(() => {
               <button
                 key={year}
                 onClick={() => setSelectedYear(year)}
-                className={`p-1.5 text-xs rounded border ${
-                  selectedYear === year
-                    ? "bg-blue-600 text-white border-blue-600"
-                    : "bg-gray-50 text-gray-700 border-gray-200 hover:bg-gray-100"
-                }`}
+                className={`p-1.5 text-xs rounded border ${selectedYear === year
+                  ? "bg-blue-600 text-white border-blue-600"
+                  : "bg-gray-50 text-gray-700 border-gray-200 hover:bg-gray-100"
+                  }`}
               >
                 {year}
               </button>
@@ -441,11 +440,10 @@ const attendanceMap = React.useMemo(() => {
               <button
                 key={month}
                 onClick={() => setSelectedMonth(index)}
-                className={`p-1.5 text-xs rounded border ${
-                  selectedMonth === index
-                    ? "bg-blue-600 text-white border-blue-600"
-                    : "bg-gray-50 text-gray-700 border-gray-200 hover:bg-gray-100"
-                }`}
+                className={`p-1.5 text-xs rounded border ${selectedMonth === index
+                  ? "bg-blue-600 text-white border-blue-600"
+                  : "bg-gray-50 text-gray-700 border-gray-200 hover:bg-gray-100"
+                  }`}
               >
                 {month.substring(0, 3)}
               </button>
@@ -486,18 +484,16 @@ const attendanceMap = React.useMemo(() => {
               className="flex items-start p-2 border border-gray-100 rounded hover:bg-gray-50 transition-colors"
             >
               <div
-                className={`p-1.5 rounded mr-2 ${
-                  announcement.type === "meeting"
-                    ? "bg-blue-50 border border-blue-200"
-                    : "bg-green-50 border border-green-200"
-                }`}
+                className={`p-1.5 rounded mr-2 ${announcement.type === "meeting"
+                  ? "bg-blue-50 border border-blue-200"
+                  : "bg-green-50 border border-green-200"
+                  }`}
               >
                 <Bell
-                  className={`w-3 h-3 ${
-                    announcement.type === "meeting"
-                      ? "text-blue-600"
-                      : "text-green-600"
-                  }`}
+                  className={`w-3 h-3 ${announcement.type === "meeting"
+                    ? "text-blue-600"
+                    : "text-green-600"
+                    }`}
                 />
               </div>
               <div className="flex-1">
@@ -742,7 +738,7 @@ const attendanceMap = React.useMemo(() => {
                   Present
                 </p>
                 <p className="text-lg font-black text-gray-800">
-                  {attendanceSummary?.present|| 0}
+                  {attendanceSummary?.present || 0}
 
                 </p>
                 <div className="h-1 bg-gray-100 rounded-full overflow-hidden mt-2">
@@ -1016,11 +1012,10 @@ const attendanceMap = React.useMemo(() => {
               className="group relative flex items-start p-4 bg-gradient-to-br from-gray-50 to-white border border-gray-100 rounded-2xl hover:border-indigo-200 hover:shadow-sm transition-all duration-300"
             >
               <div
-                className={`p-3 rounded-xl mr-4 flex-shrink-0 transition-all duration-300 ${
-                  announcement.type === "meeting"
-                    ? "bg-blue-50 text-blue-600 group-hover:bg-blue-600 group-hover:text-white"
-                    : "bg-emerald-50 text-emerald-600 group-hover:bg-emerald-600 group-hover:text-white"
-                }`}
+                className={`p-3 rounded-xl mr-4 flex-shrink-0 transition-all duration-300 ${announcement.type === "meeting"
+                  ? "bg-blue-50 text-blue-600 group-hover:bg-blue-600 group-hover:text-white"
+                  : "bg-emerald-50 text-emerald-600 group-hover:bg-emerald-600 group-hover:text-white"
+                  }`}
               >
                 <Bell className="w-5 h-5" />
               </div>
@@ -1081,8 +1076,8 @@ const attendanceMap = React.useMemo(() => {
         )}
       </div>
 
-      
-     
+
+
 
       {/* Footer */}
       <footer className="pb-16 pt-3">

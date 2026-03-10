@@ -1,156 +1,251 @@
 import { useState, useEffect, useMemo } from "react";
 import {
-  FiSearch, FiCheckCircle, FiXCircle, FiClock,
-  FiAlertTriangle, FiZap, FiClipboard, FiUser,
-  FiMoreVertical, FiFileText, FiDownload,
+  FiSearch,
+  FiCheckCircle,
+  FiXCircle,
+  FiClock,
+  FiAlertTriangle,
+  FiZap,
+  FiClipboard,
+  FiUser,
+  FiMoreVertical,
+  FiFileText,
+  FiDownload,
 } from "react-icons/fi";
 
-/* ─── export stubs — swap with real jsPDF / SheetJS imports ─── */
-const exportPDFStub   = () => alert("PDF export — connect jsPDF.");
-const exportExcelStub = () => alert("Excel export — connect SheetJS.");
+import { useDispatch, useSelector } from "react-redux";
+import hrTimeSheetThunk from "../Redux/thunks/HrTimeSheetThunk";
 
-/* ─── data ─── */
-const RECORDS_INIT = [
-  { name:"John Doe",      role:"Sales (ID: 1023)",     department:"Sales",    location:"Office",  date:"2026-02-12", clockIn:"09:05", clockOut:"17:30", status:"Late"     },
-  { name:"Jane Smith",    role:"Sales (ID: 1024)",     department:"Sales",    location:"Remote",  date:"2026-02-12", clockIn:"09:00", clockOut:"17:15", status:"On Time"  },
-  { name:"Mike Brown",    role:"HR (ID: 1025)",        department:"HR",       location:"Office",  date:"2026-02-12", clockIn:"--",    clockOut:"--",    status:"Absent"   },
-  { name:"Anna Lee",      role:"IT (ID: 1026)",        department:"IT",       location:"On-Site", date:"2026-02-12", clockIn:"08:45", clockOut:"19:35", status:"On Time"  },
-  { name:"David Clark",   role:"IT (ID: 1027)",        department:"IT",       location:"Remote",  date:"2026-02-12", clockIn:"09:00", clockOut:"18:00", status:"On Time"  },
-  { name:"Sophia Wilson", role:"HR (ID: 1028)",        department:"HR",       location:"Office",  date:"2026-02-12", clockIn:"09:10", clockOut:"17:10", status:"Late"     },
-  { name:"Robert King",   role:"Finance (ID: 1029)",   department:"Finance",  location:"Office",  date:"2026-02-09", clockIn:"09:00", clockOut:"17:30", status:"On Time"  },
-  { name:"Emily Davis",   role:"Marketing (ID: 1030)", department:"Marketing",location:"Remote",  date:"2026-02-09", clockIn:"09:15", clockOut:"16:45", status:"Late"     },
-  { name:"John Doe",      role:"Sales (ID: 1023)",     department:"Sales",    location:"Office",  date:"2026-02-10", clockIn:"09:00", clockOut:"17:00", status:"On Time"  },
-  { name:"Jane Smith",    role:"Sales (ID: 1024)",     department:"Sales",    location:"Remote",  date:"2026-02-10", clockIn:"08:55", clockOut:"17:20", status:"On Time"  },
-  { name:"Mike Brown",    role:"HR (ID: 1025)",        department:"HR",       location:"Office",  date:"2026-02-10", clockIn:"09:05", clockOut:"17:05", status:"Late"     },
-  { name:"Anna Lee",      role:"IT (ID: 1026)",        department:"IT",       location:"On-Site", date:"2026-02-11", clockIn:"08:50", clockOut:"18:00", status:"On Time"  },
-  { name:"David Clark",   role:"IT (ID: 1027)",        department:"IT",       location:"Remote",  date:"2026-02-11", clockIn:"09:00", clockOut:"17:30", status:"On Time"  },
-  { name:"Sophia Wilson", role:"HR (ID: 1028)",        department:"HR",       location:"Office",  date:"2026-02-11", clockIn:"09:20", clockOut:"17:00", status:"Late"     },
-  { name:"Robert King",   role:"Finance (ID: 1029)",   department:"Finance",  location:"Office",  date:"2026-02-11", clockIn:"--",    clockOut:"--",    status:"Absent"   },
-  { name:"Emily Davis",   role:"Marketing (ID: 1030)", department:"Marketing",location:"Remote",  date:"2026-02-01", clockIn:"09:00", clockOut:"17:00", status:"Approved" },
-  { name:"John Doe",      role:"Sales (ID: 1023)",     department:"Sales",    location:"Office",  date:"2026-02-01", clockIn:"09:10", clockOut:"17:30", status:"Pending"  },
-  { name:"Jane Smith",    role:"Sales (ID: 1024)",     department:"Sales",    location:"Remote",  date:"2026-02-02", clockIn:"09:00", clockOut:"18:00", status:"Approved" },
-  { name:"Mike Brown",    role:"HR (ID: 1025)",        department:"HR",       location:"Office",  date:"2026-02-02", clockIn:"09:00", clockOut:"17:00", status:"Approved" },
-  { name:"Anna Lee",      role:"IT (ID: 1026)",        department:"IT",       location:"On-Site", date:"2026-02-03", clockIn:"08:45", clockOut:"19:00", status:"Pending"  },
-  { name:"David Clark",   role:"IT (ID: 1027)",        department:"IT",       location:"Remote",  date:"2026-02-03", clockIn:"09:00", clockOut:"17:30", status:"Approved" },
-  { name:"Sophia Wilson", role:"HR (ID: 1028)",        department:"HR",       location:"Office",  date:"2026-02-04", clockIn:"09:15", clockOut:"17:00", status:"Pending"  },
-  { name:"Robert King",   role:"Finance (ID: 1029)",   department:"Finance",  location:"Office",  date:"2026-02-04", clockIn:"09:00", clockOut:"17:30", status:"Approved" },
-  { name:"Emily Davis",   role:"Marketing (ID: 1030)", department:"Marketing",location:"Remote",  date:"2026-02-05", clockIn:"09:05", clockOut:"17:00", status:"Pending"  },
-  { name:"John Doe",      role:"Sales (ID: 1023)",     department:"Sales",    location:"Office",  date:"2026-02-05", clockIn:"09:00", clockOut:"17:00", status:"Approved" },
-  { name:"Jane Smith",    role:"Sales (ID: 1024)",     department:"Sales",    location:"Remote",  date:"2026-02-06", clockIn:"--",    clockOut:"--",    status:"Absent"   },
-  { name:"Mike Brown",    role:"HR (ID: 1025)",        department:"HR",       location:"Office",  date:"2026-02-06", clockIn:"09:00", clockOut:"17:00", status:"Approved" },
-  { name:"Anna Lee",      role:"IT (ID: 1026)",        department:"IT",       location:"On-Site", date:"2026-02-07", clockIn:"08:50", clockOut:"18:30", status:"Pending"  },
-  { name:"David Clark",   role:"IT (ID: 1027)",        department:"IT",       location:"Remote",  date:"2026-02-07", clockIn:"09:00", clockOut:"17:00", status:"Approved" },
-  { name:"Sophia Wilson", role:"HR (ID: 1028)",        department:"HR",       location:"Office",  date:"2026-02-08", clockIn:"09:10", clockOut:"17:10", status:"Pending"  },
-];
-
-/* ─── helpers ─── */
+/* helpers */
 const calcHours = (inT, outT, date) => {
-  if (inT === "--") return 0;
-  const [ih, im] = inT.split(":").map(Number);
-  const start = new Date(date); start.setHours(ih, im, 0, 0);
-  let end;
-  if (outT === "--" || new Date(date).toDateString() === new Date().toDateString()) end = new Date();
-  else { const [oh, om] = outT.split(":").map(Number); end = new Date(date); end.setHours(oh, om, 0, 0); }
-  return Math.max((end - start) / 3_600_000, 0);
+  if (!inT || inT === "--") return 0;
+
+  const start = new Date(`${date} ${inT}`);
+
+  const end = outT && outT !== "--" ? new Date(`${date} ${outT}`) : new Date();
+
+  return Math.max((end - start) / 3600000, 0);
 };
 
-const initials = n => n.split(" ").map(w => w[0]).join("").slice(0, 2).toUpperCase();
+const initials = (n = "") =>
+  n
+    .split(" ")
+    .map((w) => w[0])
+    .join("")
+    .slice(0, 2)
+    .toUpperCase();
 
 const AVATAR_PAL = [
-  { bg:"#e8f0fe", color:"#1d4ed8" },
-  { bg:"#fce7f3", color:"#be185d" },
-  { bg:"#d1fae5", color:"#065f46" },
-  { bg:"#fef3c7", color:"#92400e" },
-  { bg:"#ede9fe", color:"#5b21b6" },
-  { bg:"#ffedd5", color:"#9a3412" },
+  { bg: "#e8f0fe", color: "#1d4ed8" },
+  { bg: "#fce7f3", color: "#be185d" },
+  { bg: "#d1fae5", color: "#065f46" },
+  { bg: "#fef3c7", color: "#92400e" },
+  { bg: "#ede9fe", color: "#5b21b6" },
+  { bg: "#ffedd5", color: "#9a3412" },
 ];
-const av = name => AVATAR_PAL[name.charCodeAt(0) % AVATAR_PAL.length];
+const av = (name) =>
+  AVATAR_PAL[(name?.charCodeAt?.(0) || 0) % AVATAR_PAL.length];
 
 const STATUS_STYLE = {
-  "Approved" : { bg:"#dcfce7", color:"#15803d" },
-  "On Time"  : { bg:"#dcfce7", color:"#15803d" },
-  "Pending"  : { bg:"#fef9c3", color:"#a16207" },
-  "Late"     : { bg:"#fef3c7", color:"#b45309" },
-  "Absent"   : { bg:"#fee2e2", color:"#b91c1c" },
+  Approved: { bg: "#dcfce7", color: "#15803d" },
+  "On Time": { bg: "#dcfce7", color: "#15803d" },
+  Pending: { bg: "#fef9c3", color: "#a16207" },
+  Late: { bg: "#fef3c7", color: "#b45309" },
+  Absent: { bg: "#fee2e2", color: "#b91c1c" },
 };
 
 const DEPT_STYLE = {
-  "Sales"    : { bg:"#dbeafe", color:"#1e40af" },
-  "HR"       : { bg:"#fce7f3", color:"#9d174d" },
-  "IT"       : { bg:"#ede9fe", color:"#4c1d95" },
-  "Finance"  : { bg:"#fef3c7", color:"#78350f" },
-  "Marketing": { bg:"#ffedd5", color:"#7c2d12" },
-  "Engineering":{ bg:"#d1fae5", color:"#064e3b" },
+  Sales: { bg: "#dbeafe", color: "#1e40af" },
+  HR: { bg: "#fce7f3", color: "#9d174d" },
+  IT: { bg: "#ede9fe", color: "#4c1d95" },
+  Finance: { bg: "#fef3c7", color: "#78350f" },
+  Marketing: { bg: "#ffedd5", color: "#7c2d12" },
+  Engineering: { bg: "#d1fae5", color: "#064e3b" },
+  "cloud aws": { bg: "#e0f2fe", color: "#0369a1" },
 };
 
-/* ─── component ─── */
+/*  component */
 export default function SuperAdminTimeSheet() {
-  const [filter,       setFilter]       = useState("Today");
-  const [search,       setSearch]       = useState("");
+  const dispatch = useDispatch();
+
+  const records = useSelector((state) => state.hr?.timesheet?.data || []);
+  const loading = useSelector((state) => state.hr?.timesheet?.loading || false);
+  const error = useSelector((state) => state.hr?.timesheet?.error || null);
+
+  const [filter, setFilter] = useState("This Month");
+  const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("All");
   const [selectedRows, setSelectedRows] = useState([]);
-  const [openAction,   setOpenAction]   = useState(null);
-  const [bulkFlash,    setBulkFlash]    = useState(false);
-  const [records,      setRecords]      = useState(RECORDS_INIT);
+  const [openAction, setOpenAction] = useState(null);
+  const [bulkFlash, setBulkFlash] = useState(false);
 
-  const matchDate = dateStr => {
-    const d = new Date(dateStr), today = new Date();
-    if (filter === "Today")     return d.toDateString() === today.toDateString();
-    if (filter === "This Week") {
-      const s = new Date(today); s.setDate(today.getDate() - today.getDay());
-      const e = new Date(s);     e.setDate(s.getDate() + 6);
-      return d >= s && d <= e;
-    }
-    return d.getMonth() === today.getMonth() && d.getFullYear() === today.getFullYear();
+  // Fetch Timesheets
+  useEffect(() => {
+    dispatch(hrTimeSheetThunk.fetchTimeSheets());
+  }, [dispatch]);
+
+  const exportPDFStub = () => {
+    dispatch(hrTimeSheetThunk.downloadPDF());
   };
 
-  const filtered = useMemo(() => records.filter(r => {
-    const q = `${r.name} ${r.role} ${r.department}`.toLowerCase();
-    return q.includes(search.toLowerCase())
-      && (statusFilter === "All" || r.status === statusFilter)
-      && matchDate(r.date);
-  }), [records, search, statusFilter, filter]);
+  const exportExcelStub = () => {
+    dispatch(hrTimeSheetThunk.downloadExcel());
+  };
+
+  const matchDate = (dateStr) => {
+    if (!dateStr) return true;
+
+    const d = new Date(dateStr);
+    const today = new Date();
+
+    if (filter === "Today") {
+      return d.toDateString() === today.toDateString();
+    }
+
+    if (filter === "This Week") {
+      const start = new Date(today);
+      start.setDate(today.getDate() - today.getDay());
+      start.setHours(0, 0, 0, 0);
+
+      const end = new Date(start);
+      end.setDate(start.getDate() + 6);
+      end.setHours(23, 59, 59, 999);
+
+      return d >= start && d <= end;
+    }
+
+    if (filter === "This Month") {
+      return (
+        d.getMonth() === today.getMonth() &&
+        d.getFullYear() === today.getFullYear()
+      );
+    }
+
+    return true;
+  };
+
+  const filtered = useMemo(() => {
+    const safeRecords = Array.isArray(records) ? records : [];
+
+    return records.filter((r) => {
+      const q =
+        `${r.name || ""} ${r.employeeNo || ""} ${r.department || ""}`.toLowerCase();
+
+      const searchMatch = q.includes(search.toLowerCase());
+
+      const statusMatch =
+        statusFilter === "All" ||
+        r.approvalStatus === statusFilter ||
+        r.attendanceStatus === statusFilter;
+
+      const dateMatch = matchDate(r.date);
+
+      return searchMatch && statusMatch && dateMatch;
+    });
+  }, [records, search, statusFilter, filter]);
 
   const stats = useMemo(() => {
-    let hrs = 0, ot = 0, disc = 0, pend = 0;
-    filtered.forEach(r => {
-      const h = calcHours(r.clockIn, r.clockOut, r.date);
-      hrs += h; if (h > 8) ot += h - 8;
-      if (["Late","Absent"].includes(r.status)) disc++;
-      if (r.status === "Pending") pend++;
+    let totalMinutes = 0;
+    let overtimeMinutes = 0;
+    let discrepancies = 0;
+    let pending = 0;
+
+    filtered.forEach((r) => {
+      const minutes = r.totalMinutes || 0;
+
+      totalMinutes += minutes;
+
+      if (minutes > 480) {
+        overtimeMinutes += minutes - 480;
+      }
+
+      if (["Late", "Absent"].includes(r.attendanceStatus)) {
+        discrepancies++;
+      }
+
+      if (r.approvalStatus === "Pending") {
+        pending++;
+      }
     });
+
     return [
-      { label:"Total Hours Worked",   value:hrs.toFixed(1), sub:"hrs",   Icon:FiClock,         bg:"#eef4ff", iconBg:"#dbeafe", iconColor:"#2563eb" },
-      { label:"Active Discrepancies", value:disc,           sub:"flags",  Icon:FiAlertTriangle, bg:"#fff8f0", iconBg:"#ffedd5", iconColor:"#ea580c" },
-      { label:"Overtime Hours",       value:ot.toFixed(1),  sub:"hrs",   Icon:FiZap,           bg:"#f6f2ff", iconBg:"#ede9fe", iconColor:"#7c3aed" },
-      { label:"Pending Approvals",    value:pend,           sub:"tasks",  Icon:FiClipboard,     bg:"#f0fdf4", iconBg:"#dcfce7", iconColor:"#16a34a" },
+      {
+        label: "Total Hours Worked",
+        value: (totalMinutes / 60).toFixed(1),
+        sub: "hrs",
+        Icon: FiClock,
+        bg: "#eef4ff",
+        iconBg: "#dbeafe",
+        iconColor: "#2563eb",
+      },
+      {
+        label: "Active Discrepancies",
+        value: discrepancies,
+        sub: "flags",
+        Icon: FiAlertTriangle,
+        bg: "#fff8f0",
+        iconBg: "#ffedd5",
+        iconColor: "#ea580c",
+      },
+      {
+        label: "Overtime Hours",
+        value: (overtimeMinutes / 60).toFixed(1),
+        sub: "hrs",
+        Icon: FiZap,
+        bg: "#f6f2ff",
+        iconBg: "#ede9fe",
+        iconColor: "#7c3aed",
+      },
+      {
+        label: "Pending Approvals",
+        value: pending,
+        sub: "tasks",
+        Icon: FiClipboard,
+        bg: "#f0fdf4",
+        iconBg: "#dcfce7",
+        iconColor: "#16a34a",
+      },
     ];
   }, [filtered]);
 
   const isMonthly = filter === "This Month";
-  const isToday   = filter === "Today";
+  const isToday = filter === "Today";
 
   const updateStatus = (idx, status) => {
     const rec = filtered[idx];
-    setRecords(prev => prev.map(r =>
-      r.name===rec.name && r.date===rec.date && r.role===rec.role ? { ...r, status } : r
-    ));
+
+    if (!rec) return;
+
+    dispatch(
+      hrTimeSheetThunk.updateStatus({
+        id: rec._id,
+        status,
+      }),
+    );
   };
 
   const bulkApprove = () => {
-    if (!isMonthly || !selectedRows.length) return;
-    setRecords(prev => {
-      const next = [...prev];
-      selectedRows.forEach(i => {
-        const rec = filtered[i];
-        const j = next.findIndex(r => r.name===rec.name && r.date===rec.date && r.role===rec.role);
-        if (next[j].status !== "Absent") next[j] = { ...next[j], status:"Approved" };
-      });
-      return next;
+    if (!selectedRows.length) return;
+
+    selectedRows.forEach((i) => {
+      const rec = filtered[i];
+
+      if (!rec) return;
+
+      dispatch(
+        hrTimeSheetThunk.updateStatus({
+          id: rec._id,
+          status: "Approved",
+        }),
+      );
     });
+
     setSelectedRows([]);
     setBulkFlash(true);
-    setTimeout(() => setBulkFlash(false), 2000);
+
+    setTimeout(() => {
+      setBulkFlash(false);
+    }, 1500);
   };
 
   useEffect(() => {
@@ -158,6 +253,16 @@ export default function SuperAdminTimeSheet() {
     document.addEventListener("click", close);
     return () => document.removeEventListener("click", close);
   }, []);
+
+  if (loading) {
+    return <div style={{ padding: 40 }}>Loading Timesheets...</div>;
+  }
+
+  if (error) {
+    return (
+      <div style={{ padding: 40, color: "red" }}>Failed to load timesheets</div>
+    );
+  }
 
   return (
     <>
@@ -299,12 +404,13 @@ export default function SuperAdminTimeSheet() {
 
       <div className="ts-root">
         <div className="ts-wrap">
-
           {/* HEADER */}
           <div className="ts-header">
             <div>
               <div className="ts-header-title">Time Sheet Dashboard</div>
-              <div className="ts-header-sub">Manage and approve attendance records</div>
+              <div className="ts-header-sub">
+                Manage and approve attendance records
+              </div>
             </div>
             <div className="ts-badge">
               <FiUser size={13} /> Super Admin
@@ -320,7 +426,10 @@ export default function SuperAdminTimeSheet() {
                   <div className="ts-stat-value">{st.value}</div>
                   <div className="ts-stat-sub">{st.sub}</div>
                 </div>
-                <div className="ts-stat-icon" style={{ background: st.iconBg, color: st.iconColor }}>
+                <div
+                  className="ts-stat-icon"
+                  style={{ background: st.iconBg, color: st.iconColor }}
+                >
                   <st.Icon />
                 </div>
               </div>
@@ -329,10 +438,16 @@ export default function SuperAdminTimeSheet() {
 
           {/* TOOLBAR */}
           <div className="ts-toolbar">
-            <div style={{ display:"flex", gap:6, flexWrap:"wrap" }}>
-              {["Today","This Week","This Month"].map(f => (
-                <button key={f} className={`ts-period ${filter===f?"on":"off"}`}
-                  onClick={() => { setFilter(f); setSelectedRows([]); }}>
+            <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
+              {["Today", "This Week", "This Month"].map((f) => (
+                <button
+                  key={f}
+                  className={`ts-period ${filter === f ? "on" : "off"}`}
+                  onClick={() => {
+                    setFilter(f);
+                    setSelectedRows([]);
+                  }}
+                >
                   {f}
                 </button>
               ))}
@@ -340,22 +455,38 @@ export default function SuperAdminTimeSheet() {
 
             <div className="ts-search-wrap">
               <FiSearch className="ts-search-ico" />
-              <input className="ts-search" placeholder="Search by name, ID or department…"
-                value={search} onChange={e => setSearch(e.target.value)} />
+              <input
+                className="ts-search"
+                placeholder="Search by name, ID or department…"
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+              />
             </div>
 
-            <select className="ts-select" value={statusFilter} onChange={e => setStatusFilter(e.target.value)}>
-              {["All","Approved","Pending","Late","On Time","Absent"].map(v => (
-                <option key={v} value={v}>{v === "All" ? "All Status" : v}</option>
-              ))}
+            <select
+              className="ts-select"
+              value={statusFilter}
+              onChange={(e) => setStatusFilter(e.target.value)}
+            >
+              {["All", "Approved", "Pending", "Late", "On Time", "Absent"].map(
+                (v) => (
+                  <option key={v} value={v}>
+                    {v === "All" ? "All Status" : v}
+                  </option>
+                ),
+              )}
             </select>
 
             {isMonthly && (
               <button
                 className={`ts-btn ${selectedRows.length ? "ts-btn-outline" : "ts-btn-dis"}`}
-                onClick={bulkApprove} disabled={!selectedRows.length}>
+                onClick={bulkApprove}
+                disabled={!selectedRows.length}
+              >
                 <FiCheckCircle size={13} />
-                {bulkFlash ? "Approved!" : `Bulk Approve (${selectedRows.length})`}
+                {bulkFlash
+                  ? "Approved!"
+                  : `Bulk Approve (${selectedRows.length})`}
               </button>
             )}
 
@@ -373,19 +504,32 @@ export default function SuperAdminTimeSheet() {
               <table>
                 <thead>
                   <tr>
-                    {isMonthly && <th style={{ width:36 }}>
-                      <input type="checkbox"
-                        checked={selectedRows.length === filtered.length && filtered.length > 0}
-                        onChange={e => setSelectedRows(e.target.checked ? filtered.map((_,i)=>i) : [])} />
-                    </th>}
+                    {isMonthly && (
+                      <th style={{ width: 36 }}>
+                        <input
+                          type="checkbox"
+                          checked={
+                            selectedRows.length === filtered.length &&
+                            filtered.length > 0
+                          }
+                          onChange={(e) =>
+                            setSelectedRows(
+                              e.target.checked ? filtered.map((_, i) => i) : [],
+                            )
+                          }
+                        />
+                      </th>
+                    )}
                     <th>Employee</th>
                     <th className="hide-sm">Department</th>
                     <th className="hide-md">Location</th>
                     <th>Date</th>
-                    {isToday && <>
-                      <th className="hide-sm">Clock In</th>
-                      <th className="hide-sm">Clock Out</th>
-                    </>}
+                    {isToday && (
+                      <>
+                        <th className="hide-sm">Clock In</th>
+                        <th className="hide-sm">Clock Out</th>
+                      </>
+                    )}
                     <th>Total Hrs</th>
                     <th>Status</th>
                     <th>Actions</th>
@@ -396,128 +540,232 @@ export default function SuperAdminTimeSheet() {
                     <tr>
                       <td colSpan={12}>
                         <div className="ts-empty">
-                          <div className="ts-empty-ic"><FiSearch /></div>
+                          <div className="ts-empty-ic">
+                            <FiSearch />
+                          </div>
                           <p>No records match your filters</p>
                         </div>
                       </td>
                     </tr>
-                  ) : filtered.map((r, i) => {
-                    const hrs = calcHours(r.clockIn, r.clockOut, r.date);
-                    const a  = av(r.name);
-                    const sp = STATUS_STYLE[r.status] || { bg:"#f1f5f9", color:"#475569" };
-                    const dp = DEPT_STYLE[r.department] || { bg:"#f1f5f9", color:"#475569" };
-                    return (
-                      <tr key={i}>
-                        {isMonthly && <td>
-                          <input type="checkbox" checked={selectedRows.includes(i)}
-                            onChange={e => setSelectedRows(prev =>
-                              prev.includes(i) ? prev.filter(x=>x!==i) : [...prev,i]
-                            )} />
-                        </td>}
+                  ) : (
+                    filtered.map((r, i) => {
+                      const hrs =
+                        r.totalMinutes !== undefined
+                          ? r.totalMinutes / 60
+                          : calcHours(r.clockIn, r.clockOut, r.date);
+                      const a = av(r.name);
+                      const sp = STATUS_STYLE[r.attendanceStatus] ||
+                        STATUS_STYLE[r.approvalStatus] || {
+                          bg: "#f1f5f9",
+                          color: "#475569",
+                        };
+                      const dp = DEPT_STYLE[r.department] || {
+                        bg: "#f1f5f9",
+                        color: "#475569",
+                      };
+                      return (
+                        <tr key={r._id}>
+                          {isMonthly && (
+                            <td>
+                              <input
+                                type="checkbox"
+                                checked={selectedRows.includes(i)}
+                                onChange={(e) =>
+                                  setSelectedRows((prev) =>
+                                    prev.includes(i)
+                                      ? prev.filter((x) => x !== i)
+                                      : [...prev, i],
+                                  )
+                                }
+                              />
+                            </td>
+                          )}
 
-                        {/* employee */}
-                        <td>
-                          <div style={{ display:"flex", alignItems:"center", gap:10 }}>
-                            <div className="ts-av" style={{ background:a.bg, color:a.color }}>
-                              {initials(r.name)}
+                          {/* employee */}
+                          <td>
+                            <div
+                              style={{
+                                display: "flex",
+                                alignItems: "center",
+                                gap: 10,
+                              }}
+                            >
+                              <div
+                                className="ts-av"
+                                style={{ background: a.bg, color: a.color }}
+                              >
+                                {initials(r.name)}
+                              </div>
+                              <div>
+                                <div className="ts-name">{r.name}</div>
+                                <div className="ts-role">{r.employeeNo}</div>
+                              </div>
                             </div>
-                            <div>
-                              <div className="ts-name">{r.name}</div>
-                              <div className="ts-role">{r.role}</div>
-                            </div>
-                          </div>
-                        </td>
-
-                        <td className="hide-sm">
-                          <span className="ts-pill" style={{ background:dp.bg, color:dp.color }}>
-                            {r.department}
-                          </span>
-                        </td>
-
-                        <td className="hide-md" style={{ fontSize:12, color:"#64748b", fontWeight:500 }}>
-                          {r.location}
-                        </td>
-
-                        <td style={{ fontSize:12, color:"#64748b" }}>{r.date}</td>
-
-                        {isToday && <>
-                          <td className="ts-mono hide-sm"
-                            style={{ color: r.clockIn==="--" ? "#cbd5e1" : "#334155" }}>
-                            {r.clockIn}
                           </td>
-                          <td className="ts-mono hide-sm"
-                            style={{ color: r.clockOut==="--" ? "#cbd5e1" : "#334155" }}>
-                            {r.clockOut}
+
+                          <td className="hide-sm">
+                            <span
+                              className="ts-pill"
+                              style={{ background: dp.bg, color: dp.color }}
+                            >
+                              {r.department}
+                            </span>
                           </td>
-                        </>}
 
-                        <td style={{
-                          fontWeight: 700, fontSize: 13,
-                          color: r.clockIn==="--" ? "#cbd5e1" : hrs > 8 ? "#7c3aed" : "#1e293b"
-                        }}>
-                          {r.clockIn==="--" ? "\u2014" : hrs.toFixed(2)}
-                        </td>
+                          <td
+                            className="hide-md"
+                            style={{
+                              fontSize: 12,
+                              color: "#64748b",
+                              fontWeight: 500,
+                            }}
+                          >
+                            {r.location}
+                          </td>
 
-                        <td>
-                          <span className="ts-pill" style={{ background:sp.bg, color:sp.color }}>
-                            {r.status}
-                          </span>
-                        </td>
+                          <td style={{ fontSize: 12, color: "#64748b" }}>
+                            {r.date}
+                          </td>
 
-                        {/* actions */}
-                        <td>
-                          <div style={{ display:"flex", alignItems:"center", gap:5, position:"relative" }}>
-                            <button
-                              className={`ts-ib ${isMonthly ? "ts-ib-ok" : "ts-ib-off"}`}
-                              onClick={() => isMonthly && updateStatus(i,"Approved")}
-                              title="Approve">
-                              <FiCheckCircle />
-                            </button>
-                            <button
-                              className={`ts-ib ${isMonthly ? "ts-ib-pend" : "ts-ib-off"}`}
-                              onClick={() => isMonthly && updateStatus(i,"Pending")}
-                              title="Mark Pending">
-                              <FiXCircle />
-                            </button>
-                            <div style={{ position:"relative" }}>
+                          {isToday && (
+                            <>
+                              <td
+                                className="ts-mono hide-sm"
+                                style={{
+                                  color:
+                                    r.clockIn === "--" ? "#cbd5e1" : "#334155",
+                                }}
+                              >
+                                {r.clockIn}
+                              </td>
+                              <td
+                                className="ts-mono hide-sm"
+                                style={{
+                                  color:
+                                    r.clockOut === "--" ? "#cbd5e1" : "#334155",
+                                }}
+                              >
+                                {r.clockOut}
+                              </td>
+                            </>
+                          )}
+
+                          <td
+                            style={{
+                              fontWeight: 700,
+                              fontSize: 13,
+                              color: hrs > 8 ? "#7c3aed" : "#1e293b",
+                            }}
+                          >
+                            {hrs.toFixed(2)}
+                          </td>
+
+                          <td>
+                            <span
+                              className="ts-pill"
+                              style={{ background: sp.bg, color: sp.color }}
+                            >
+                              {r.approvalStatus}
+                            </span>
+                          </td>
+
+                          {/* actions */}
+                          <td>
+                            <div
+                              style={{
+                                display: "flex",
+                                alignItems: "center",
+                                gap: 5,
+                                position: "relative",
+                              }}
+                            >
                               <button
-                                className={`ts-ib ${isMonthly ? "ts-ib-more" : "ts-ib-off"}`}
-                                onClick={e => { e.stopPropagation(); isMonthly && setOpenAction(openAction===i ? null : i); }}
-                                title="More">
-                                <FiMoreVertical />
+                                className={`ts-ib ${isMonthly ? "ts-ib-ok" : "ts-ib-off"}`}
+                                onClick={() =>
+                                  isMonthly && updateStatus(i, "Approved")
+                                }
+                                title="Approve"
+                              >
+                                <FiCheckCircle />
                               </button>
-                              {openAction === i && isMonthly && (
-                                <div className="ts-drop" onClick={e => e.stopPropagation()}>
-                                  <div className="ts-drop-item"
-                                    onClick={() => { exportPDFStub(); setOpenAction(null); }}>
-                                    <FiFileText style={{ color:"#ef4444" }} /> Export PDF
+                              <button
+                                className={`ts-ib ${isMonthly ? "ts-ib-pend" : "ts-ib-off"}`}
+                                onClick={() =>
+                                  isMonthly && updateStatus(i, "Pending")
+                                }
+                                title="Mark Pending"
+                              >
+                                <FiXCircle />
+                              </button>
+                              <div style={{ position: "relative" }}>
+                                <button
+                                  className={`ts-ib ${isMonthly ? "ts-ib-more" : "ts-ib-off"}`}
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    isMonthly &&
+                                      setOpenAction(
+                                        openAction === i ? null : i,
+                                      );
+                                  }}
+                                  title="More"
+                                >
+                                  <FiMoreVertical />
+                                </button>
+                                {openAction === i && isMonthly && (
+                                  <div
+                                    className="ts-drop"
+                                    onClick={(e) => e.stopPropagation()}
+                                  >
+                                    <div
+                                      className="ts-drop-item"
+                                      onClick={() => {
+                                        exportPDFStub();
+                                        setOpenAction(null);
+                                      }}
+                                    >
+                                      <FiFileText
+                                        style={{ color: "#ef4444" }}
+                                      />{" "}
+                                      Export PDF
+                                    </div>
+                                    <div
+                                      className="ts-drop-item"
+                                      onClick={() => {
+                                        exportExcelStub();
+                                        setOpenAction(null);
+                                      }}
+                                    >
+                                      <FiDownload
+                                        style={{ color: "#16a34a" }}
+                                      />{" "}
+                                      Export Excel
+                                    </div>
                                   </div>
-                                  <div className="ts-drop-item"
-                                    onClick={() => { exportExcelStub(); setOpenAction(null); }}>
-                                    <FiDownload style={{ color:"#16a34a" }} /> Export Excel
-                                  </div>
-                                </div>
-                              )}
+                                )}
+                              </div>
                             </div>
-                          </div>
-                        </td>
-                      </tr>
-                    );
-                  })}
+                          </td>
+                        </tr>
+                      );
+                    })
+                  )}
                 </tbody>
               </table>
             </div>
 
             {filtered.length > 0 && (
               <div className="ts-footer">
-                <span>Showing <strong>{filtered.length}</strong> record{filtered.length !== 1 ? "s" : ""}</span>
-                <span style={{ color:"#2563eb", fontWeight:600 }}>
-                  {filter} &middot; {statusFilter !== "All" ? statusFilter : "All Statuses"}
+                <span>
+                  Showing <strong>{filtered.length}</strong> record
+                  {filtered.length !== 1 ? "s" : ""}
+                </span>
+                <span style={{ color: "#2563eb", fontWeight: 600 }}>
+                  {filter} &middot;{" "}
+                  {statusFilter !== "All" ? statusFilter : "All Statuses"}
                 </span>
               </div>
             )}
           </div>
-
         </div>
       </div>
     </>

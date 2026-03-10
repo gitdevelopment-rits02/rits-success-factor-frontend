@@ -4,13 +4,18 @@ import HrLayout from "../../layouts/hrLayout";
 import hrRoutes from "../modules/hr.routes";
 import { store } from "../../app/store";
 import hrRootReducer from "../../features/Hr/Redux/hrRootReducer";
+import PageLoader from "../../components/PageLoader";
 
 export default function HrRoutesGroup() {
-    // Dynamically add the HR reducer to the store only when this component loads
+    const [isLoaded, setIsLoaded] = React.useState(false);
+
     useEffect(() => {
         store.reducerManager.add("hr", hrRootReducer);
-        console.log("HR Reducer Dynamic Injection: SUCCESS");
+        // console.log("HR Reducer Dynamic Injection: SUCCESS");
+        setIsLoaded(true);
     }, []);
+
+    if (!isLoaded) return <PageLoader />;
 
     return (
         <Routes>

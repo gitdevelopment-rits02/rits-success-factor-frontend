@@ -34,15 +34,25 @@ const AdminSideNav = ({
     navItems,
 }) => {
     return (
+        //     <aside
+        //         className={`
+        //     fixed top-0 left-0 h-screen bg-white text-gray-800 shadow-xl z-40
+        //     flex flex-col border-r border-gray-200 transition-all duration-300 ease-in-out
+        //     ${collapsed ? "w-20" : "w-64"}
+        //     md:translate-x-0
+        //     ${mobileOpen ? "translate-x-0" : "max-md:-translate-x-full"}
+
+        //   `}
+        //     >
         <aside
             className={`
-        fixed top-0 left-0 h-screen bg-white text-gray-800 shadow-xl z-40
-        flex flex-col border-r border-gray-200 transition-all duration-300 ease-in-out
-        ${collapsed ? "w-20" : "w-64"}
-        md:translate-x-0
-        ${mobileOpen ? "translate-x-0" : "max-md:-translate-x-full"}
-
-      `}
+    fixed top-0 left-0 h-screen bg-white text-gray-800 shadow-xl z-40
+    flex flex-col border-r border-gray-200 transition-all duration-300 ease-in-out
+    will-change-transform
+    ${collapsed ? "w-20" : "w-64"}
+    md:translate-x-0
+    ${mobileOpen ? "translate-x-0" : "max-md:-translate-x-full"}
+  `}
         >
             <div className="flex items-center justify-between px-4 py-3 border-b border-gray-100">
                 <div
@@ -105,41 +115,38 @@ const AdminSideNav = ({
                     //     onClick={() => setMobileOpen(false)}
                     //   >
                     <NavLink key={path} to={path} onClick={() => setMobileOpen(false)}>
-  {({ isActive }) => (
-    <div
-      className={`
+                        {({ isActive }) => (
+                            <div
+                                className={`
         group flex items-center gap-4 px-4 py-3 rounded-xl cursor-pointer transition-all
         text-sm font-medium
-        ${
-          isActive
-            ? "text-blue-600 bg-blue-50 shadow-sm"
-            : "text-gray-700 hover:bg-blue-50 hover:text-blue-600"
-        }
+        ${isActive
+                                        ? "text-blue-600 bg-blue-50 shadow-sm"
+                                        : "text-gray-700 hover:bg-blue-50 hover:text-blue-600"
+                                    }
       `}
-    >
-      <div
-        className={`
+                            >
+                                <div
+                                    className={`
           flex items-center justify-center h-9 w-9 rounded-xl border transition
-          ${
-            isActive
-              ? "bg-blue-100 border-blue-200 text-blue-600"
-              : "bg-white border-gray-100 text-gray-500 group-hover:text-blue-600"
-          }
+          ${isActive
+                                            ? "bg-blue-100 border-blue-200 text-blue-600"
+                                            : "bg-white border-gray-100 text-gray-500 group-hover:text-blue-600"
+                                        }
         `}
-      >
-        <Icon className="text-lg" />
-      </div>
+                                >
+                                    <Icon className="text-lg" />
+                                </div>
 
-      <span
-        className={`whitespace-nowrap overflow-hidden transition-all duration-300 ${
-          collapsed ? "opacity-0 w-0" : "opacity-100 w-auto"
-        }`}
-      >
-        {name}
-      </span>
-    </div>
-  )}
-</NavLink>
+                                <span
+                                    className={`whitespace-nowrap overflow-hidden transition-all duration-300 ${collapsed ? "opacity-0 w-0" : "opacity-100 w-auto"
+                                        }`}
+                                >
+                                    {name}
+                                </span>
+                            </div>
+                        )}
+                    </NavLink>
 
                 ))}
             </nav>

@@ -52,11 +52,11 @@ const EmployeeLearning = () => {
     announcementsData,
     attendanceData,
     getDashboardDataLoading,
-  } = useSelector((state) => state.employee.dashboard);
+  } = useSelector((state) => state.employee?.dashboard) || {};
   const attendanceSummary = dashboardData?.attendanceSummary;
   const leaveBalances = dashboardData?.leaveBalances || [];
   const announcements = announcementsData || [];
-  console.log("Attendance Data:", attendanceData);
+  // console.log("Attendance Data:", attendanceData);
   useEffect(() => {
     dispatch(employeeDashboardThunk.getDashboardDataThunk());
     dispatch(employeeDashboardThunk.getAnnouncementsThunk());
@@ -406,11 +406,10 @@ const EmployeeLearning = () => {
               <button
                 key={year}
                 onClick={() => setSelectedYear(year)}
-                className={`p-1.5 text-xs rounded border ${
-                  selectedYear === year
-                    ? "bg-blue-600 text-white border-blue-600"
-                    : "bg-gray-50 text-gray-700 border-gray-200 hover:bg-gray-100"
-                }`}
+                className={`p-1.5 text-xs rounded border ${selectedYear === year
+                  ? "bg-blue-600 text-white border-blue-600"
+                  : "bg-gray-50 text-gray-700 border-gray-200 hover:bg-gray-100"
+                  }`}
               >
                 {year}
               </button>
@@ -425,11 +424,10 @@ const EmployeeLearning = () => {
               <button
                 key={month}
                 onClick={() => setSelectedMonth(index)}
-                className={`p-1.5 text-xs rounded border ${
-                  selectedMonth === index
-                    ? "bg-blue-600 text-white border-blue-600"
-                    : "bg-gray-50 text-gray-700 border-gray-200 hover:bg-gray-100"
-                }`}
+                className={`p-1.5 text-xs rounded border ${selectedMonth === index
+                  ? "bg-blue-600 text-white border-blue-600"
+                  : "bg-gray-50 text-gray-700 border-gray-200 hover:bg-gray-100"
+                  }`}
               >
                 {month.substring(0, 3)}
               </button>
@@ -470,18 +468,16 @@ const EmployeeLearning = () => {
               className="flex items-start p-2 border border-gray-100 rounded hover:bg-gray-50 transition-colors"
             >
               <div
-                className={`p-1.5 rounded mr-2 ${
-                  announcement.type === "meeting"
-                    ? "bg-blue-50 border border-blue-200"
-                    : "bg-green-50 border border-green-200"
-                }`}
+                className={`p-1.5 rounded mr-2 ${announcement.type === "meeting"
+                  ? "bg-blue-50 border border-blue-200"
+                  : "bg-green-50 border border-green-200"
+                  }`}
               >
                 <Bell
-                  className={`w-3 h-3 ${
-                    announcement.type === "meeting"
-                      ? "text-blue-600"
-                      : "text-green-600"
-                  }`}
+                  className={`w-3 h-3 ${announcement.type === "meeting"
+                    ? "text-blue-600"
+                    : "text-green-600"
+                    }`}
                 />
               </div>
               <div className="flex-1">
@@ -998,11 +994,10 @@ const EmployeeLearning = () => {
               className="group relative flex items-start p-4 bg-gradient-to-br from-gray-50 to-white border border-gray-100 rounded-2xl hover:border-indigo-200 hover:shadow-sm transition-all duration-300"
             >
               <div
-                className={`p-3 rounded-xl mr-4 flex-shrink-0 transition-all duration-300 ${
-                  announcement.type === "meeting"
-                    ? "bg-blue-50 text-blue-600 group-hover:bg-blue-600 group-hover:text-white"
-                    : "bg-emerald-50 text-emerald-600 group-hover:bg-emerald-600 group-hover:text-white"
-                }`}
+                className={`p-3 rounded-xl mr-4 flex-shrink-0 transition-all duration-300 ${announcement.type === "meeting"
+                  ? "bg-blue-50 text-blue-600 group-hover:bg-blue-600 group-hover:text-white"
+                  : "bg-emerald-50 text-emerald-600 group-hover:bg-emerald-600 group-hover:text-white"
+                  }`}
               >
                 <Bell className="w-5 h-5" />
               </div>
@@ -1063,8 +1058,8 @@ const EmployeeLearning = () => {
         )}
       </div>
 
-      
-     
+
+
 
       {/* Footer */}
       <footer className="pb-16 pt-3">

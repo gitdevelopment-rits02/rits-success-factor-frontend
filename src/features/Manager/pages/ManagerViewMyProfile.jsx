@@ -29,7 +29,7 @@ export default function EmployeeProfilePage() {
     (state) => state.manager.viewMyProfile,
   );
 
-  console.log("REDUX DATA:", data);
+  // console.log("REDUX DATA:", data);
 
   const profile = data?.data;
   const header = profile?.header;

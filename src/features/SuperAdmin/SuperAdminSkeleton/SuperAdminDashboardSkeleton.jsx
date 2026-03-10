@@ -1,123 +1,126 @@
 import React from "react";
 
-const Skeleton = ({ className = "" }) => (
-  <div className={`animate-shimmer rounded-xl ${className}`} />
+const Shimmer = ({ style = {} }) => (
+  <div style={{
+    borderRadius: 10,
+    background: "linear-gradient(90deg, #e8f0fe 25%, #d1e3ff 50%, #e8f0fe 75%)",
+    backgroundSize: "200% 100%",
+    animation: "shimmer 1.4s infinite",
+    ...style,
+  }} />
 );
 
-const SuperAdminDashboardSkeleton = () => {
-  return (
-    <div className="min-h-screen bg-[#F8FAFC] p-6 md:p-10 space-y-10">
+const SuperAdminDashboardSkeleton = () => (
+  <div style={{ minHeight: "100vh", background: "#f4f8ff", fontFamily: "Inter, sans-serif" }}>
+    <style>{`
+      @keyframes shimmer {
+        0%   { background-position: 200% 0; }
+        100% { background-position: -200% 0; }
+      }
+    `}</style>
 
-      {/* TOGGLE TABS */}
-      <div className="flex justify-center">
-        <div className="bg-white p-2 rounded-2xl flex gap-3 border shadow-sm">
-          <Skeleton className="h-10 w-32 rounded-xl" />
-          <Skeleton className="h-10 w-32 rounded-xl" />
-        </div>
+    {/* TOP NAV */}
+    <div style={{
+      height: 56, background: "#f4f8ff", borderBottom: "1px solid #e2e8f0",
+      display: "flex", alignItems: "center", justifyContent: "space-between",
+      padding: "0 28px",
+    }}>
+      <Shimmer style={{ width: 120, height: 32, borderRadius: 8 }} />
+      <Shimmer style={{ width: 80, height: 32, borderRadius: 10 }} />
+    </div>
+
+    {/* SUB NAV */}
+    <div style={{
+      height: 48, background: "#f4f8ff", borderBottom: "1px solid #e2e8f0",
+      display: "flex", alignItems: "center", justifyContent: "center",
+    }}>
+      <Shimmer style={{ width: 220, height: 34, borderRadius: 10 }} />
+    </div>
+
+    {/* MAIN */}
+    <div style={{ padding: "24px 28px", maxWidth: 1400, margin: "0 auto" }}>
+
+      {/* KPI ROW */}
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: 12, marginBottom: 16 }}>
+        {[...Array(4)].map((_, i) => (
+          <div key={i} style={{ background: "#fff", borderRadius: 16, padding: 20, border: "1px solid #f1f5f9" }}>
+            <Shimmer style={{ width: 32, height: 32, borderRadius: 10, marginBottom: 12 }} />
+            <Shimmer style={{ width: 70, height: 28, borderRadius: 6, marginBottom: 8 }} />
+            <Shimmer style={{ width: 90, height: 14, borderRadius: 6, marginBottom: 8 }} />
+            <Shimmer style={{ width: 70, height: 18, borderRadius: 99 }} />
+          </div>
+        ))}
       </div>
 
-      <div className="max-w-[1400px] mx-auto space-y-10">
+      {/* ROW 2 — ring + absent by dept */}
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16, marginBottom: 16 }}>
 
-        {/* PAGE HEADER */}
-        <div className="space-y-3">
-          <Skeleton className="h-10 w-96" />
-          <Skeleton className="h-4 w-64" />
-        </div>
-
-        {/* SEARCH BAR */}
-        <Skeleton className="h-12 w-[360px] rounded-2xl" />
-
-        <div className="grid grid-cols-12 gap-8">
-
-          {/* SIDEBAR FILTERS */}
-          <aside className="col-span-12 lg:col-span-3">
-            <div className="bg-white rounded-3xl p-8 border shadow-sm space-y-8">
-              <Skeleton className="h-6 w-32" />
-
-              <div className="space-y-4">
-                <Skeleton className="h-4 w-24" />
-                <Skeleton className="h-12 w-full rounded-xl" />
-              </div>
-
-              <div className="space-y-3">
-                {[...Array(4)].map((_, i) => (
-                  <Skeleton key={i} className="h-12 w-full rounded-xl" />
-                ))}
-              </div>
-            </div>
-          </aside>
-
-          {/* MAIN CONTENT */}
-          <main className="col-span-12 lg:col-span-9 space-y-8">
-
-            {/* STAT CARDS */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              {[...Array(4)].map((_, i) => (
-                <div
-                  key={i}
-                  className="rounded-[2rem] p-8 bg-white shadow-sm space-y-6"
-                >
-                  <Skeleton className="h-3 w-24" />
-                  <Skeleton className="h-10 w-20" />
-                </div>
-              ))}
-            </div>
-
-            {/* TABLE */}
-            <div className="bg-white rounded-[2rem] border shadow-sm overflow-hidden">
-              <div className="p-8">
-                <Skeleton className="h-6 w-48" />
-              </div>
-
-              <div className="px-8 space-y-5 pb-8">
-                {[...Array(6)].map((_, i) => (
-                  <div
-                    key={i}
-                    className="grid grid-cols-4 gap-6 items-center"
-                  >
-                    <Skeleton className="h-5 w-full" />
-                    <Skeleton className="h-5 w-24" />
-                    <Skeleton className="h-5 w-32" />
-                    <Skeleton className="h-5 w-20 ml-auto" />
-                  </div>
-                ))}
-              </div>
-            </div>
-
-          </main>
-        </div>
-
-        {/* ANALYTICS VIEW SKELETON */}
-        <div className="grid grid-cols-12 gap-8">
-
-          {/* BAR CHART */}
-          <div className="col-span-12 lg:col-span-8 bg-white p-8 rounded-[2rem] shadow-sm space-y-6">
-            <Skeleton className="h-6 w-64" />
-            <Skeleton className="h-[300px] w-full rounded-xl" />
-          </div>
-
-          {/* LATE CHECK-IN CARD */}
-          <div className="col-span-12 lg:col-span-4 bg-white p-8 rounded-[2rem] shadow-sm space-y-6">
-            <Skeleton className="h-6 w-48" />
-            {[...Array(4)].map((_, i) => (
-              <div key={i} className="flex justify-between items-center">
-                <div className="space-y-2">
-                  <Skeleton className="h-4 w-32" />
-                  <Skeleton className="h-3 w-20" />
-                </div>
-                <Skeleton className="h-4 w-16" />
+        {/* Ring card */}
+        <div style={{ background: "#fff", borderRadius: 16, padding: 20, border: "1px solid #f1f5f9", display: "flex", alignItems: "center", gap: 24 }}>
+          <Shimmer style={{ width: 120, height: 120, borderRadius: "50%", flexShrink: 0 }} />
+          <div style={{ flex: 1 }}>
+            <Shimmer style={{ width: 160, height: 14, borderRadius: 6, marginBottom: 8 }} />
+            <Shimmer style={{ width: 120, height: 11, borderRadius: 6, marginBottom: 20 }} />
+            {[...Array(3)].map((_, i) => (
+              <div key={i} style={{ display: "flex", justifyContent: "space-between", marginBottom: 10 }}>
+                <Shimmer style={{ width: 80, height: 12, borderRadius: 6 }} />
+                <Shimmer style={{ width: 36, height: 20, borderRadius: 99 }} />
               </div>
             ))}
           </div>
-
         </div>
 
+        {/* Absent by dept */}
+        <div style={{ background: "#fff", borderRadius: 16, padding: 20, border: "1px solid #f1f5f9" }}>
+          <Shimmer style={{ width: 160, height: 14, borderRadius: 6, marginBottom: 8 }} />
+          <Shimmer style={{ width: 200, height: 11, borderRadius: 6, marginBottom: 20 }} />
+          {[...Array(4)].map((_, i) => (
+            <div key={i} style={{ marginBottom: 14 }}>
+              <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 6 }}>
+                <Shimmer style={{ width: 100, height: 12, borderRadius: 6 }} />
+                <Shimmer style={{ width: 60, height: 12, borderRadius: 6 }} />
+              </div>
+              <Shimmer style={{ width: "100%", height: 6, borderRadius: 99 }} />
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* ROW 3 — Roster table */}
+      <div style={{ background: "#fff", borderRadius: 16, border: "1px solid #f1f5f9", overflow: "hidden" }}>
+        <div style={{ padding: "16px 20px", borderBottom: "1px solid #f8fafc" }}>
+          <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 12 }}>
+            <div>
+              <Shimmer style={{ width: 140, height: 14, borderRadius: 6, marginBottom: 8 }} />
+              <Shimmer style={{ width: 100, height: 11, borderRadius: 6 }} />
+            </div>
+            <div style={{ display: "flex", gap: 8 }}>
+              <Shimmer style={{ width: 180, height: 32, borderRadius: 10 }} />
+              <Shimmer style={{ width: 100, height: 32, borderRadius: 10 }} />
+            </div>
+          </div>
+          <div style={{ display: "flex", gap: 6 }}>
+            {[...Array(4)].map((_, i) => (
+              <Shimmer key={i} style={{ width: 70, height: 30, borderRadius: 8 }} />
+            ))}
+          </div>
+        </div>
+        <div style={{ padding: "0 20px" }}>
+          {[...Array(6)].map((_, i) => (
+            <div key={i} style={{ display: "grid", gridTemplateColumns: "2fr 1fr 1fr 1fr", gap: 16, padding: "14px 0", borderBottom: "1px solid #f8fafc" }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                <Shimmer style={{ width: 28, height: 28, borderRadius: 8, flexShrink: 0 }} />
+                <Shimmer style={{ width: 120, height: 13, borderRadius: 6 }} />
+              </div>
+              <Shimmer style={{ width: 80, height: 12, borderRadius: 6, alignSelf: "center" }} />
+              <Shimmer style={{ width: 70, height: 22, borderRadius: 99, alignSelf: "center" }} />
+              <Shimmer style={{ width: 55, height: 12, borderRadius: 6, alignSelf: "center" }} />
+            </div>
+          ))}
+        </div>
       </div>
     </div>
-  );
-};
+  </div>
+);
 
 export default SuperAdminDashboardSkeleton;
-
-
-
