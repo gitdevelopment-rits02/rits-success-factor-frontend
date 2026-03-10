@@ -51,7 +51,7 @@ export const fetchHrLeaves = createAsyncThunk(
     try {
       const res = await hrLeaveApi.getAllLeaves(params);
       const leaves = res.data?.data || [];
-      console.log("FIRST OBJECT:", leaves[0]);
+      // console.log("FIRST OBJECT:", leaves[0]);
       return leaves.map(formatLeave);
     } catch (err) {
       return rejectWithValue(err.response?.data || err.message);

@@ -1,4 +1,20 @@
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect } from "react";
+import {
+  FiUsers,
+  FiHome,
+  FiXCircle,
+  FiCheckCircle,
+  FiSearch,
+  FiFilter,
+  FiActivity,
+  FiServer,
+  FiTrendingUp,
+} from "react-icons/fi";
+import {
+  HiUsers,
+  HiUserPlus,
+  HiCalendarDays,
+} from "react-icons/hi2";
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -105,42 +121,88 @@ export default function SuperAdminDashboard() {
   const [activeTab, setActiveTab] = useState("attendance");
   const [showSkeleton, setShowSkeleton] = useState(true);
 
-  const { getAttendanceDataLoading, getDashboardDataLoading } =
-    useSelector((s) => s.superAdmin?.dashboard || {});
+  const {
+    getAttendanceDataLoading,
+    getDashboardDataLoading,
+  } = useSelector((state) => state.superAdmin?.dashboard) || {};
 
-  // useEffect(() => {
-  //   const loading = activeTab === "attendance" ? getAttendanceDataLoading : getDashboardDataLoading;
-  //   if (!loading) {
-  //     const t = setTimeout(() => setShowSkeleton(false), 1500);
-  //     return () => clearTimeout(t);
-  //   }
-  //   setShowSkeleton(true);
-  // }, [activeTab, getAttendanceDataLoading, getDashboardDataLoading]);
   useEffect(() => {
-    const loading = activeTab === "attendance" ? getAttendanceDataLoading : getDashboardDataLoading;
-    if (loading === false) {
-      setShowSkeleton(false);
+    if (
+      (activeTab === "attendance" && !getAttendanceDataLoading) ||
+      (activeTab === "analytics" && !getDashboardDataLoading)
+    ) {
+      const timer = setTimeout(() => {
+        setShowSkeleton(false);
+      }, 1500);
+
+      return () => clearTimeout(timer);
     } else {
       setShowSkeleton(true);
     }
   }, [activeTab, getAttendanceDataLoading, getDashboardDataLoading]);
 
   return (
-    <div style={{ minHeight: "100vh", background: "#f4f8ff", fontFamily: "'Inter', sans-serif" }}>
-      <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
-        *, *::before, *::after { font-family: 'Inter', sans-serif; box-sizing: border-box; }
-        ::-webkit-scrollbar { width: 4px; height: 4px; }
-        ::-webkit-scrollbar-track { background: #f0f7ff; }
-        ::-webkit-scrollbar-thumb { background: #bfdbfe; border-radius: 99px; }
-        button { cursor: pointer; }
-      `}</style>
+
+    <div className="min-h-screen bg-[#F8FAFC] p-6 md:p-10 font-sans text-slate-700">
 
       {showSkeleton && (
-        <div style={{ position: "fixed", inset: 0, zIndex: 50, background: "#f4f8ff" }}>
+        <div className="absolute inset-0 z-50 bg-[#F8FAFC]">
           <SuperAdminDashboardSkeleton />
         </div>
       )}
+
+
+
+
+      {/* TOGGLE NAVIGATION */}
+      <div className="flex justify-center mb-10">
+        <div className="bg-white p-1 rounded-2xl flex gap-1 border border-slate-200 shadow-sm">
+          <button
+            onClick={() => setActiveTab("analytics")}
+            className={`px-6 py-2 rounded-xl font-bold text-sm transition-all ${activeTab === "analytics"
+              ? "bg-blue-600 text-white shadow-md"
+              : "text-slate-500 hover:bg-slate-50"
+              }`}
+          >
+            Analytics
+          </button>
+          <button
+            onClick={() => setActiveTab("attendance")}
+            className={`px-6 py-2 rounded-xl font-bold text-sm transition-all ${activeTab === "attendance"
+              ? "bg-blue-600 text-white shadow-md"
+              : "text-slate-500 hover:bg-slate-50"
+              }`}
+          >
+            Attendance
+          </button>
+        </div>
+      </div>
+
+      <div className="max-w-[1400px] mx-auto">
+        {activeTab === "analytics" ? (
+          <SuperAdminSystemDashboard />
+        ) : (
+          <LiveAttendanceTracker />
+        )}
+      </div>
+    </div>
+  );
+}
+
+function LateCheckInMonitor() {
+  const { dashboardData } = useSelector(
+    (state) => state.superAdmin?.dashboard
+  ) || {};
+
+  const lateEmployees = dashboardData?.lateCheckins?.employees || [];
+  const lateCount = dashboardData?.lateCheckins?.count || 0;
+
+  const deptIcons = {
+    Sales: <FiTrendingUp className="text-blue-500" />,
+    IT: <FiServer className="text-indigo-500" />,
+    Marketing: <FiActivity className="text-emerald-500" />,
+    Finance: <FiActivity className="text-purple-500" />,
+  };
 
       {/* Topbar */}
       {/* <header style={{
@@ -255,27 +317,78 @@ export default function SuperAdminDashboard() {
 ══════════════════════════════════════════════ */
 function AnalyticsView() {
   const dispatch = useDispatch();
-  const { dashboardData } = useSelector((s) => s.superAdmin?.dashboard || {});
+  const [searchTerm, setSearchTerm] = useState("");
+  const [selectedStatus, setSelectedStatus] = useState("All");
+  const [selectedDepartment, setSelectedDepartment] = useState("All");
+
+  // GET ATTENDANCE DATA (NOT DASHBOARD DATA!)
+  const {
+    attendanceData,
+    getAttendanceDataLoading,
+  } = useSelector((state) => state.superAdmin?.dashboard) || {};
+  // GET DASHBOARD DATA FOR DEPARTMENTS LIST
+  const { dashboardData } = useSelector(
+    (state) => state.superAdmin?.dashboard
+  ) || {};
+
 
   useEffect(() => {
-    dispatch(superAdminDashboardThunk.getDashboardDataThunk()).unwrap().catch(console.error);
+    // Fetch attendance data
+    dispatch(superAdminDashboardThunk.getAttendanceDataThunk())
+      .unwrap()
+      .then((res) => {
+        // console.log("Attendance data:", res);
+      })
+      .catch((err) => {
+        // console.log("Error fetching attendance:", err);
+      });
+
+    // Fetch dashboard data for departments
+    dispatch(superAdminDashboardThunk.getDashboardDataThunk())
+      .unwrap()
+      .then((res) => {
+        // console.log("Dashboard data:", res);
+      })
+      .catch((err) => {
+        // console.log("Error fetching dashboard:", err);
+      });
   }, [dispatch]);
 
-  const deptLabels = dashboardData?.departmentHeadcount?.map((d) => d.department) || [];
-  const deptCounts = dashboardData?.departmentHeadcount?.map((d) => d.count) || [];
-  const lateList = dashboardData?.lateCheckins?.employees || [];
-  const lateCount = dashboardData?.lateCheckins?.count || 0;
-  const totalStaff = dashboardData?.totalStaff || 0;
-  const newHires = dashboardData?.newHires || 0;
-  const onLeave = dashboardData?.onLeave || 0;
-  const attRate = totalStaff > 0 ? Math.round(((totalStaff - onLeave) / totalStaff) * 100) : 0;
 
-  const KPI = [
-    { label: "Total Staff", val: totalStaff, delta: "All employees", color: "#3b82f6", lbg: "#eff6ff", ltxt: "#1d4ed8", icon: Ic.users },
-    { label: "New Hires", val: newHires, delta: "This month", color: "#10b981", lbg: "#ecfdf5", ltxt: "#065f46", icon: Ic.plus },
-    { label: "On Leave", val: onLeave, delta: "Currently away", color: "#f59e0b", lbg: "#fffbeb", ltxt: "#92400e", icon: Ic.cal },
-    { label: "Attendance Rate", val: `${attRate}%`, delta: "Org-wide today", color: "#8b5cf6", lbg: "#f5f3ff", ltxt: "#6d28d9", icon: Ic.trend },
-  ];
+  const stats = {
+    total: attendanceData?.overview?.totalStaff || 0,
+    present: attendanceData?.overview?.present || 0,
+    remote: attendanceData?.overview?.wfh || 0,
+    absence: attendanceData?.overview?.absent || 0,
+  };
+
+
+  const roster = attendanceData?.roster || [];
+  const departments = dashboardData?.departmentHeadcount?.map(d => d.department) || [];
+
+  const filteredData = roster.filter((emp) => {
+    const matchesSearch = emp.name?.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesStatus = selectedStatus === "All" || emp.status === selectedStatus;
+    const matchesDepartment = selectedDepartment === "All" || emp.department === selectedDepartment;
+    return matchesSearch && matchesStatus && matchesDepartment;
+  });
+
+  // if (getAttendanceDataLoading) {
+  //   return (
+  //     <div className="flex items-center justify-center h-64">
+  //       <div className="text-blue-600 text-lg font-bold">Loading...</div>
+  //     </div>
+  //   );
+  // }
+
+
+  // if (getAttendanceDataLoading) {
+  //   return <SuperAdminDashboardSkeleton />;
+  // }
+  // if (showSkeleton) {
+  //   return <SuperAdminDashboardSkeleton />;
+  // }
+
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
@@ -520,16 +633,19 @@ function AnalyticsView() {
 ══════════════════════════════════════════════ */
 function AttendanceView() {
   const dispatch = useDispatch();
-  const [searchTerm, setSearchTerm] = useState("");
-  const [statusFilter, setStatusFilter] = useState("All");
-  const [deptFilter, setDeptFilter] = useState("All");
-
-  const { attendanceData } = useSelector((s) => s.superAdmin?.dashboard || {});
-  const { dashboardData } = useSelector((s) => s.superAdmin?.dashboard || {});
+  const { dashboardData } = useSelector(
+    (state) => state.superAdmin?.dashboard
+  ) || {};
 
   useEffect(() => {
-    dispatch(superAdminDashboardThunk.getAttendanceDataThunk()).unwrap().catch(console.error);
-    dispatch(superAdminDashboardThunk.getDashboardDataThunk()).unwrap().catch(console.error);
+    dispatch(superAdminDashboardThunk.getDashboardDataThunk())
+      .unwrap()
+      .then((res) => {
+        // console.log("Analytics dashboard data:", res);
+      })
+      .catch((err) => {
+        // console.log("Error:", err);
+      });
   }, [dispatch]);
 
   const overview = attendanceData?.overview || {};
@@ -764,27 +880,6 @@ function AttendanceView() {
           )}
         </div>
       </div>
-    </div>
-  );
-}
-
-/* ══════════════════════════════════════════════
-   SHARED: KPI CARD
-══════════════════════════════════════════════ */
-function KpiCard({ label, val, delta, color, lbg, ltxt, icon }) {
-  return (
-    <div style={card}>
-      <div style={{
-        width: 32, height: 32, borderRadius: 10, background: lbg,
-        display: "flex", alignItems: "center", justifyContent: "center",
-        marginBottom: 12, color,
-      }}>{icon}</div>
-      <p style={{ fontSize: 26, fontWeight: 700, color: "#1e293b", lineHeight: 1 }}>{val}</p>
-      <p style={{ fontSize: 12, fontWeight: 500, color: "#64748b", marginTop: 4 }}>{label}</p>
-      <p style={{
-        fontSize: 10, fontWeight: 600, color: ltxt, background: lbg,
-        display: "inline-block", padding: "2px 8px", borderRadius: 99, marginTop: 8,
-      }}>{delta}</p>
     </div>
   );
 }

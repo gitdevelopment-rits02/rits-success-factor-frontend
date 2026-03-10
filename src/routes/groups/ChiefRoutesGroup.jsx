@@ -11,7 +11,7 @@ export default function ChiefRoutesGroup() {
 
     useEffect(() => {
         store.reducerManager.add("chief", chiefRootReducer);
-        console.log("Chief Reducer Dynamic Injection: SUCCESS");
+        // console.log("Chief Reducer Dynamic Injection: SUCCESS");
         setIsLoaded(true);
     }, []);
 

@@ -11,7 +11,7 @@ export default function ManagerRoutesGroup() {
 
     useEffect(() => {
         store.reducerManager.add("manager", managerRootReducer);
-        console.log("Manager Reducer Dynamic Injection: SUCCESS");
+        // console.log("Manager Reducer Dynamic Injection: SUCCESS");
         setIsLoaded(true);
     }, []);
 

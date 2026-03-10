@@ -40,16 +40,16 @@ const typeStyles = {
 export default function SuperAdminLeaveRequests() {
 
   const [rejectingId, setRejectingId] = useState(null);
-const [rejectionReason, setRejectionReason] = useState("");
+  const [rejectionReason, setRejectionReason] = useState("");
 
 
   const dispatch = useDispatch();
 
-const { summary, leaveList, loading, error } = useSelector(
-  (state) => state.manager.leaveApproval
-);
+  const { summary, leaveList, loading, error } = useSelector(
+    (state) => state.manager.leaveApproval
+  );
 
-console.log("leaveList from redux:", leaveList);
+  // console.log("leaveList from redux:", leaveList);
 
 
 
@@ -62,107 +62,107 @@ console.log("leaveList from redux:", leaveList);
   }, [dispatch, tab]);
 
   const filteredLeaves = useMemo(() => {
-  const list = Array.isArray(leaveList) ? leaveList : [];
+    const list = Array.isArray(leaveList) ? leaveList : [];
 
-  if (tab === "Today") {
-    return list.filter(l => {
-  const start = new Date(l.startDate);
-  const end = new Date(l.endDate);
-  const today = new Date();
+    if (tab === "Today") {
+      return list.filter(l => {
+        const start = new Date(l.startDate);
+        const end = new Date(l.endDate);
+        const today = new Date();
 
-  return start <= today && end >= today;
-});
+        return start <= today && end >= today;
+      });
 
-  }
+    }
 
-  return list;
-}, [leaveList, tab]);
+    return list;
+  }, [leaveList, tab]);
 
 
 
   const todaysLeaves = useMemo(() => {
-const list = Array.isArray(leaveList) ? leaveList : [];
+    const list = Array.isArray(leaveList) ? leaveList : [];
 
-  return list.filter(l => {
-  const start = new Date(l.startDate);
-  const end = new Date(l.endDate);
-  const today = new Date();
+    return list.filter(l => {
+      const start = new Date(l.startDate);
+      const end = new Date(l.endDate);
+      const today = new Date();
 
-  return start <= today && end >= today;
-});
+      return start <= today && end >= today;
+    });
 
-}, [leaveList]);
+  }, [leaveList]);
 
 
 
   const pendingCount = summary?.pending || 0;
-const approvedThisMonth = summary?.approved || 0;
-const rejectedThisMonth = summary?.rejected || 0;
-const onLeaveToday = summary?.onLeaveToday || 0;
+  const approvedThisMonth = summary?.approved || 0;
+  const rejectedThisMonth = summary?.rejected || 0;
+  const onLeaveToday = summary?.onLeaveToday || 0;
 
 
   const approve = (id) => {
-  dispatch(updateLeaveStatus({ leaveId: id, action: "approve" }))
-    .unwrap()
-    .then(() => {
-      toast.success("Leave Approved Successfully ");
-      dispatch(fetchLeaveList(tab === "All" ? "" : tab));
-      dispatch(fetchLeaveSummary());
-    })
-    .catch(() => {
-      toast.error("Failed to approve leave ");
-    });
-};
+    dispatch(updateLeaveStatus({ leaveId: id, action: "approve" }))
+      .unwrap()
+      .then(() => {
+        toast.success("Leave Approved Successfully ");
+        dispatch(fetchLeaveList(tab === "All" ? "" : tab));
+        dispatch(fetchLeaveSummary());
+      })
+      .catch(() => {
+        toast.error("Failed to approve leave ");
+      });
+  };
 
 
   const undoToPending = (id) => {
     dispatch(updateLeaveStatus({ leaveId: id, action: "undo" }))
 
-    .unwrap()
-    .then(() => {
-      toast.info("Leave moved back to Pending ");
-      dispatch(fetchLeaveList(tab === "All" ? "" : tab));
-      dispatch(fetchLeaveSummary());
-    })
-    .catch(() => {
-      toast.error("Failed to update leave ");
-    });
-};
+      .unwrap()
+      .then(() => {
+        toast.info("Leave moved back to Pending ");
+        dispatch(fetchLeaveList(tab === "All" ? "" : tab));
+        dispatch(fetchLeaveSummary());
+      })
+      .catch(() => {
+        toast.error("Failed to update leave ");
+      });
+  };
 
 
-const reject = () => {
-  if (!rejectionReason.trim()) {
-    toast.error("Please enter rejection reason");
-    return;
-  }
+  const reject = () => {
+    if (!rejectionReason.trim()) {
+      toast.error("Please enter rejection reason");
+      return;
+    }
 
-  dispatch(updateLeaveStatus({
-    leaveId: rejectingId,
-    action: "reject",
-    reason: rejectionReason
-  }))
-    .unwrap()
-    .then(() => {
-      toast.success("Leave Rejected Successfully");
-      setRejectingId(null);
-      setRejectionReason("");
-      dispatch(fetchLeaveList(tab === "All" ? "" : tab));
-      dispatch(fetchLeaveSummary());
-    })
-    .catch(() => {
-      toast.error("Failed to reject leave");
-    });
-};
+    dispatch(updateLeaveStatus({
+      leaveId: rejectingId,
+      action: "reject",
+      reason: rejectionReason
+    }))
+      .unwrap()
+      .then(() => {
+        toast.success("Leave Rejected Successfully");
+        setRejectingId(null);
+        setRejectionReason("");
+        dispatch(fetchLeaveList(tab === "All" ? "" : tab));
+        dispatch(fetchLeaveSummary());
+      })
+      .catch(() => {
+        toast.error("Failed to reject leave");
+      });
+  };
 
 
   return (
 
     <div className="relative min-h-screen bg-slate-50 p-4 md:p-8">
       {loading && (
-  <div className="absolute inset-0 z-50">
-    <ManagerLeaveApprovalSkeleton />
-  </div>
-)}
+        <div className="absolute inset-0 z-50">
+          <ManagerLeaveApprovalSkeleton />
+        </div>
+      )}
       {/* Header - Made responsive with flex-col on mobile */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
         <h1 className="text-2xl md:text-3xl font-bold text-slate-800">
@@ -235,12 +235,12 @@ const reject = () => {
                 <div>
                   {/* <p className="font-semibold">{emp.name}</p> */}
                   <p className="font-semibold">
-  {l.employeeId?.employeeName}
-</p>
+                    {l.employeeId?.employeeName}
+                  </p>
 
                   <p className="text-xs text-slate-500">
-                    {new Date(l.startDate).toLocaleDateString()} → 
-{new Date(l.endDate).toLocaleDateString()}
+                    {new Date(l.startDate).toLocaleDateString()} →
+                    {new Date(l.endDate).toLocaleDateString()}
 
                   </p>
                 </div>
@@ -248,7 +248,7 @@ const reject = () => {
 
               <div className="flex justify-between items-center">
                 <span className={`px-3 py-1 text-xs rounded-full ${typeStyles[l.leaveType?.split(" ")[0]]}`}>
-                 {l.leaveType}
+                  {l.leaveType}
 
                 </span>
 
@@ -313,12 +313,12 @@ const reject = () => {
                       <td className="px-3 py-4 flex items-center gap-3">
                         {/* <img src={emp.avatar} alt="" className="w-9 h-9 rounded-full" /> */}
                         <span className="font-medium">
-                            {l.employeeId?.employeeName}
+                          {l.employeeId?.employeeName}
                         </span>
 
                       </td>
                       <td className="px-6 py-4 text-sm text-slate-600 whitespace-nowrap">
-                       {new Date(l.startDate).toLocaleDateString()} → 
+                        {new Date(l.startDate).toLocaleDateString()} →
                         {new Date(l.endDate).toLocaleDateString()}
 
                       </td>
@@ -351,9 +351,9 @@ const reject = () => {
                           {/* Reject */}
                           <button
                             onClick={() => {
-                            setRejectingId(l._id);
-                            setRejectionReason("");
-                          }}
+                              setRejectingId(l._id);
+                              setRejectionReason("");
+                            }}
 
                             title="Reject"
                             className="text-red-600 hover:text-red-800"
@@ -459,39 +459,39 @@ const reject = () => {
         </div>
       </div>
       {/* Reject Modal */}
-{rejectingId && (
-  <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
-    <div className="bg-white rounded-xl p-6 w-[400px] shadow-lg">
-      <h3 className="text-lg font-semibold mb-4">Reject Leave</h3>
+      {rejectingId && (
+        <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
+          <div className="bg-white rounded-xl p-6 w-[400px] shadow-lg">
+            <h3 className="text-lg font-semibold mb-4">Reject Leave</h3>
 
-      <textarea
-        value={rejectionReason}
-        onChange={(e) => setRejectionReason(e.target.value)}
-        placeholder="Enter rejection reason..."
-        className="w-full border rounded-lg p-3 mb-4"
-        rows={3}
-      />
+            <textarea
+              value={rejectionReason}
+              onChange={(e) => setRejectionReason(e.target.value)}
+              placeholder="Enter rejection reason..."
+              className="w-full border rounded-lg p-3 mb-4"
+              rows={3}
+            />
 
-      <div className="flex justify-end gap-3">
-        <button
-          onClick={() => setRejectingId(null)}
-          className="px-4 py-2 border rounded-lg"
-        >
-          Cancel
-        </button>
+            <div className="flex justify-end gap-3">
+              <button
+                onClick={() => setRejectingId(null)}
+                className="px-4 py-2 border rounded-lg"
+              >
+                Cancel
+              </button>
 
-        <button
-          onClick={reject}
-          className="px-4 py-2 bg-red-600 text-white rounded-lg"
-        >
-          Reject
-        </button>
-      </div>
-    </div>
-  </div>
-)}
+              <button
+                onClick={reject}
+                className="px-4 py-2 bg-red-600 text-white rounded-lg"
+              >
+                Reject
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
-          <ToastContainer
+      <ToastContainer
         position="top-right"
         autoClose={2000}
         hideProgressBar={false}
@@ -521,7 +521,7 @@ function SummaryCard({ title, value, icon, iconBg, iconColor }) {
         className={`w-12 h-12 rounded-xl flex items-center justify-center ${iconBg}`} >
         <span className={`text-xl ${iconColor}`}>{icon}</span>
       </div>
-      </div>
+    </div>
 
 
 

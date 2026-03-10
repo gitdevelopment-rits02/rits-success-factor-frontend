@@ -47,7 +47,7 @@ export default function SuperAdminPersonalTimeSheet() {
     }
 
   );
-  console.log("Dashboard API Data:", data);
+  // console.log("Dashboard API Data:", data);
 
   const [bulkApproved, setBulkApproved] = useState(false);
   const [selectedRows, setSelectedRows] = useState([]);
@@ -731,8 +731,8 @@ export default function SuperAdminPersonalTimeSheet() {
                               !isMonthlyView || r.approvalStatus === "Approved"
                             }
                             className={`p-1.5 rounded ${isMonthlyView && r.approvalStatus !== "Approved"
-                                ? "text-green-600 hover:bg-green-50"
-                                : "text-gray-300 cursor-not-allowed"
+                              ? "text-green-600 hover:bg-green-50"
+                              : "text-gray-300 cursor-not-allowed"
                               }`}
                           >
                             <FaCheckCircle size={18} />
@@ -743,8 +743,8 @@ export default function SuperAdminPersonalTimeSheet() {
                               !isMonthlyView || r.approvalStatus === "Rejected"
                             }
                             className={`p-1.5 rounded ${isMonthlyView && r.approvalStatus !== "Rejected"
-                                ? "text-orange-600 hover:bg-orange-50"
-                                : "text-gray-300 cursor-not-allowed"
+                              ? "text-orange-600 hover:bg-orange-50"
+                              : "text-gray-300 cursor-not-allowed"
                               }`}
                           >
                             <FaTimesCircle size={18} />
