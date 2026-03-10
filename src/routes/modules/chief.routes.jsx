@@ -1,41 +1,49 @@
-
+import React, { Suspense } from "react";
 import { ROUTES } from "../configs/routes.config";
-import ChiefTimeSheetApproval from "../../features/Chief/pages/ChiefTimeSheetApproval";
-import ChiefRequestTimeOff from "../../features/Chief/pages/ChiefRequestTimeOff";
-import ChiefProfile from "../../features/Chief/pages/ChiefProfile";
-import ChiefManageMyTeam from "../../features/Chief/pages/ChiefManageMyTeam";
-import ChiefOrgChart from "../../features/Chief/pages/ChiefOrgChart";
-import ChiefManageLeave from "../../features/Chief/pages/ChiefManageLeave";
-import ChiefGrowthPortfolio from "../../features/Chief/pages/ChiefGrowthPortfolio";
-import ChiefPersonalTimeSheet from "../../features/Chief/pages/ChiefPersonalTimeSheet";
-import ChiefDashboard from "../../features/Chief/pages/ChiefDashboard";
-import ChiefAdminCreation from "../../features/Chief/pages/ChiefAdminCreation";
-import ChiefAdminManagement from "../../features/Chief/pages/ChiefAdminManagement";
-import ChiefOrg from "../../features/Chief/pages/ChiefOrg";
-import ChiefPolicies from "../../features/Chief/pages/ChiefPolicies";
-import ChiefPayroll from "../../features/Chief/pages/ChiefPayroll";
-import ChiefApprovalFlow from "../../features/Chief/pages/ChiefApprovalFlow";
-import ChiefFeedback from "../../features/Chief/pages/ChiefFeedback";
-import ChiefWorkforceWithHRAnalytics from "../../features/Chief/pages/ChiefWorkforceWithHRAnalytics";
-import ChiefSystemDashboard from "../../features/Chief/pages/ChiefSystemDashboard";
+import PageLoader from "../../components/PageLoader";
+
+const ChiefTimeSheetApproval = React.lazy(() => import("../../features/Chief/pages/ChiefTimeSheetApproval"));
+const ChiefRequestTimeOff = React.lazy(() => import("../../features/Chief/pages/ChiefRequestTimeOff"));
+const ChiefProfile = React.lazy(() => import("../../features/Chief/pages/ChiefProfile"));
+const ChiefManageMyTeam = React.lazy(() => import("../../features/Chief/pages/ChiefManageMyTeam"));
+const ChiefOrgChart = React.lazy(() => import("../../features/Chief/pages/ChiefOrgChart"));
+const ChiefManageLeave = React.lazy(() => import("../../features/Chief/pages/ChiefManageLeave"));
+const ChiefGrowthPortfolio = React.lazy(() => import("../../features/Chief/pages/ChiefGrowthPortfolio"));
+const ChiefPersonalTimeSheet = React.lazy(() => import("../../features/Chief/pages/ChiefPersonalTimeSheet"));
+const ChiefDashboard = React.lazy(() => import("../../features/Chief/pages/ChiefDashboard"));
+const ChiefAdminCreation = React.lazy(() => import("../../features/Chief/pages/ChiefAdminCreation"));
+const ChiefAdminManagement = React.lazy(() => import("../../features/Chief/pages/ChiefAdminManagement"));
+const ChiefOrg = React.lazy(() => import("../../features/Chief/pages/ChiefOrg"));
+const ChiefPolicies = React.lazy(() => import("../../features/Chief/pages/ChiefPolicies"));
+const ChiefPayroll = React.lazy(() => import("../../features/Chief/pages/ChiefPayroll"));
+const ChiefApprovalFlow = React.lazy(() => import("../../features/Chief/pages/ChiefApprovalFlow"));
+const ChiefFeedback = React.lazy(() => import("../../features/Chief/pages/ChiefFeedback"));
+const ChiefWorkforceWithHRAnalytics = React.lazy(() => import("../../features/Chief/pages/ChiefWorkforceWithHRAnalytics"));
+const ChiefSystemDashboard = React.lazy(() => import("../../features/Chief/pages/ChiefSystemDashboard"));
+
+const lazy = (Component) => (
+    <Suspense fallback={<PageLoader />}>
+        <Component />
+    </Suspense>
+);
 
 export const chiefRoutes = [
-    { path: ROUTES.CHIEF.TIMESHEETAPPROVAL, element: <ChiefTimeSheetApproval /> },
-    { path: ROUTES.CHIEF.REQUESTTIMEOFF, element: <ChiefRequestTimeOff /> },
-    { path: ROUTES.CHIEF.PROFILE, element: <ChiefProfile /> },
-    { path: ROUTES.CHIEF.MANAGEMYTEAM, element: <ChiefManageMyTeam /> },
-    { path: ROUTES.CHIEF.ORGCHART, element: <ChiefOrgChart /> },
-    { path: ROUTES.CHIEF.MANAGELEAVE, element: <ChiefManageLeave /> },
-    { path: ROUTES.CHIEF.GROWTHPORTFOLIO, element: <ChiefGrowthPortfolio /> },
-    { path: ROUTES.CHIEF.PERSONALTIMESHEET, element: <ChiefPersonalTimeSheet /> },
-    { path: ROUTES.CHIEF.DASHBOARD, element: <ChiefDashboard /> },
-    { path: ROUTES.CHIEF.ADMINCREATION, element: <ChiefAdminCreation /> },
-    { path: ROUTES.CHIEF.ADMINMANAGEMENT, element: <ChiefAdminManagement /> },
-    { path: ROUTES.CHIEF.ORG, element: <ChiefOrg /> },
-    { path: ROUTES.CHIEF.POLICIES, element: <ChiefPolicies /> },
-    { path: ROUTES.CHIEF.PAYROLL, element: <ChiefPayroll /> },
-    { path: ROUTES.CHIEF.APPROVALFLOW, element: <ChiefApprovalFlow /> },
-    { path: ROUTES.CHIEF.FEEDBACK, element: <ChiefFeedback /> },
-    { path: ROUTES.CHIEF.WORKFORCEWITHHRANALYTICS, element: <ChiefWorkforceWithHRAnalytics /> },
-    { path: ROUTES.CHIEF.SYSTEMDASHBOARD, element: <ChiefSystemDashboard /> },
+    { path: ROUTES.CHIEF.TIMESHEETAPPROVAL, element: lazy(ChiefTimeSheetApproval) },
+    { path: ROUTES.CHIEF.REQUESTTIMEOFF, element: lazy(ChiefRequestTimeOff) },
+    { path: ROUTES.CHIEF.PROFILE, element: lazy(ChiefProfile) },
+    { path: ROUTES.CHIEF.MANAGEMYTEAM, element: lazy(ChiefManageMyTeam) },
+    { path: ROUTES.CHIEF.ORGCHART, element: lazy(ChiefOrgChart) },
+    { path: ROUTES.CHIEF.MANAGELEAVE, element: lazy(ChiefManageLeave) },
+    { path: ROUTES.CHIEF.GROWTHPORTFOLIO, element: lazy(ChiefGrowthPortfolio) },
+    { path: ROUTES.CHIEF.PERSONALTIMESHEET, element: lazy(ChiefPersonalTimeSheet) },
+    { path: ROUTES.CHIEF.DASHBOARD, element: lazy(ChiefDashboard) },
+    { path: ROUTES.CHIEF.ADMINCREATION, element: lazy(ChiefAdminCreation) },
+    { path: ROUTES.CHIEF.ADMINMANAGEMENT, element: lazy(ChiefAdminManagement) },
+    { path: ROUTES.CHIEF.ORG, element: lazy(ChiefOrg) },
+    { path: ROUTES.CHIEF.POLICIES, element: lazy(ChiefPolicies) },
+    { path: ROUTES.CHIEF.PAYROLL, element: lazy(ChiefPayroll) },
+    { path: ROUTES.CHIEF.APPROVALFLOW, element: lazy(ChiefApprovalFlow) },
+    { path: ROUTES.CHIEF.FEEDBACK, element: lazy(ChiefFeedback) },
+    { path: ROUTES.CHIEF.WORKFORCEWITHHRANALYTICS, element: lazy(ChiefWorkforceWithHRAnalytics) },
+    { path: ROUTES.CHIEF.SYSTEMDASHBOARD, element: lazy(ChiefSystemDashboard) },
 ];

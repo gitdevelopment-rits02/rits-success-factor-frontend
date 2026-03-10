@@ -27,14 +27,4 @@ export const fetchManagerPayslipHistory = createAsyncThunk(
   }
 );
 
-/* PDF */
-export const fetchManagerPayslipPdf = createAsyncThunk(
-  "managerPayslips/fetchPdf",
-  async ({ month, year }, { rejectWithValue }) => {
-    try {
-      return await managerPayslipsApi.getManagerPayslipPdf(month, year);
-    } catch (e) {
-      return rejectWithValue("Failed to download PDF");
-    }
-  }
-);
+

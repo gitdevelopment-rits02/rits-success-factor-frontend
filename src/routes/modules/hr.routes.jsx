@@ -1,108 +1,43 @@
+import React, { Suspense } from "react";
 import { ROUTES } from "../configs/routes.config";
-// import LoginPage from "../../features/Auth/pages/LoginPage";
-import HrDashboard from "../../features/Hr/pages/HrDashboard";
-import HrClockMyTime from "../../features/Hr/pages/HrClockMyTime";
-import HrInsurance from "../../features/Hr/pages/HrInsurance";
-import HrNotification from "../../features/Hr/pages/HrNotification";
-import HrOnboarding from "../../features/Hr/pages/HrOnboarding";
-import HrPayslips from "../../features/Hr/pages/HrPayslips";
-import HrPolicyAndInsuranceCreation from "../../features/Hr/pages/HrPolicyAndInsuranceCreation";
-import HrPolicyDocuments from "../../features/Hr/pages/HrPolicyDocuments";
-import HrRequestTimeOff from "../../features/Hr/pages/HrRequestTimeOff";
-import HrSalaryCreation from "../../features/Hr/pages/HrSalaryCreation";
-import HrTimeSheet from "../../features/Hr/pages/HrTimeSheet";
+import PageLoader from "../../components/PageLoader";
 
-import HrOrgChart from "../../features/Hr/pages/HrOrgChart";
-import HrOffBoarding from "../../features/Hr/pages/HrOffBoarding";
-import HrLeaveApproval from "../../features/Hr/pages/HrLeaveApproval";
+const HrDashboard = React.lazy(() => import("../../features/Hr/pages/HrDashboard"));
+const HrClockMyTime = React.lazy(() => import("../../features/Hr/pages/HrClockMyTime"));
+const HrInsurance = React.lazy(() => import("../../features/Hr/pages/HrInsurance"));
+const HrNotification = React.lazy(() => import("../../features/Hr/pages/HrNotification"));
+const HrOnboarding = React.lazy(() => import("../../features/Hr/pages/HrOnboarding"));
+const HrPayslips = React.lazy(() => import("../../features/Hr/pages/HrPayslips"));
+const HrPolicyAndInsuranceCreation = React.lazy(() => import("../../features/Hr/pages/HrPolicyAndInsuranceCreation"));
+const HrPolicyDocuments = React.lazy(() => import("../../features/Hr/pages/HrPolicyDocuments"));
+const HrRequestTimeOff = React.lazy(() => import("../../features/Hr/pages/HrRequestTimeOff"));
+const HrSalaryCreation = React.lazy(() => import("../../features/Hr/pages/HrSalaryCreation"));
+const HrTimeSheet = React.lazy(() => import("../../features/Hr/pages/HrTimeSheet"));
+const HrOrgChart = React.lazy(() => import("../../features/Hr/pages/HrOrgChart"));
+const HrOffBoarding = React.lazy(() => import("../../features/Hr/pages/HrOffBoarding"));
+const HrLeaveApproval = React.lazy(() => import("../../features/Hr/pages/HrLeaveApproval"));
 
-import HrSalStatus from "../../features/Hr/pages/HrSalStatus";
+const lazy = (Component) => (
+    <Suspense fallback={<PageLoader />}>
+        <Component />
+    </Suspense>
+);
 
-import HrOurOrganization from "../../features/Hr/pages/HrOurOrganization";
-
-import HrCalender from "../../features/Hr/pages/HrCalender";
-
-
-import HrAnnouncements from "../../features/Hr/pages/HrAnnouncements";
-
-import { elements } from "chart.js";
 const hrRoutes = [
- 
-   {
-        path: ROUTES.HR.DASHBOARD,
-        element: <HrDashboard />,
-    },
-    {
-        path:ROUTES.HR.LEAVEAPPROVAL,
-        element: <HrLeaveApproval/>
-    },
-    {
-        path:ROUTES.HR.ANNOUNCEMENT,
-        element: <HrAnnouncements />
-    },
-    {
-        path:ROUTES.HR.CLOCKMYTIME,
-        element: <HrClockMyTime/>
-    },
-    {
-        path:ROUTES.HR.INSURANCE,
-        element: <HrInsurance />
-    },
-    {
-        path:ROUTES.HR.NOTIFICATION,
-        element: < HrNotification/>
-    },
-
-
-    {
-        path:ROUTES.HR.OURORGANIZATION,
-        element: < HrOurOrganization/>
-    },
-
-    {
-        path:ROUTES.HR.ONBOARDING,
-        element: <HrOnboarding />
-    },
-    {
-        path:ROUTES.HR.HRCALENDER,
-        element: < HrCalender/>
-    },
-    {
-        path:ROUTES.HR.PAYSLIPS,
-        element: < HrPayslips />
-    },
-    {
-        path:ROUTES.HR.POLICYANDINSURANCECREATION,
-        element: < HrPolicyAndInsuranceCreation />
-    },
-    {
-        path:ROUTES.HR.POLICYDOCUMENTS,
-        element: < HrPolicyDocuments/>
-    },
-    {
-        path:ROUTES.HR.REQUESTTIMEOFF,
-        element: < HrRequestTimeOff/>
-    },
-    {
-        path:ROUTES.HR.SALARYCREATION,
-        element: < HrSalaryCreation/>
-    },
-    {
-        path:ROUTES.HR.TIMESHEET,
-        element: < HrTimeSheet/>
-    },
-    {
-        path:ROUTES.HR.ORGCHART,
-        element: < HrOrgChart/>
-    },
-    {
-        path:ROUTES.HR.OFFBOARDING,
-        element: < HrOffBoarding/>
-    },
-    {
-        path:ROUTES.HR.SALARYSTATUS,
-        element: < HrSalStatus/>
-    }
+    { path: ROUTES.HR.DASHBOARD, element: lazy(HrDashboard) },
+    { path: ROUTES.HR.LEAVEAPPROVAL, element: lazy(HrLeaveApproval) },
+    { path: ROUTES.HR.CLOCKMYTIME, element: lazy(HrClockMyTime) },
+    { path: ROUTES.HR.INSURANCE, element: lazy(HrInsurance) },
+    { path: ROUTES.HR.NOTIFICATION, element: lazy(HrNotification) },
+    { path: ROUTES.HR.ONBOARDING, element: lazy(HrOnboarding) },
+    { path: ROUTES.HR.PAYSLIPS, element: lazy(HrPayslips) },
+    { path: ROUTES.HR.POLICYANDINSURANCECREATION, element: lazy(HrPolicyAndInsuranceCreation) },
+    { path: ROUTES.HR.POLICYDOCUMENTS, element: lazy(HrPolicyDocuments) },
+    { path: ROUTES.HR.REQUESTTIMEOFF, element: lazy(HrRequestTimeOff) },
+    { path: ROUTES.HR.SALARYCREATION, element: lazy(HrSalaryCreation) },
+    { path: ROUTES.HR.TIMESHEET, element: lazy(HrTimeSheet) },
+    { path: ROUTES.HR.ORGCHART, element: lazy(HrOrgChart) },
+    { path: ROUTES.HR.OFFBOARDING, element: lazy(HrOffBoarding) },
 ];
 
 export default hrRoutes;

@@ -25,16 +25,15 @@ export const SuperAdminPayrollApi = {
   },
 
    getPayslipPdf: async (payrollId) => {
-    const res = await axiosInstance.get("/superadmin/payroll/getall", {
-      params: {
-        action: "payslip",
-        payrollId,
-      },
-      responseType: "blob",   
-    });
+  const res = await axiosInstance.get("/superadmin/payroll/getall", {
+    params: {
+      action: "payslip",
+      payrollId,
+    },
+  });
 
-    return res.data;
-  },
+  return res.data;
+},
 
     downloadPayrollReport: async ({ month, year }) => {
     const res = await axiosInstance.get("/superadmin/payroll/getall", {
