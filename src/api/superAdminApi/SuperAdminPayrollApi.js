@@ -1,18 +1,21 @@
 import axiosInstance from "../axiosInstance";
 
 export const SuperAdminPayrollApi = {
-  getPayrollList: async ({ month, year }) => {
-    const res = await axiosInstance.get("/superadmin/payroll/getall", {
-      params: {
-        action: "list",
-        month,
-        year,
-      },
-    });
-    return res.data;
-  },
+ getPayrollList: async ({ month, year, page, limit }) => {
+  const res = await axiosInstance.get("/superadmin/payroll/getall", {
+    params: {
+      action: "list",
+      month,
+      year,
+      page,
+      limit
+    },
+  });
 
-  // NEW BREAKDOWN API 
+  return res.data;
+},
+
+  // Breakdown Api
   getPayrollBreakdown: async (payrollId) => {
     const res = await axiosInstance.get("/superadmin/payroll/getall", {
       params: {
@@ -24,6 +27,7 @@ export const SuperAdminPayrollApi = {
     return res.data;
   },
 
+//pdf
    getPayslipPdf: async (payrollId) => {
   const res = await axiosInstance.get("/superadmin/payroll/getall", {
     params: {
@@ -31,10 +35,10 @@ export const SuperAdminPayrollApi = {
       payrollId,
     },
   });
-
   return res.data;
 },
 
+//report 
     downloadPayrollReport: async ({ month, year }) => {
     const res = await axiosInstance.get("/superadmin/payroll/getall", {
       params: { action: "report", month, year },

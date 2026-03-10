@@ -3,10 +3,10 @@ import { SuperAdminPayrollApi } from "../../../../api/superAdminApi/SuperAdminPa
 
 export const fetchPayrollListThunk = createAsyncThunk(
   "superAdminPayroll/fetchList",
-  async ({ month, year }, { rejectWithValue }) => {
+  async ({ month, year, page, limit }, { rejectWithValue }) => {
     try {
-      const data = await SuperAdminPayrollApi.getPayrollList({ month, year });
-      return data;
+      const data = await SuperAdminPayrollApi.getPayrollList({ month, year, page, limit });
+      return { ...data, page};
     } catch (err) {
       return rejectWithValue(
         err.response?.data || "Failed to fetch payroll"

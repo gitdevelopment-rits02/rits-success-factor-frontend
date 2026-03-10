@@ -215,6 +215,7 @@ import { Link } from 'react-router-dom';
 // Use your specific asset paths here
 import background from "../../../assets/background.png";
 import mockup from "../../../assets/Mockup.png";
+import Dashboard from "../../../assets/Dashboard.png"
 import { FaFacebookF, FaLinkedinIn, FaYoutube, FaInstagram } from 'react-icons/fa';
 // import logoRits from "../../../assets/logo.png"; // Adjust path as needed
 import { useNavigate } from 'react-router-dom';
@@ -239,7 +240,7 @@ const LandingPage = () => {
   ];
   const navigate = useNavigate()
   return (
-    <div className="min-h-screen bg-white text-slate-900 font-sans">
+    <div className="min-h-screen bg-gradient-to-b from-white via-slate-50 to-white text-slate-900 font-sans antialiased">
       <nav className="sticky top-0 z-50 bg-white border-b border-slate-100 px-6 lg:px-20 py-4">
         <div className="max-w-7xl mx-auto flex items-center justify-between">
 
@@ -260,16 +261,16 @@ const LandingPage = () => {
           </div>
 
           {/* Action Buttons */}
-          <div className="flex items-center gap-6">
-            <Link
-              to="/register"
-              className="bg-blue-50 hover:bg-blue-200 text-blue-500 px-6 py-2.5 rounded-xl font-bold transition-all shadow-lg shadow-blue-100 flex items-center justify-center"
-            >
-              Get Started
-            </Link>
+         <div className="flex items-center gap-6">
+  <div className="h-6 w-[1px] bg-slate-200"></div>
 
-            <div className="h-6 w-[1px] bg-slate-200"></div>
-          </div>
+  <Link
+    to="/register"
+    className="bg-blue-50 hover:bg-blue-200 text-blue-500 px-6 py-2.5 rounded-xl font-bold transition-all shadow-lg shadow-blue-100 flex items-center justify-center"
+  >
+    Get Started
+  </Link>
+</div>
         </div>
       </nav>
       {/* --- HERO SECTION (Split Layout) --- */}
@@ -281,7 +282,7 @@ const LandingPage = () => {
           {/* Left Side: Content */}
           <div className="w-full lg:w-1/2 text-center lg:text-left">
             <h1 className="text-3xl md:text-3xl lg:text-5xl font-extrabold leading-[1.15] mb-6">
-              One HRMS to manage employees, payroll, <span className="text-blue-600">without chaos.</span>
+              One HRMS to manage employees, payroll, Attendance, Approvals<span className="text-blue-600"> without chaos.</span>
             </h1>
             <p className="text-lg text-slate-600 mb-8 max-w-xl mx-auto lg:mx-0">
               Automate HR operations with ease, reduce workload, and ensure compliance — all in one place.
@@ -298,7 +299,7 @@ const LandingPage = () => {
 
           {/* Right Side: Mockup (Top on mobile if you prefer, currently stacks below text) */}
           {/* Changing lg:w-1/2 to lg:w-[60%] makes the image container larger */}
-          <div className="w-full lg:w-[70%] relative lg:-mr-20">
+          <div className="w-full lg:w-[70%] relative lg:-mr-16 flex justify-center">
             <img
               src={mockup}
               className="relative z-10 w-full h-auto drop-shadow-2xl scale-110 lg:scale-125 transition-transform"
@@ -306,33 +307,38 @@ const LandingPage = () => {
           </div>
         </div>
 
-        {/* Stats Bar */}
-        <div className="max-w-6xl mx-auto mt-20 grid grid-cols-1 md:grid-cols-3 gap-0 bg-white shadow-xl rounded-2xl border border-slate-100 divide-y md:divide-y-0 md:divide-x divide-slate-100 overflow-hidden">
-          <div className="p-8 text-center flex flex-col items-center">
-            <FiUsers className="text-blue-600 text-3xl mb-2" />
-            <span className="text-3xl font-bold">5,000+</span>
-            <p className="text-slate-500 text-sm">Companies use HRMS Pro</p>
-          </div>
-          <div className="p-8 text-center flex flex-col items-center">
-            <FiCalendar className="text-blue-600 text-3xl mb-2" />
-            <span className="text-3xl font-bold">15 Min</span>
-            <p className="text-slate-500 text-sm">Payroll Processing Time</p>
-          </div>
-          <div className="p-8 text-center flex flex-col items-center">
-            <FiBarChart2 className="text-blue-600 text-3xl mb-2" />
-            <span className="text-3xl font-bold">3x</span>
-            <p className="text-slate-500 text-sm">Less HR Workload</p>
-          </div>
-        </div>
+
       </section>
 
       {/* --- TOOLS SECTION --- */}
       <section className="py-24 px-6 bg-slate-50/50">
         <div className="max-w-6xl mx-auto text-center">
-          <h2 className="text-3xl font-extrabold mb-16">Powerful HR Tools in One Platform</h2>
+<div className="text-center mb-16">
+
+  {/* Badge */}
+  <div className="inline-flex items-center gap-2 bg-blue-50 border border-blue-100 px-4 py-1 rounded-full mb-6">
+    <div className="w-2 h-2 bg-blue-600 rounded-full"></div>
+    <span className="text-blue-700 text-xs font-bold tracking-wider uppercase">
+      Next-Gen HR Platform
+    </span>
+  </div>
+
+  {/* Title */}
+  <h2 className="text-4xl md:text-3xl font-extrabold leading-tight">
+    Powerful HR Tools in <br />
+    <span className="text-blue-600">One Unified Platform</span>
+  </h2>
+
+  {/* Description */}
+  <p className="text-slate-500 text-[16px] mt-6 max-w-2xl mx-auto leading-relaxed">
+    Experience a premium human resource management suite designed for the modern workplace. 
+    Streamline workflows, engage employees, and scale with confidence.
+  </p>
+
+</div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
             {features.map((f, i) => (
-              <div key={i} className="bg-white p-8 rounded-2xl border border-slate-100 hover:shadow-xl hover:-translate-y-1 transition-all group">
+              <div key={i} className="bg-white p-8 rounded-2xl border border-slate-200 hover:border-blue-400 hover:shadow-2xl hover:-translate-y-2 transition-all duration-300 ease-in-out group">
                 <div className="w-14 h-14 bg-blue-50 text-blue-600 rounded-xl flex items-center justify-center text-2xl mb-6 mx-auto group-hover:bg-blue-600 group-hover:text-white transition-all">
                   {f.icon}
                 </div>
@@ -345,12 +351,35 @@ const LandingPage = () => {
       </section>
 
       {/* --- ROLE TOGGLE SECTION --- */}
-      <section className="py-24 px-6">
-        <div className="max-w-6xl mx-auto">
-          <h2 className="text-3xl font-extrabold text-center mb-12">Built for Every Role in Your Organization</h2>
+      <section className="py-24 px-6 bg-gradient-to-b from-white via-slate-50 to-white">
+  <div className="max-w-6xl mx-auto">
+
+    {/* Section Header */}
+    <div className="text-center mb-16">
+
+      {/* Badge */}
+      <div className="inline-flex items-center gap-2 bg-blue-50 border border-blue-100 px-4 py-1 rounded-full mb-6">
+  <div className="w-2 h-2 bg-blue-600 rounded-full"></div>
+  <span className="text-blue-700 text-xs font-bold tracking-wider uppercase">
+    Workforce Excellence
+  </span>
+</div>
+
+      {/* Title */}
+      <h2 className="text-3xl md:text-4xl font-extrabold text-slate-900 leading-tight">
+        Built for Every Role in Your Organization
+      </h2>
+
+      {/* Description */}
+      <p className="text-slate-500 mt-6 text-[16px] max-w-2xl mx-auto">
+        Tailored experiences designed to empower every member of your team
+        with the right tools at the right time.
+      </p>
+
+    </div>
 
           {/* Tab Navigation */}
-          <div className="flex flex-wrap justify-center gap-2 mb-12 bg-slate-100 p-2 rounded-2xl w-fit mx-auto">
+          <div className="flex flex-wrap justify-center gap-2 mb-12 bg-slate-100/70 backdrop-blur p-2 rounded-2xl w-fit mx-auto">
             {roles.map((role) => (
               <button
                 key={role.id}
@@ -389,17 +418,21 @@ const LandingPage = () => {
               </ul>
             </div>
 
-            <div className="w-full lg:w-1/2 bg-slate-50 p-8 lg:p-12 flex items-center justify-center">
-              {/* Image will transition or swap based on the role selected */}
-              <div className="relative group overflow-hidden rounded-xl shadow-lg border-4 border-white">
-                <img
-                  key={activeRole} // Re-renders for simple animation effect
-                  src={mockup}
-                  alt={activeRole}
-                  className="w-full h-auto animate-in fade-in zoom-in duration-500"
-                />
-              </div>
-            </div>
+           <div className="w-full lg:w-1/2 relative p-10 flex items-center justify-center bg-transparent">
+
+  {/* glow */}
+  <div className="absolute w-[350px] h-[350px] bg-blue-300/30 blur-3xl rounded-full"></div>
+
+  <div className="relative group overflow-hidden rounded-2xl shadow-xl">
+    <img
+      key={activeRole}
+      src={Dashboard}
+      alt={activeRole}
+      className="relative z-10 w-full max-w-[520px] h-auto transition duration-500 group-hover:scale-105"
+    />
+  </div>
+
+</div>
           </div>
         </div>
       </section>
@@ -421,7 +454,7 @@ const LandingPage = () => {
           <div className="inline-flex items-center gap-2 bg-blue-50 border border-blue-100 px-4 py-1.5 rounded-full mb-8">
             <div className="w-2 h-2 bg-blue-600 rounded-full animate-pulse"></div>
             <span className="text-blue-700 text-xs font-bold uppercase tracking-wider">
-              Trusted by 5,000+ Teams
+              Trusted by Businesses Across India
             </span>
           </div>
 
@@ -434,13 +467,13 @@ const LandingPage = () => {
           </p>
 
           {/* Buttons */}
-          <div className="flex flex-col sm:flex-row justify-center gap-4 mb-16">
-            <button className="bg-blue-600 hover:bg-blue-700 text-white px-10 py-4 rounded-2xl font-bold transition-all shadow-lg shadow-blue-200 flex items-center justify-center gap-2">
-              Request Demo <span className="text-xl">→</span>
-            </button>
-            <button className="bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 px-10 py-4 rounded-2xl font-bold transition-all shadow-sm">
-              Start Free Trial
-            </button>
+          <div className="flex flex-col sm:flex-row justify-center gap-5 mb-16">
+             <button className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-xl font-bold shadow-lg shadow-blue-200 transition-all">
+                Request Demo
+              </button>
+             <Link to="/register" className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-xl font-bold shadow-lg shadow-blue-200 transition-all">
+              Get Started
+             </Link>
           </div>
 
           {/* Trust/Compliance Badges */}
@@ -456,7 +489,7 @@ const LandingPage = () => {
             </div>
           </div>
         </div>
-        
+
       </section>
       <footer className="py-6 lg:py-8 bg-gray-900 text-gray-400 relative overflow-hidden">
         {/* Background Pattern / Shape (7) */}
@@ -630,4 +663,3 @@ const LandingPage = () => {
 };
 
 export default LandingPage;
-

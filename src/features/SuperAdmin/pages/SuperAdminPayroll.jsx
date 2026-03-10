@@ -1,12 +1,12 @@
 import { useState, useMemo, useEffect, Fragment } from "react";
-import { FaBuilding, FaCalendarAlt, FaSearch, FaLayerGroup } from "react-icons/fa";
-import { FaEye } from "react-icons/fa";
+import { FaBuilding, FaCalendarAlt, FaSearch, FaLayerGroup, FaEye } from "react-icons/fa";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchPayrollListThunk,  fetchPayrollBreakdownThunk,  fetchPayslipPdfThunk, fetchPayrollReportThunk  } from "../Redux/thunks/superAdminPayrollThunk";
 import SuperAdminPayrollSkeleton from "../SuperAdminSkeleton/SuperAdminPayrollSkeleton";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 import companyLogo from "../../../assets/companyLogo.png";
+import { resetList } from "../Redux/slices/superAdminPayrollSlice";
 
 const loadImage = (src) => {
   return new Promise((resolve, reject) => {
@@ -16,6 +16,7 @@ const loadImage = (src) => {
     img.onerror = reject;
   });
 };
+
 const monthNames = {
   1: "January",
   2: "February",
@@ -30,41 +31,32 @@ const monthNames = {
   11: "November",
   12: "December",
 };
+
 export default function SuperAdminPayroll() {
   const dispatch = useDispatch();
-
   const [pageLoading, setPageLoading] = useState(true);
 
-  /*  Redux selectors  */
+  /*  selectors  */
 const payrollList = useSelector(
-  (state) => state.superAdmin?.payroll?.payrollList || []
-);
+  (state) => state.superAdmin?.payroll?.payrollList || []);
 const loading = useSelector(
-  (state) => state.superAdmin?.payroll?.loading || false
-);
+  (state) => state.superAdmin?.payroll?.loading || false);
+
 const [showSkeleton, setShowSkeleton] = useState(false);
 
 useEffect(() => {
   if (loading && payrollList.length === 0) {
     setShowSkeleton(true);
   } else {
-    const timer = setTimeout(() => {
-      setShowSkeleton(false);
-    }, 800);
-
-    return () => clearTimeout(timer);
+    setShowSkeleton(false);
   }
 }, [loading, payrollList]);
 
 useEffect(() => {
-  const timer = setTimeout(() => {
+  if (!loading) {
     setPageLoading(false);
-  }, 1500);
-
-  return () => clearTimeout(timer);
-}, []);
-
-
+  }
+}, [loading]);
 
 
   const [selectedDept, setSelectedDept] = useState("Select Department");
@@ -72,10 +64,8 @@ useEffect(() => {
   const [selectedMonth, setSelectedMonth] = useState("Select Month");
   const [expandedId, setExpandedId] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
-  const [currentPage, setCurrentPage] = useState(1);
-  const PAGE_SIZE = 10;
-
-
+  const [page, setPage] = useState(1);
+  const [hasMore, setHasMore] = useState(true);
 
   const monthMap = {
     January: "01",
@@ -99,44 +89,79 @@ useEffect(() => {
     )
       return;
 
-    const monthNumber = monthMap[selectedMonth];
+const monthNumber = monthMap[selectedMonth];
 
-    dispatch(
-      fetchPayrollListThunk({
-        month: monthNumber,
-        year: selectedYear,
-      })
-    );
+   dispatch(
+  fetchPayrollListThunk({
+    month: monthNumber,
+    year: selectedYear,
+    page: page,
+    limit: 10
+  })
+);
+};
+
+useEffect(() => {
+  dispatch(resetList());
+  setPage(1);
+  setHasMore(true);
+}, [selectedDept, selectedMonth, selectedYear, searchTerm]);
+
+useEffect(() => {
+  const handleScroll = () => {
+    if (
+      window.innerHeight + document.documentElement.scrollTop
+      >= document.documentElement.offsetHeight - 400
+      && hasMore
+      && !loading
+    ) {
+      setPage((prev) => prev + 1);
+    }
   };
 
-  useEffect(() => {
-    if (
-      selectedMonth !== "Select Month" &&
-      selectedYear !== "Select Year"
-    ) {
-      getPayrollList();
-    }
-  }, [selectedMonth, selectedYear]);
+  window.addEventListener("scroll", handleScroll);
+  return () => window.removeEventListener("scroll", handleScroll);
+}, [hasMore, loading]);
+
+ useEffect(() => {
+  if (
+    selectedMonth !== "Select Month" &&
+    selectedYear !== "Select Year"
+  ) {
+    getPayrollList();
+  }
+}, [selectedMonth, selectedYear, page]);
 
 
 
-const payrollData = useMemo(() => {
-  if (!Array.isArray(payrollList)) return [];
+const [payrollData, setPayrollData] = useState([]);
 
-  return payrollList.map((emp) => ({
-    payrollId: emp.payrollId,   
-    id: emp.employeeId,         
+useEffect(() => {
+  if (!Array.isArray(payrollList)) {
+    setPayrollData([]);
+    return;
+  }
+
+  const mapped = payrollList.map((emp) => ({
+    payrollId: emp.payrollId,
+    id: emp.employeeId,
     name: emp.employeeName,
     designation: emp.designation,
     department: emp.department,
     ctc: emp.ctc,
-    netPay: emp.netPay,   
+    netPay: emp.netPay,
     month: selectedMonth,
     year: selectedYear,
   }));
+
+  setPayrollData(mapped);
 }, [payrollList, selectedMonth, selectedYear]);
 
-
+useEffect(() => {
+  if (payrollList.length < 10) {
+    setHasMore(false);
+  }
+}, [payrollList]);
 
 const breakdownMap = useSelector(
   (state) => state.superAdmin?.payroll?.breakdownMap || {}
@@ -151,90 +176,56 @@ const handleViewBreakdown = (emp) => {
   }
 };
 
+const [filteredData, setFilteredData] = useState([]);
 
-
-const filteredData = useMemo(() => {
+useEffect(() => {
   if (
     selectedDept === "Select Department" ||
     selectedYear === "Select Year" ||
     selectedMonth === "Select Month"
   ) {
-    return payrollData;   
+    setFilteredData(payrollData);
+    return;
   }
 
-  return payrollData.filter((emp) => {
+  const filtered = payrollData.filter((emp) => {
     const deptMatch =
       selectedDept === "All" || emp.department === selectedDept;
 
     const searchMatch =
       emp.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      String(emp.id || "").toLowerCase()
-  .includes(searchTerm.toLowerCase());
-
+      String(emp.id || "").toLowerCase().includes(searchTerm.toLowerCase());
 
     return deptMatch && searchMatch;
   });
-}, [payrollData, selectedDept,  searchTerm]);
 
-
-useEffect(() => {
-  if (currentPage !== 1) {
-    setCurrentPage(1);
-  }
-}, [selectedDept, selectedMonth, selectedYear, searchTerm]);
+  setFilteredData(filtered);
+}, [payrollData, selectedDept, selectedMonth, selectedYear, searchTerm]);
 
 
 
-const paginatedData = useMemo(() => {
-  const startIndex = (currentPage - 1) * PAGE_SIZE;
-  const endIndex = startIndex + PAGE_SIZE;
-  return filteredData.slice(startIndex, endIndex);
-}, [filteredData, currentPage]);
 
 
-const totalPages = Math.ceil(filteredData.length / PAGE_SIZE);
+const currentYear = new Date().getFullYear();
+const yearRange = Array.from( { length: 11 }, (_, i) => currentYear - 5 + i);
 
-
-
-useEffect(() => {
-  if (totalPages > 0 && currentPage > totalPages) {
-    setCurrentPage(prev =>
-      prev > totalPages ? totalPages : prev
-    );
-  }
-}, [totalPages]);
-
-
-  const currentYear = new Date().getFullYear();
-  const yearRange = Array.from(
-    { length: 11 },
-    (_, i) => currentYear - 5 + i
-  );
-
- const generateIndividualPayslip = async (emp) => {
+const generateIndividualPayslip = async (emp) => {
   try {
-
     const result = await dispatch(fetchPayslipPdfThunk(emp.payrollId)).unwrap();
-
     const { employee, payrollPeriod, earnings, deductions, netPay } = result;
-
     const doc = new jsPDF();
     const monthName = monthNames[payrollPeriod.month];
-const periodText = `${monthName} ${payrollPeriod.year}`;
-    /* LOAD LOGO */
+    const periodText = `${monthName} ${payrollPeriod.year}`;
     const logoImg = await loadImage(companyLogo);
 
     doc.addImage(logoImg, "PNG", 7, -3, 48, 34);
 
     /* COMPANY NAME */
-
     doc.setFont("helvetica", "bold");
     doc.setFontSize(16);
     doc.text("Revappayya IT Services Pvt Ltd", 64, 12);
-
     doc.setFont("helvetica", "normal");
     doc.setFontSize(9);
-
     doc.text(
       "HO: Shree Shaila Nilaya, 13th Cross, 22nd Main Road,",
       14,
@@ -267,7 +258,7 @@ const periodText = `${monthName} ${payrollPeriod.year}`;
       { align: "center" }
     );
 
-    /* EMPLOYEE TABLE */
+   
 
     autoTable(doc, {
       startY: 52,
@@ -282,7 +273,6 @@ const periodText = `${monthName} ${payrollPeriod.year}`;
     });
 
     /* SALARY TABLE */
-
     autoTable(doc, {
       startY: doc.lastAutoTable.finalY + 5,
       theme: "grid",
@@ -293,14 +283,7 @@ const periodText = `${monthName} ${payrollPeriod.year}`;
         ["HRA", earnings.hra, "Professional Tax", deductions.professionalTax],
         ["Conveyance", earnings.conveyance, "Medical Insurance", deductions.medicalInsurance],
         ["Special Allowance", earnings.specialAllowance, "", ""],
-        [
-          "Gross Salary",
-          earnings.gross,
-          "Total Deductions",
-          deductions.employeePF +
-            deductions.professionalTax +
-            deductions.medicalInsurance,
-        ],
+        ["Gross Salary", earnings.gross, "Total Deductions",deductions.employeePF + deductions.professionalTax + deductions.medicalInsurance,],
       ],
     });
 
@@ -356,14 +339,7 @@ const handleDownloadReport = async () => {
   const monthNumber = monthMap[selectedMonth];
 
   try {
-    const result = await dispatch(
-      fetchPayrollReportThunk({
-        month: monthNumber,
-        year: selectedYear,
-      })
-    ).unwrap();
-
-    // Convert blob to downloadable file
+    const result = await dispatch(fetchPayrollReportThunk({month: monthNumber,year: selectedYear,})).unwrap();
     const url = window.URL.createObjectURL(result.fileBlob);
     const a = document.createElement("a");
     a.href = url;
@@ -383,14 +359,12 @@ if (pageLoading) {
   return <SuperAdminPayrollSkeleton />;
 }
 
-  return (
-    <div className="min-h-screen w-full p-8 bg-gradient-to-br from-slate-100 via-blue-50 to-indigo-100">
-
-
-
+ return (
+  <div className="min-h-screen p-6 lg:p-8 bg-gradient-to-br from-slate-100 via-blue-50 to-indigo-100">
+    <div className="max-w-[1400px] mx-auto">
       {/*  Header  */}
       <div className="bg-white/90 backdrop-blur-xl rounded-[28px] p-7 shadow-[0_20px_50px_rgba(0,0,0,0.08)] relative border border-blue-100">
-        <div className="absolute top-5 right-5">
+        <div className="absolute top-4 right-5">
           <span className="text-[11px] px-5 py-1.5 rounded-full bg-gradient-to-r from-blue-500 to-indigo-500 text-white font-semibold shadow-lg tracking-wide">
             Super Admin
           </span>
@@ -403,8 +377,8 @@ if (pageLoading) {
           Employee Payroll Engine
         </p>
 
-        <div className="flex items-center gap-4 mt-7 w-full">
-          <div className="flex gap-3 items-center shrink-0">
+        <div className="flex flex-col lg:flex-row lg:items-center gap-4 mt-7 w-full">
+          <div className="flex flex-wrap gap-3 items-center">
 
             {/* Department */}
             <div className="relative">
@@ -412,8 +386,7 @@ if (pageLoading) {
               <select
                 value={selectedDept}
                 onChange={(e) => setSelectedDept(e.target.value)}
-                className="pl-9 pr-4 py-2.5 rounded-xl border border-gray-200 bg-white shadow-sm text-[13px] font-medium outline-none focus:outline-none focus:ring-2 focus:ring-blue-200 focus:border-blue-400 transition-all"
-              >
+                className="pl-9 pr-4 py-2.5 rounded-xl border border-gray-200 bg-white shadow-sm text-[13px] font-medium outline-none focus:outline-none focus:ring-2 focus:ring-blue-200 focus:border-blue-400 transition-all">
                 <option value="Select Department">
                   Select Department
                 </option>
@@ -423,9 +396,6 @@ if (pageLoading) {
                <option value="HR">HR</option>
                <option value="Sales">Sales</option>
                <option value="Finance">Finance</option>
-
-
-
               </select>
             </div>
 
@@ -454,9 +424,7 @@ if (pageLoading) {
                 onChange={(e) => setSelectedMonth(e.target.value)}
                 className="pl-9 pr-4 py-2.5 rounded-xl border border-gray-200 bg-white shadow-sm text-[13px] font-medium outline-none focus:outline-none focus:ring-2 focus:ring-blue-200 focus:border-blue-400 transition-all">
                 <option value="Select Month">Select Month</option>
-                {[
-                  "January","February","March","April","May","June",
-                  "July","August","September","October","November","December",
+                {["January","February","March","April","May","June","July","August","September","October","November","December",
                 ].map((m) => (
                   <option key={m} value={m}>
                     {m}
@@ -473,23 +441,89 @@ if (pageLoading) {
                 placeholder="Search by name or ID..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10 pr-4 py-2.5 rounded-xl border border-gray-200 bg-white shadow-sm text-[13px] w-[280px] max-w-[320px] min-w-[220px] font-medium placeholder:text-gray-400 outline-none focus:outline-none focus:ring-2 focus:ring-blue-200 focus:border-blue-400 transition-all"
+                className="pl-10 pr-4 py-2.5 rounded-xl border border-gray-200 bg-white shadow-sm text-[13px] w-full sm:w-[260px] font-medium placeholder:text-gray-400 outline-none focus:outline-none focus:ring-2 focus:ring-blue-200 focus:border-blue-400 transition-all"
               />
             </div>
           </div>
 
-          <button      
-  onClick={handleDownloadReport}
-
-            className="bg-gradient-to-r from-blue-500 to-indigo-500 text-white px-7 py-3 rounded-xl font-semibold shadow-lg hover:scale-[1.03] transition-all text-[13px] whitespace-nowrap">
+          <button onClick={handleDownloadReport} className="bg-gradient-to-r from-blue-500 to-indigo-500 text-white px-7 py-3 rounded-xl font-semibold shadow-lg hover:scale-[1.03] transition-all text-[13px] whitespace-nowrap">
             ⬇ Download Report
           </button>
         </div>
       </div>
 
+{/* MOBILE VIEW */}
+<div className="md:hidden space-y-4 mt-6">
+  {filteredData.map((emp) => {
+    const structure = breakdownMap[emp.payrollId];
+    return (
+      <div
+        key={emp.payrollId}
+        className="bg-white rounded-2xl shadow p-4 border"
+      >
+        <div className="flex justify-between items-center mb-2">
+          <h3 className="font-bold text-indigo-600">
+            {emp.name}
+          </h3>
+
+          <button
+            onClick={() => handleViewBreakdown(emp)}
+            className="p-2 rounded-lg bg-gray-100">
+            <FaEye size={14} />
+          </button>
+        </div>
+
+        <p className="text-sm text-gray-500">
+          ID: {emp.id}
+        </p>
+
+        <p className="text-sm text-gray-500">
+          {emp.designation}
+        </p>
+
+        <div className="flex justify-between mt-3 text-sm">
+          <span className="font-medium">
+            CTC
+          </span>
+
+          <span>
+            ₹ {emp.ctc.toLocaleString()}
+          </span>
+        </div>
+
+        <div className="flex justify-between text-sm">
+          <span className="font-medium">
+            Net Pay
+          </span>
+
+          <span className="text-emerald-600 font-semibold">
+            ₹ {Math.round(emp.netPay).toLocaleString()}
+          </span>
+        </div>
+
+        {expandedId === emp.id && structure && (
+          <div className="mt-4 border-t pt-3 space-y-2 text-sm">
+            <PayRow label="Basic" value={structure.basic} />
+            <PayRow label="HRA" value={structure.hra} />
+            <PayRow label="Conveyance" value={structure.conveyance} />
+            <PayRow label="Special Allowance" value={structure.specialAllowance} />
+            <PayRow label="Net Pay" value={structure.netPay} highlight />
+
+            <button
+              onClick={() => generateIndividualPayslip(emp)}
+              className="w-full mt-2 bg-indigo-600 text-white py-2 rounded-lg text-sm">
+              Download Payslip
+            </button>
+          </div>
+        )}
+      </div>
+    );
+  })}
+</div>
       {/*  TABLE  */}
-      <div className="mt-10 bg-white/95 rounded-[28px] shadow-[0_20px_60px_rgba(0,0,0,0.08)] overflow-hidden border border-blue-100">
-        <table className="w-full text-[13.5px] table-fixed">
+  <div className="mt-10 bg-white/95 rounded-[28px] shadow-[0_20px_60px_rgba(0,0,0,0.08)] border border-blue-100 overflow-hidden">
+  <div className="overflow-x-auto">
+        <table className="hidden md:table w-full text-[13.5px] table-fixed">
           <thead className="bg-gradient-to-r from-blue-50 to-indigo-50 border-b">
             <tr>
               <th className="p-4 text-center font-bold text-gray-700 text-[14px] tracking-wide w-[12%]">
@@ -512,10 +546,10 @@ if (pageLoading) {
               </th>
             </tr>
           </thead>
-<tbody>
+         <tbody>
 
   {/* Skeleton while fetching */}
-  {showSkeleton && (
+  {loading && payrollList.length === 0 && (
     <>
       <PayrollSkeletonRow />
       <PayrollSkeletonRow />
@@ -526,12 +560,10 @@ if (pageLoading) {
   )}
 
   {!showSkeleton &&
-    paginatedData.map((emp) => {
+    filteredData.map((emp) => {
       const structure = breakdownMap[emp.payrollId];
-
       return (
         <Fragment key={emp.payrollId}>
-
           <tr className="border-b hover:bg-gray-50 transition">
             <td className="p-4 font-semibold text-indigo-600 text-center">
               {emp.id}
@@ -557,16 +589,14 @@ if (pageLoading) {
               <button
                 onClick={() => handleViewBreakdown(emp)}
                 className="p-2 rounded-lg bg-gray-50 text-gray-600 hover:bg-indigo-100 hover:scale-105 transition-all shadow-sm"
-                title="View Payroll Details"
-              >
+                title="View Payroll Details">
                 <FaEye size={14} />
               </button>
             </td>
           </tr>
 
 
-
-          {/* Breakdown row when data is available */}
+          {/* Breakdown row data */}
           {expandedId === emp.id && structure && (
             <tr className="bg-indigo-50/40">
               <td colSpan={6} className="p-6">
@@ -583,17 +613,11 @@ if (pageLoading) {
                   <PayRow label="Net Pay" value={structure.netPay} highlight />
 
                   <div className="col-span-full flex justify-between items-center pt-4 border-t">
-                    <span className="text-gray-500 text-[12px] font-medium">
-                      CTC: ₹ {emp.ctc.toLocaleString()}
-                    </span>
+                    <span className="text-gray-500 text-[12px] font-medium">CTC: ₹ {emp.ctc.toLocaleString()}</span>
 
                     <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        generateIndividualPayslip(emp);
-                      }}
-                      className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-5 py-2 rounded-lg text-[12px] font-semibold shadow hover:scale-[1.03] transition"
-                    >
+                      onClick={(e) => {e.stopPropagation(); generateIndividualPayslip(emp);}}
+                      className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-5 py-2 rounded-lg text-[12px] font-semibold shadow hover:scale-[1.03] transition">
                       ⬇ Generate Payslip
                     </button>
                   </div>
@@ -605,35 +629,11 @@ if (pageLoading) {
       );
     })}
 </tbody>
-
-        </table>
-      </div>
-      {totalPages > 1 && (
-  <div className="flex justify-center items-center gap-3 mt-4 mb-2">
-    <button
-      disabled={currentPage === 1}
-      onClick={() => setCurrentPage(p => p - 1)}
-      className="px-3 py-1 rounded-lg border bg-white disabled:opacity-50"
-    >
-      ◀ Prev
-    </button>
-
-    <span className="text-sm font-medium">
-      Page {currentPage} of {totalPages}
-    </span>
-
-    <button
-      disabled={currentPage === totalPages}
-      onClick={() => setCurrentPage(p => p + 1)}
-      className="px-3 py-1 rounded-lg border bg-white disabled:opacity-50"
-    >
-      Next ▶
-    </button>
-  </div>
-)}
-
-    </div>
-
+</table>
+</div>
+</div>
+</div>
+</div>
   );
 }
 
@@ -651,24 +651,14 @@ function PayrollSkeletonRow() {
 }
 
 
-
-
 function PayRow({ label, value, highlight }) {
   return (
     <div
       className={`flex justify-between items-center px-3 py-2.5 rounded-lg border ${
-        highlight
-          ? "bg-emerald-50 border-emerald-200"
-          : "bg-slate-50 border-slate-200"
-      }`}
-    >
+        highlight ? "bg-emerald-50 border-emerald-200" : "bg-slate-50 border-slate-200"}`}>
       <span className="text-gray-600 font-medium">{label}</span>
       <span
-        className={`font-bold ${
-          highlight ? "text-emerald-700" : "text-gray-800"
-        }`}
-      >
-        ₹ {Math.round(value).toLocaleString()}
+        className={`font-bold ${highlight ? "text-emerald-700" : "text-gray-800"}`}>₹ {Math.round(value).toLocaleString()}
       </span>
     </div>
   );
