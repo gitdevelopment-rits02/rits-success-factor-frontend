@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import {
   FiUsers,
   FiHome,
@@ -30,9 +30,8 @@ import { Bar, Doughnut } from "react-chartjs-2";
 import { useDispatch, useSelector } from "react-redux";
 import superAdminDashboardThunk from "../Redux/thunks/superAdminDashboardThunk";
 import SuperAdminDashboardSkeleton from "../SuperAdminSkeleton/SuperAdminDashboardSkeleton";
-// import theme from "../../../assets/theme1.png";
 import logo from "../../../assets/logo.png";
-// then use: src={logo}
+
 ChartJS.register(
   CategoryScale, LinearScale, BarElement,
   ArcElement, LineElement, PointElement, Filler, Tooltip
@@ -83,7 +82,7 @@ const STATUS_TABS = [
   { key: "Absent", label: "Absent" },
 ];
 
-/* ─── Static data (used until API returns real data) ─── */
+/* ─── Static data ─── */
 const TREND_DATA = [
   { month: "Aug", present: 88, absent: 12, late: 5 },
   { month: "Sep", present: 91, absent: 9, late: 3 },
@@ -114,6 +113,26 @@ const ANN_CFG = {
   event: { bg: "#f5f3ff", border: "#ddd6fe", dot: "#7c3aed" },
 };
 
+/* ─── KpiCard ─── */
+function KpiCard({ label, val, delta, color, lbg, ltxt, icon }) {
+  return (
+    <div style={{ ...card, display: "flex", flexDirection: "column", gap: 10 }}>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
+        <div style={{
+          width: 32, height: 32, borderRadius: 10,
+          background: lbg, color: color,
+          display: "flex", alignItems: "center", justifyContent: "center",
+        }}>{icon}</div>
+      </div>
+      <div>
+        <p style={{ fontSize: 22, fontWeight: 700, color: "#1e293b", lineHeight: 1 }}>{val}</p>
+        <p style={{ fontSize: 12, fontWeight: 500, color: "#64748b", marginTop: 3 }}>{label}</p>
+        <p style={{ fontSize: 10, color: "#94a3b8", marginTop: 2 }}>{delta}</p>
+      </div>
+    </div>
+  );
+}
+
 /* ══════════════════════════════════════════════
    ROOT
 ══════════════════════════════════════════════ */
@@ -134,7 +153,6 @@ export default function SuperAdminDashboard() {
       const timer = setTimeout(() => {
         setShowSkeleton(false);
       }, 1500);
-
       return () => clearTimeout(timer);
     } else {
       setShowSkeleton(true);
@@ -142,108 +160,13 @@ export default function SuperAdminDashboard() {
   }, [activeTab, getAttendanceDataLoading, getDashboardDataLoading]);
 
   return (
-
-    <div className="min-h-screen bg-[#F8FAFC] p-6 md:p-10 font-sans text-slate-700">
-
+    <div style={{ minHeight: "100vh", background: "#F8FAFC", fontFamily: "sans-serif", color: "#475569" }}>
       {showSkeleton && (
-        <div className="absolute inset-0 z-50 bg-[#F8FAFC]">
+        <div style={{ position: "absolute", inset: 0, zIndex: 50, background: "#F8FAFC" }}>
           <SuperAdminDashboardSkeleton />
         </div>
       )}
 
-
-
-
-      {/* TOGGLE NAVIGATION */}
-      <div className="flex justify-center mb-10">
-        <div className="bg-white p-1 rounded-2xl flex gap-1 border border-slate-200 shadow-sm">
-          <button
-            onClick={() => setActiveTab("analytics")}
-            className={`px-6 py-2 rounded-xl font-bold text-sm transition-all ${activeTab === "analytics"
-              ? "bg-blue-600 text-white shadow-md"
-              : "text-slate-500 hover:bg-slate-50"
-              }`}
-          >
-            Analytics
-          </button>
-          <button
-            onClick={() => setActiveTab("attendance")}
-            className={`px-6 py-2 rounded-xl font-bold text-sm transition-all ${activeTab === "attendance"
-              ? "bg-blue-600 text-white shadow-md"
-              : "text-slate-500 hover:bg-slate-50"
-              }`}
-          >
-            Attendance
-          </button>
-        </div>
-      </div>
-
-      <div className="max-w-[1400px] mx-auto">
-        {activeTab === "analytics" ? (
-          <SuperAdminSystemDashboard />
-        ) : (
-          <LiveAttendanceTracker />
-        )}
-      </div>
-    </div>
-  );
-}
-
-function LateCheckInMonitor() {
-  const { dashboardData } = useSelector(
-    (state) => state.superAdmin?.dashboard
-  ) || {};
-
-  const lateEmployees = dashboardData?.lateCheckins?.employees || [];
-  const lateCount = dashboardData?.lateCheckins?.count || 0;
-
-  const deptIcons = {
-    Sales: <FiTrendingUp className="text-blue-500" />,
-    IT: <FiServer className="text-indigo-500" />,
-    Marketing: <FiActivity className="text-emerald-500" />,
-    Finance: <FiActivity className="text-purple-500" />,
-  };
-
-      {/* Topbar */}
-      {/* <header style={{
-        height: 56, background: "#fff", borderBottom: "1px solid #f1f5f9",
-        display: "flex", alignItems: "center", padding: "0 28px", gap: 16,
-        position: "sticky", top: 0, zIndex: 10,
-        boxShadow: "0 1px 4px rgba(15,23,42,0.05)",
-      }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-          <div style={{
-            width: 30, height: 30, borderRadius: 9,
-            background: "linear-gradient(135deg,#3b82f6,#1d4ed8)",
-            display: "flex", alignItems: "center", justifyContent: "center",
-            color: "#fff", fontSize: 12, fontWeight: 700,
-          }}>S</div>
-          <div>
-            <p style={{ fontSize: 13, fontWeight: 700, color: "#1e293b", lineHeight: 1.2 }}>Super Admin</p>
-            <p style={{ fontSize: 10, color: "#60a5fa", fontWeight: 500 }}>Control Panel</p>
-          </div>
-        </div>
-
-        <div style={{ width: 1, height: 24, background: "#f1f5f9" }} />
-
-        <div style={{
-          display: "flex", gap: 4, background: "#f8fafc",
-          border: "1px solid #e2e8f0", borderRadius: 10, padding: 3,
-        }}>
-          {[{ key: "analytics", label: "Analytics" }, { key: "attendance", label: "Attendance" }].map((t) => (
-            <button key={t.key}
-              onClick={() => { setActiveTab(t.key); setShowSkeleton(true); }}
-              style={{
-                padding: "6px 18px", borderRadius: 8, fontSize: 12, fontWeight: 600,
-                border: "none",
-                background: activeTab === t.key ? "#3b82f6" : "transparent",
-                color:      activeTab === t.key ? "#fff"    : "#94a3b8",
-                transition: "all 0.15s",
-              }}
-            >{t.label}</button>
-          ))}
-        </div> */}
-      {/* </header> */}
       {/* ── TOP NAV ── */}
       <header style={{
         height: 56, background: "#f4f8ff", borderBottom: "1px solid #f1f5f9",
@@ -252,18 +175,15 @@ function LateCheckInMonitor() {
         position: "sticky", top: 0, zIndex: 10,
         boxShadow: "0 1px 4px rgba(15,23,42,0.05)",
       }}>
-        {/* Logo */}
         <img
-          src="/src/assets/logo.png"
+          src={logo}
           alt="HR Connect"
           style={{ height: 36, objectFit: "contain" }}
         />
-
-        {/* Logout */}
         <button
           onClick={() => {
             localStorage.clear();
-            window.location.href = "/login"; // adjust to your login route
+            window.location.href = "/login";
           }}
           style={{
             display: "flex", alignItems: "center", gap: 6,
@@ -279,7 +199,7 @@ function LateCheckInMonitor() {
         </button>
       </header>
 
-      {/* ── SUB NAV (Analytics / Attendance toggle) ── */}
+      {/* ── SUB NAV ── */}
       <div style={{
         background: "#f4f8ff", borderBottom: "1px solid #f1f5f9",
         display: "flex", justifyContent: "center", alignItems: "center",
@@ -299,6 +219,7 @@ function LateCheckInMonitor() {
                 background: activeTab === t.key ? "#3b82f6" : "transparent",
                 color: activeTab === t.key ? "#fff" : "#94a3b8",
                 transition: "all 0.15s",
+                cursor: "pointer",
               }}
             >{t.label}</button>
           ))}
@@ -317,78 +238,33 @@ function LateCheckInMonitor() {
 ══════════════════════════════════════════════ */
 function AnalyticsView() {
   const dispatch = useDispatch();
-  const [searchTerm, setSearchTerm] = useState("");
-  const [selectedStatus, setSelectedStatus] = useState("All");
-  const [selectedDepartment, setSelectedDepartment] = useState("All");
 
-  // GET ATTENDANCE DATA (NOT DASHBOARD DATA!)
   const {
     attendanceData,
-    getAttendanceDataLoading,
+    dashboardData,
   } = useSelector((state) => state.superAdmin?.dashboard) || {};
-  // GET DASHBOARD DATA FOR DEPARTMENTS LIST
-  const { dashboardData } = useSelector(
-    (state) => state.superAdmin?.dashboard
-  ) || {};
-
 
   useEffect(() => {
-    // Fetch attendance data
-    dispatch(superAdminDashboardThunk.getAttendanceDataThunk())
-      .unwrap()
-      .then((res) => {
-        // console.log("Attendance data:", res);
-      })
-      .catch((err) => {
-        // console.log("Error fetching attendance:", err);
-      });
-
-    // Fetch dashboard data for departments
-    dispatch(superAdminDashboardThunk.getDashboardDataThunk())
-      .unwrap()
-      .then((res) => {
-        // console.log("Dashboard data:", res);
-      })
-      .catch((err) => {
-        // console.log("Error fetching dashboard:", err);
-      });
+    dispatch(superAdminDashboardThunk.getAttendanceDataThunk()).unwrap().catch(() => { });
+    dispatch(superAdminDashboardThunk.getDashboardDataThunk()).unwrap().catch(() => { });
   }, [dispatch]);
 
+  const overview = attendanceData?.overview || {};
 
-  const stats = {
-    total: attendanceData?.overview?.totalStaff || 0,
-    present: attendanceData?.overview?.present || 0,
-    remote: attendanceData?.overview?.wfh || 0,
-    absence: attendanceData?.overview?.absent || 0,
-  };
+  const KPI = [
+    { label: "Total Staff", val: overview.totalStaff || 0, delta: "All employees", color: "#3b82f6", lbg: "#eff6ff", ltxt: "#1d4ed8", icon: Ic.users },
+    { label: "In Office", val: overview.present || 0, delta: "Checked in", color: "#10b981", lbg: "#ecfdf5", ltxt: "#065f46", icon: Ic.check },
+    { label: "Remote", val: overview.wfh || 0, delta: "Work from home", color: "#f59e0b", lbg: "#fffbeb", ltxt: "#92400e", icon: Ic.home },
+    { label: "Absent", val: overview.absent || 0, delta: "Not checked in", color: "#94a3b8", lbg: "#f8fafc", ltxt: "#475569", icon: Ic.x },
+  ];
 
+  const deptData = dashboardData?.departmentHeadcount || [];
+  const deptLabels = deptData.map((d) => d.department);
+  const deptCounts = deptData.map((d) => d.count || d.headcount || 0);
+  const totalStaff = deptCounts.reduce((a, b) => a + b, 0);
 
-  const roster = attendanceData?.roster || [];
-  const departments = dashboardData?.departmentHeadcount?.map(d => d.department) || [];
-
-  const filteredData = roster.filter((emp) => {
-    const matchesSearch = emp.name?.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesStatus = selectedStatus === "All" || emp.status === selectedStatus;
-    const matchesDepartment = selectedDepartment === "All" || emp.department === selectedDepartment;
-    return matchesSearch && matchesStatus && matchesDepartment;
-  });
-
-  // if (getAttendanceDataLoading) {
-  //   return (
-  //     <div className="flex items-center justify-center h-64">
-  //       <div className="text-blue-600 text-lg font-bold">Loading...</div>
-  //     </div>
-  //   );
-  // }
-
-
-  // if (getAttendanceDataLoading) {
-  //   return <SuperAdminDashboardSkeleton />;
-  // }
-  // if (showSkeleton) {
-  //   return <SuperAdminDashboardSkeleton />;
-  // }
-
+  const lateEmployees = dashboardData?.lateCheckins?.employees || [];
+  const lateCount = dashboardData?.lateCheckins?.count || 0;
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
@@ -403,7 +279,7 @@ function AnalyticsView() {
 
         {/* 6-month attendance trend */}
         <div style={card}>
-          <div style={{ display: "flex", justifyContent: "center", alignItems: "flex-start", marginBottom: 20 }}>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 20 }}>
             <div>
               <p style={h2}>Attendance Report</p>
               <p style={sub}>Last 6 months — present vs absent vs late</p>
@@ -487,7 +363,7 @@ function AnalyticsView() {
         </div>
       </div>
 
-      {/* Row 3 — Announcements + (Leave Overview + Late Check-In) */}
+      {/* Row 3 — Announcements + Leave Overview + Late Check-In */}
       <div style={{ display: "grid", gridTemplateColumns: "1.6fr 1fr", gap: 16 }}>
 
         {/* Announcements */}
@@ -499,7 +375,7 @@ function AnalyticsView() {
             </div>
             <button style={{
               fontSize: 12, fontWeight: 600, color: "#3b82f6", background: "#eff6ff",
-              border: "1px solid #dbeafe", padding: "7px 14px", borderRadius: 10,
+              border: "1px solid #dbeafe", padding: "7px 14px", borderRadius: 10, cursor: "pointer",
             }}>Post New</button>
           </div>
           <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
@@ -526,7 +402,7 @@ function AnalyticsView() {
           </div>
           <button style={{
             width: "100%", marginTop: 12, padding: "10px 0", fontSize: 12, fontWeight: 500,
-            color: "#94a3b8", background: "transparent", border: "1px solid #f1f5f9", borderRadius: 10,
+            color: "#94a3b8", background: "transparent", border: "1px solid #f1f5f9", borderRadius: 10, cursor: "pointer",
           }}>View all announcements</button>
         </div>
 
@@ -595,7 +471,7 @@ function AnalyticsView() {
               </div>
             ) : (
               <div style={{ display: "flex", flexDirection: "column", gap: 8, maxHeight: 200, overflowY: "auto" }}>
-                {lateList.map((emp, idx) => (
+                {lateEmployees.map((emp, idx) => (
                   <div key={idx} style={{
                     display: "flex", alignItems: "center", justifyContent: "space-between",
                     padding: "9px 12px", borderRadius: 10, background: "#fef2f2", border: "1px solid #fecaca",
@@ -633,19 +509,17 @@ function AnalyticsView() {
 ══════════════════════════════════════════════ */
 function AttendanceView() {
   const dispatch = useDispatch();
-  const { dashboardData } = useSelector(
+  const [searchTerm, setSearchTerm] = useState("");
+  const [statusFilter, setStatusFilter] = useState("All");
+  const [deptFilter, setDeptFilter] = useState("All");
+
+  const { attendanceData, dashboardData } = useSelector(
     (state) => state.superAdmin?.dashboard
   ) || {};
 
   useEffect(() => {
-    dispatch(superAdminDashboardThunk.getDashboardDataThunk())
-      .unwrap()
-      .then((res) => {
-        // console.log("Analytics dashboard data:", res);
-      })
-      .catch((err) => {
-        // console.log("Error:", err);
-      });
+    dispatch(superAdminDashboardThunk.getDashboardDataThunk()).unwrap().catch(() => { });
+    dispatch(superAdminDashboardThunk.getAttendanceDataThunk()).unwrap().catch(() => { });
   }, [dispatch]);
 
   const overview = attendanceData?.overview || {};
@@ -656,7 +530,6 @@ function AttendanceView() {
     ...(dashboardData?.departmentHeadcount?.map((d) => d.department) || []),
   ], [dashboardData]);
 
-  /* Absent-by-dept breakdown (derived) */
   const absentByDept = useMemo(() => {
     const map = {};
     roster.forEach((e) => {
@@ -744,7 +617,7 @@ function AttendanceView() {
           {absentByDept.length === 0 ? (
             <div style={{ textAlign: "center", padding: "24px 0" }}>
               <p style={{ fontSize: 13, fontWeight: 600, color: "#10b981" }}>No absences recorded</p>
-              <p style={{ fontSize: 11, color: "#94a3b8", marginTop: 4 }}>Full attendance today </p>
+              <p style={{ fontSize: 11, color: "#94a3b8", marginTop: 4 }}>Full attendance today</p>
             </div>
           ) : (
             <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
@@ -812,6 +685,7 @@ function AttendanceView() {
                   background: statusFilter === t.key ? "#3b82f6" : "#f8fafc",
                   color: statusFilter === t.key ? "#fff" : "#94a3b8",
                   transition: "all 0.15s",
+                  cursor: "pointer",
                 }}>{t.label}</button>
             ))}
           </div>
