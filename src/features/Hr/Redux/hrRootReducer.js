@@ -15,6 +15,10 @@ import hrRequestTimeOffReducer from "./slices/HrRequestTimeOffSlice";
 import hrSalaryCreationReducer from "./slices/HrSalaryCreationSlice";
 import hrTimeSheetReducer from "./slices/HrTimeSheetSlice";
 import hrViewMyProfileReducer from "./slices/HrViewMyProfileSlice";
+import hrAnnouncementsReducer from "./slices/HrAnnouncementsSlice";
+import hrCalenderReducer from "./slices/HrCalenderSlice";
+import hrSalStatusReducer from "./slices/HrSalStatusSlice";
+import hrOurOrganizationReducer from "./slices/HrOurOrganizationSlice";
 
 const hrRootReducer = combineReducers({
     clockMyTime: hrClockMyTimeReducer,
@@ -32,6 +36,10 @@ const hrRootReducer = combineReducers({
     salaryCreation: hrSalaryCreationReducer,
     timesheet: hrTimeSheetReducer,
     viewMyProfile: hrViewMyProfileReducer,
+    announcements: hrAnnouncementsReducer,
+    calender: hrCalenderReducer,
+    salStatus: hrSalStatusReducer,
+    ourOrganization: hrOurOrganizationReducer,
 });
 
 export default hrRootReducer;
